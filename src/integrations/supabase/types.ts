@@ -14,7 +14,147 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      awards: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          selection_level: string | null
+          title: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          selection_level?: string | null
+          title: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          selection_level?: string | null
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      extracurriculars: {
+        Row: {
+          category: string | null
+          created_at: string
+          description: string | null
+          hours_per_week: number | null
+          id: string
+          leadership_role: string | null
+          name: string
+          user_id: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          hours_per_week?: number | null
+          id?: string
+          leadership_role?: string | null
+          name: string
+          user_id: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          hours_per_week?: number | null
+          id?: string
+          leadership_role?: string | null
+          name?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          act_score: number | null
+          ap_count: number | null
+          class_rank: string | null
+          created_at: string
+          full_name: string | null
+          gpa_unweighted: number | null
+          gpa_weighted: number | null
+          graduation_year: number | null
+          honors_count: number | null
+          ib_count: number | null
+          id: string
+          intended_majors: string | null
+          region: string | null
+          sat_score: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          act_score?: number | null
+          ap_count?: number | null
+          class_rank?: string | null
+          created_at?: string
+          full_name?: string | null
+          gpa_unweighted?: number | null
+          gpa_weighted?: number | null
+          graduation_year?: number | null
+          honors_count?: number | null
+          ib_count?: number | null
+          id?: string
+          intended_majors?: string | null
+          region?: string | null
+          sat_score?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          act_score?: number | null
+          ap_count?: number | null
+          class_rank?: string | null
+          created_at?: string
+          full_name?: string | null
+          gpa_unweighted?: number | null
+          gpa_weighted?: number | null
+          graduation_year?: number | null
+          honors_count?: number | null
+          ib_count?: number | null
+          id?: string
+          intended_majors?: string | null
+          region?: string | null
+          sat_score?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      reports: {
+        Row: {
+          completed_steps: Json | null
+          created_at: string
+          id: string
+          payload: Json
+          user_id: string
+        }
+        Insert: {
+          completed_steps?: Json | null
+          created_at?: string
+          id?: string
+          payload: Json
+          user_id: string
+        }
+        Update: {
+          completed_steps?: Json | null
+          created_at?: string
+          id?: string
+          payload?: Json
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
