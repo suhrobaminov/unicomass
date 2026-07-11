@@ -54,7 +54,21 @@ export function ProfileWizard() {
         supabase.from("extracurriculars").select("*").eq("user_id", userData.user.id).order("created_at"),
         supabase.from("awards").select("*").eq("user_id", userData.user.id).order("created_at"),
       ]);
-      if (p) setProfile({ ...EMPTY_PROFILE, ...p });
+      if (p) setProfile({
+        ...EMPTY_PROFILE,
+        full_name: p.full_name ?? "",
+        region: p.region ?? "",
+        intended_majors: p.intended_majors ?? "",
+        graduation_year: p.graduation_year,
+        gpa_unweighted: p.gpa_unweighted != null ? Number(p.gpa_unweighted) : null,
+        gpa_weighted: p.gpa_weighted != null ? Number(p.gpa_weighted) : null,
+        class_rank: p.class_rank ?? "",
+        sat_score: p.sat_score,
+        act_score: p.act_score,
+        ap_count: p.ap_count ?? 0,
+        ib_count: p.ib_count ?? 0,
+        honors_count: p.honors_count ?? 0,
+      });
       if (e) setEcs(e as EC[]);
       if (a) setAwards(a as Award[]);
       setLoading(false);
