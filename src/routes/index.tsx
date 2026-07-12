@@ -31,6 +31,12 @@ function Nav() {
           <span className="font-display text-xl font-semibold">youradviser</span>
         </Link>
         <nav className="flex items-center gap-2">
+          <a href="#community" className="hidden sm:inline-flex"><Button variant="ghost" size="sm">Community</Button></a>
+          <DonateDialog>
+            <Button variant="ghost" size="sm" className="text-accent hover:text-accent">
+              <Heart className="h-4 w-4 mr-1.5" />Donate
+            </Button>
+          </DonateDialog>
           <Link to="/auth"><Button variant="ghost" size="sm">Sign in</Button></Link>
           <Link to="/dashboard"><Button size="sm">Get started</Button></Link>
         </nav>
