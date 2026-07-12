@@ -135,10 +135,18 @@ function CTA() {
 
 function Footer() {
   return (
-    <footer className="border-t border-border/60 py-8">
-      <div className="mx-auto max-w-6xl px-6 text-sm text-muted-foreground flex justify-between">
+    <footer className="border-t border-border/60 py-10">
+      <div className="mx-auto max-w-6xl px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
         <span>© {new Date().getFullYear()} youradviser</span>
-        <span>Built for ambitious students.</span>
+        <div className="flex items-center gap-4">
+          <a href="#community" className="hover:text-foreground">Community</a>
+          <DonateDialog>
+            <button className="inline-flex items-center gap-1.5 text-accent hover:opacity-80">
+              <Heart className="h-3.5 w-3.5" /> Support us
+            </button>
+          </DonateDialog>
+          <span>Built for ambitious students.</span>
+        </div>
       </div>
     </footer>
   );
