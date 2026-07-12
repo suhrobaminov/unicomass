@@ -15,6 +15,7 @@ function Landing() {
       <Hero />
       <Features />
       <HowItWorks />
+      <CommunityFeedback />
       <CTA />
       <Footer />
     </div>
