@@ -1,8 +1,9 @@
 import { createFileRoute, Outlet, redirect, Link, useNavigate } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { LogOut } from "lucide-react";
+import { LogOut, Heart } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
+import { DonateDialog } from "@/components/donate-dialog";
 
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
@@ -32,7 +33,10 @@ function AuthedLayout() {
             <div className="h-8 w-8 rounded-lg bg-primary text-primary-foreground grid place-items-center font-display font-bold">y</div>
             <span className="font-display text-xl font-semibold">youradviser</span>
           </Link>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            <DonateDialog>
+              <Button variant="ghost" size="sm" className="text-accent hover:text-accent"><Heart className="h-4 w-4 mr-1.5" />Donate</Button>
+            </DonateDialog>
             <span className="text-sm text-muted-foreground hidden sm:inline">{user.email}</span>
             <Button variant="ghost" size="sm" onClick={signOut}><LogOut className="h-4 w-4 mr-2" />Sign out</Button>
           </div>

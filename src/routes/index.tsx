@@ -1,6 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
-import { Sparkles, Target, GraduationCap, ListChecks, ArrowRight, ShieldCheck } from "lucide-react";
+import { Sparkles, Target, GraduationCap, ListChecks, ArrowRight, ShieldCheck, Heart } from "lucide-react";
+import { CommunityFeedback } from "@/components/community-feedback";
+import { DonateDialog } from "@/components/donate-dialog";
 
 export const Route = createFileRoute("/")({
   component: Landing,
@@ -13,6 +15,7 @@ function Landing() {
       <Hero />
       <Features />
       <HowItWorks />
+      <CommunityFeedback />
       <CTA />
       <Footer />
     </div>
@@ -28,6 +31,12 @@ function Nav() {
           <span className="font-display text-xl font-semibold">youradviser</span>
         </Link>
         <nav className="flex items-center gap-2">
+          <a href="#community" className="hidden sm:inline-flex"><Button variant="ghost" size="sm">Community</Button></a>
+          <DonateDialog>
+            <Button variant="ghost" size="sm" className="text-accent hover:text-accent">
+              <Heart className="h-4 w-4 mr-1.5" />Donate
+            </Button>
+          </DonateDialog>
           <Link to="/auth"><Button variant="ghost" size="sm">Sign in</Button></Link>
           <Link to="/dashboard"><Button size="sm">Get started</Button></Link>
         </nav>
@@ -126,10 +135,18 @@ function CTA() {
 
 function Footer() {
   return (
-    <footer className="border-t border-border/60 py-8">
-      <div className="mx-auto max-w-6xl px-6 text-sm text-muted-foreground flex justify-between">
+    <footer className="border-t border-border/60 py-10">
+      <div className="mx-auto max-w-6xl px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
         <span>© {new Date().getFullYear()} youradviser</span>
-        <span>Built for ambitious students.</span>
+        <div className="flex items-center gap-4">
+          <a href="#community" className="hover:text-foreground">Community</a>
+          <DonateDialog>
+            <button className="inline-flex items-center gap-1.5 text-accent hover:opacity-80">
+              <Heart className="h-3.5 w-3.5" /> Support us
+            </button>
+          </DonateDialog>
+          <span>Built for ambitious students.</span>
+        </div>
       </div>
     </footer>
   );
