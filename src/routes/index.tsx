@@ -1,6 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
-import { Sparkles, Target, GraduationCap, ListChecks, ArrowRight, ShieldCheck } from "lucide-react";
+import { Sparkles, Target, GraduationCap, ListChecks, ArrowRight, ShieldCheck, Heart } from "lucide-react";
+import { CommunityFeedback } from "@/components/community-feedback";
+import { DonateDialog } from "@/components/donate-dialog";
 
 export const Route = createFileRoute("/")({
   component: Landing,
