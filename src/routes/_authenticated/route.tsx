@@ -1,8 +1,9 @@
 import { createFileRoute, Outlet, redirect, Link, useNavigate } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { LogOut } from "lucide-react";
+import { LogOut, Heart } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
+import { DonateDialog } from "@/components/donate-dialog";
 
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
