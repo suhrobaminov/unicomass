@@ -32,6 +32,7 @@ function Nav() {
         </Link>
         <nav className="flex items-center gap-2">
           <a href="#community" className="hidden sm:inline-flex"><Button variant="ghost" size="sm">Community</Button></a>
+          <Link to="/find-your-major" className="hidden sm:inline-flex"><Button variant="ghost" size="sm"><Sparkles className="h-4 w-4 mr-1.5" />Find Your Major</Button></Link>
           <DonateDialog>
             <Button variant="ghost" size="sm" className="text-accent hover:text-accent">
               <Heart className="h-4 w-4 mr-1.5" />Donate

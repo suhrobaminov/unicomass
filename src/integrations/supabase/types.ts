@@ -101,6 +101,39 @@ export type Database = {
         }
         Relationships: []
       }
+      major_assessments: {
+        Row: {
+          answers: Json
+          created_at: string
+          id: string
+          results: Json | null
+          status: string
+          trait_scores: Json | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          answers?: Json
+          created_at?: string
+          id?: string
+          results?: Json | null
+          status?: string
+          trait_scores?: Json | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          answers?: Json
+          created_at?: string
+          id?: string
+          results?: Json | null
+          status?: string
+          trait_scores?: Json | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           act_score: number | null
