@@ -1,7 +1,7 @@
 import { createFileRoute, Outlet, redirect, Link, useNavigate } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { LogOut, Heart } from "lucide-react";
+import { LogOut, Heart, Compass } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { DonateDialog } from "@/components/donate-dialog";
 
@@ -34,6 +34,9 @@ function AuthedLayout() {
             <span className="font-display text-xl font-semibold">youradviser</span>
           </Link>
           <div className="flex items-center gap-2">
+            <Link to="/find-your-major" className="hidden sm:inline-flex">
+              <Button variant="ghost" size="sm"><Compass className="h-4 w-4 mr-1.5" />Find Your Major</Button>
+            </Link>
             <DonateDialog>
               <Button variant="ghost" size="sm" className="text-accent hover:text-accent"><Heart className="h-4 w-4 mr-1.5" />Donate</Button>
             </DonateDialog>
