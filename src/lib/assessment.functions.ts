@@ -91,9 +91,9 @@ export const finalizeAssessment = createServerFn({ method: "POST" })
     const { supabase, userId } = context;
     const payload = {
       user_id: userId,
-      answers: data.answers,
-      trait_scores: data.trait_scores,
-      results: data.results,
+      answers: data.answers as never,
+      trait_scores: data.trait_scores as never,
+      results: data.results as never,
       status: "completed" as const,
     };
     if (data.id) {
