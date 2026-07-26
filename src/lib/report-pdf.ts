@@ -14,6 +14,8 @@ const MUTED = [110, 116, 128] as const;
 const RULE = [222, 224, 230] as const;
 const ACCENT = [79, 70, 229] as const;
 
+const clean = (t: string) => t.replace(/[*_`#]/g, "").replace(/\s+/g, " ").trim();
+
 const PAGE_W = 595.28; // A4 pt
 const PAGE_H = 841.89;
 const M = 56;
@@ -115,7 +117,7 @@ export function generateAssessmentPdf(data: PdfReportData, meta: { name?: string
   }
 
   y += 12;
-  body(data.narrative, 10.5, INK);
+  body(clean(data.narrative), 10.5, INK);
   y += 6;
 
   // ---------- Summary strip ----------
