@@ -159,11 +159,12 @@ export function generateAssessmentPdf(data: PdfReportData, meta: { name?: string
     doc.text(r.major.category, M, y);
     y += 11;
     // bar
-    doc.setFillColor(238, 239, 243);
-    doc.rect(M, y, CONTENT_W, 3, "F");
+    const barW = 150;
+    doc.setFillColor(234, 235, 240);
+    doc.rect(M, y, barW, 2.5, "F");
     doc.setFillColor(ACCENT[0], ACCENT[1], ACCENT[2]);
-    doc.rect(M, y, (CONTENT_W * pct) / 100, 3, "F");
-    y += 22;
+    doc.rect(M, y, (barW * pct) / 100, 2.5, "F");
+    y += 20;
   });
 
   // ---------- Detail per major ----------
@@ -197,6 +198,7 @@ export function generateAssessmentPdf(data: PdfReportData, meta: { name?: string
       ["Scholarships", m.scholarships],
     ];
     lists.forEach(([k, items]) => {
+      room(58);
       label(k);
       items.forEach((it) => body(`•  ${it}`, 9.5, INK, 8));
       y += 6;
