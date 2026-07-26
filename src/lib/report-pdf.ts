@@ -48,15 +48,15 @@ export function generateAssessmentPdf(data: PdfReportData, meta: { name?: string
   };
 
   const heading = (text: string) => {
-    room(46);
-    y += 10;
+    room(56);
+    y += 26;
     doc.setFont("helvetica", "bold").setFontSize(12);
     setInk(INK);
     doc.text(text.toUpperCase(), M, y);
     y += 8;
     doc.setDrawColor(RULE[0], RULE[1], RULE[2]).setLineWidth(0.5);
     doc.line(M, y, PAGE_W - M, y);
-    y += 18;
+    y += 22;
   };
 
   const body = (text: string, size = 10, color: readonly number[] = INK, indent = 0) => {
@@ -75,7 +75,7 @@ export function generateAssessmentPdf(data: PdfReportData, meta: { name?: string
     doc.setFont("helvetica", "bold").setFontSize(8.5);
     setInk(MUTED);
     doc.text(text.toUpperCase(), M, y);
-    y += 13;
+    y += 16;
   };
 
   // ---------- Cover header ----------
@@ -157,13 +157,13 @@ export function generateAssessmentPdf(data: PdfReportData, meta: { name?: string
     doc.setFont("helvetica", "normal").setFontSize(9);
     setInk(MUTED);
     doc.text(r.major.category, M, y);
-    y += 8;
+    y += 11;
     // bar
     doc.setFillColor(238, 239, 243);
     doc.rect(M, y, CONTENT_W, 3, "F");
     doc.setFillColor(ACCENT[0], ACCENT[1], ACCENT[2]);
     doc.rect(M, y, (CONTENT_W * pct) / 100, 3, "F");
-    y += 18;
+    y += 22;
   });
 
   // ---------- Detail per major ----------
