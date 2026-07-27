@@ -20,9 +20,9 @@ import { generateAssessmentPdf } from "@/lib/report-pdf";
 export const Route = createFileRoute("/_authenticated/find-your-major")({
   head: () => ({
     meta: [
-      { title: "Find Your Major — youradviser" },
+      { title: "Find Your Major — UniCompass" },
       { name: "description", content: "A 30-question assessment that recommends the university majors that fit you best." },
-      { property: "og:title", content: "Find Your Major — youradviser" },
+      { property: "og:title", content: "Find Your Major — UniCompass" },
       { property: "og:description", content: "Answer 30 questions and get a ranked, evidence-based shortlist of university majors." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

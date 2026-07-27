@@ -31,7 +31,7 @@ function AuthedLayout() {
         <div className="mx-auto max-w-6xl px-6 py-4 flex items-center justify-between">
           <Link to="/dashboard" className="flex items-center gap-2">
             <div className="h-8 w-8 rounded-lg bg-primary text-primary-foreground grid place-items-center font-display font-bold">y</div>
-            <span className="font-display text-xl font-semibold">youradviser</span>
+            <span className="font-display text-xl font-semibold">UniCompass</span>
           </Link>
           <div className="flex items-center gap-2">
             <Link to="/find-your-major" className="hidden sm:inline-flex">

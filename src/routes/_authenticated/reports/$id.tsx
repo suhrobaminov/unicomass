@@ -18,7 +18,7 @@ type Report = {
 };
 
 export const Route = createFileRoute("/_authenticated/reports/$id")({
-  head: () => ({ meta: [{ title: "Strategy Report — youradviser" }] }),
+  head: () => ({ meta: [{ title: "Strategy Report — UniCompass" }] }),
   component: ReportView,
   notFoundComponent: () => <div className="p-10 text-center">Report not found.</div>,
 });

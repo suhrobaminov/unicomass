@@ -78,7 +78,7 @@ export function DonateDialog({ children }: { children: ReactNode }) {
           <>
             <DialogHeader>
               <DialogTitle className="font-display text-2xl flex items-center gap-2">
-                <Heart className="h-5 w-5 text-accent" /> Support youradviser
+                <Heart className="h-5 w-5 text-accent" /> Support UniCompass
               </DialogTitle>
               <DialogDescription>
                 Your donation keeps profile analyses free for students who need them most.
@@ -184,7 +184,7 @@ export function DonateDialog({ children }: { children: ReactNode }) {
             <div className="mx-auto h-16 w-16 rounded-full bg-primary/10 grid place-items-center animate-in zoom-in duration-500">
               <CheckCircle2 className="h-10 w-10 text-primary" />
             </div>
-            <h3 className="mt-5 font-display text-2xl font-semibold">Thank you for supporting youradviser! 🎉</h3>
+            <h3 className="mt-5 font-display text-2xl font-semibold">Thank you for supporting UniCompass! 🎉</h3>
             <p className="mt-2 text-sm text-muted-foreground">
               Your ${finalAmount} donation helps us reach more students with world-class admissions guidance.
             </p>
