@@ -11,11 +11,12 @@ import { lovable } from "@/integrations/lovable";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({ meta: [{ title: "Sign in — UniCompass" }] }),
-  validateSearch: (s: Record<string, unknown>) => ({
-    next: typeof s.next === "string" && s.next.startsWith("/") && !s.next.startsWith("//")
+  validateSearch: (s: Record<string, unknown>): { next?: string } => {
+    const next = typeof s.next === "string" && s.next.startsWith("/") && !s.next.startsWith("//")
       ? s.next
-      : undefined,
-  }),
+      : undefined;
+    return next ? { next } : {};
+  },
   component: AuthPage,
 });
 
