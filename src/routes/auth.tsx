@@ -11,32 +11,46 @@ import { lovable } from "@/integrations/lovable";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({ meta: [{ title: "Sign in — UniCompass" }] }),
+  validateSearch: (s: Record<string, unknown>): { next?: string } => {
+    const next = typeof s.next === "string" && s.next.startsWith("/") && !s.next.startsWith("//")
+      ? s.next
+      : undefined;
+    return next ? { next } : {};
+  },
   component: AuthPage,
 });
 
 function AuthPage() {
   const navigate = useNavigate();
+  const { next } = Route.useSearch();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const goNext = () => {
+    if (next) window.location.href = next;
+    else navigate({ to: "/dashboard" });
+  };
+
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
-      if (data.session) navigate({ to: "/dashboard" });
+      if (data.session) goNext();
     });
-  }, [navigate]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [navigate, next]);
 
   const handleAuth = async (mode: "signin" | "signup") => {
     setLoading(true);
     try {
+      const returnTo = next ? window.location.origin + next : window.location.origin;
       const fn = mode === "signin" ? supabase.auth.signInWithPassword : supabase.auth.signUp;
       const args = mode === "signup"
-        ? { email, password, options: { emailRedirectTo: window.location.origin } }
+        ? { email, password, options: { emailRedirectTo: returnTo } }
         : { email, password };
       const { error } = await fn(args as never);
       if (error) throw error;
       toast.success(mode === "signup" ? "Account created — check your email if confirmation is required." : "Welcome back");
-      navigate({ to: "/dashboard" });
+      goNext();
     } catch (e) {
       toast.error((e as Error).message);
     } finally { setLoading(false); }
@@ -44,10 +58,11 @@ function AuthPage() {
 
   const handleGoogle = async () => {
     try {
-      const result = await lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin });
+      const redirect_uri = next ? window.location.origin + next : window.location.origin;
+      const result = await lovable.auth.signInWithOAuth("google", { redirect_uri });
       if (result.error) throw new Error(result.error.message || "Google sign-in failed");
       if (result.redirected) return;
-      navigate({ to: "/dashboard" });
+      goNext();
     } catch (e) { toast.error((e as Error).message); }
   };
 

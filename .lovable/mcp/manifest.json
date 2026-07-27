@@ -1,0 +1,106 @@
+{
+  "version": 1,
+  "sdk_version": "0.24.0",
+  "path": "/mcp",
+  "auth": {
+    "type": "oauth",
+    "issuer": "https://jqbygfvhcicewlvimgiq.supabase.co/auth/v1",
+    "accepted_audiences": [
+      "authenticated"
+    ]
+  },
+  "mcp": {
+    "server": {
+      "name": "unicompass-mcp",
+      "version": "0.1.0",
+      "title": "UniCompass"
+    },
+    "tools": [
+      {
+        "name": "get_admissions_profile",
+        "title": "Get admissions profile",
+        "description": "Read the signed-in student's UniCompass admissions profile: academics (GPA, SAT/ACT, course rigor), graduation year, region and intended majors.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {}
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_activities",
+        "title": "List activities and awards",
+        "description": "List the signed-in student's extracurricular activities and honors/awards recorded in UniCompass.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {}
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_strategy_reports",
+        "title": "List strategy reports",
+        "description": "List the signed-in student's generated admissions strategy reports, newest first, with id, creation date and profile strength score.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {}
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_strategy_report",
+        "title": "Get strategy report",
+        "description": "Read one full UniCompass admissions strategy report by id: profile strength score, reach/target/safety universities, profile gaps and next steps. Omit the id to get the most recent report.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "report_id": {
+              "description": "Report id from list_strategy_reports. Omit for the latest report.",
+              "type": "string"
+            }
+          }
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_major_assessment",
+        "title": "Get major assessment results",
+        "description": "Read the signed-in student's latest completed 'Find Your Major' assessment: trait scores, top recommended majors and the persona summary.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {}
+        },
+        "outputSchema": null
+      }
+    ]
+  }
+}
