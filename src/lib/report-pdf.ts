@@ -34,7 +34,7 @@ export function generateAssessmentPdf(data: PdfReportData, meta: { name?: string
     doc.line(M, PAGE_H - 52, PAGE_W - M, PAGE_H - 52);
     doc.setFont("helvetica", "normal").setFontSize(8);
     setInk(MUTED);
-    doc.text("youradviser — Major Assessment Report", M, PAGE_H - 38);
+    doc.text("UniCompass — Major Assessment Report", M, PAGE_H - 38);
     doc.text(`Page ${page}`, PAGE_W - M, PAGE_H - 38, { align: "right" });
   };
 
@@ -84,7 +84,7 @@ export function generateAssessmentPdf(data: PdfReportData, meta: { name?: string
   y = M;
   doc.setFont("helvetica", "bold").setFontSize(9);
   setInk(ACCENT);
-  doc.text("YOURADVISER", M, y);
+  doc.text("UNICOMPASS", M, y);
   doc.setFont("helvetica", "normal").setFontSize(9);
   setInk(MUTED);
   doc.text(
@@ -227,5 +227,5 @@ export function generateAssessmentPdf(data: PdfReportData, meta: { name?: string
   footer();
 
   const stamp = meta.date.toISOString().slice(0, 10);
-  doc.save(`youradviser-major-report-${stamp}.pdf`);
+  doc.save(`unicompass-major-report-${stamp}.pdf`);
 }

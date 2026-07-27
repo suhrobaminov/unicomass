@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Compass, ArrowRight } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
-  head: () => ({ meta: [{ title: "Dashboard — youradviser" }] }),
+  head: () => ({ meta: [{ title: "Dashboard — UniCompass" }] }),
   component: Dashboard,
 });
 

@@ -135,7 +135,7 @@ export function CommunityFeedback() {
                     <Textarea
                       value={body}
                       onChange={(e) => setBody(e.target.value)}
-                      placeholder="How did youradviser help you?"
+                      placeholder="How did UniCompass help you?"
                       rows={4}
                       maxLength={1000}
                       required
