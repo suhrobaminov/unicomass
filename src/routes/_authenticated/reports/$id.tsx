@@ -18,7 +18,17 @@ type Report = {
 };
 
 export const Route = createFileRoute("/_authenticated/reports/$id")({
-  head: () => ({ meta: [{ title: "Strategy Report — UniCompass" }] }),
+  head: () => ({
+    meta: [
+      { title: "Strategy Report — UniCompass" },
+      { name: "description", content: "Your personalized admissions strategy report: reach, target and safety schools with a roadmap." },
+      { property: "og:title", content: "Strategy Report — UniCompass" },
+      { property: "og:description", content: "Reach, target and safety schools with profile gaps and an actionable roadmap." },
+      { property: "og:type", content: "article" },
+      { name: "twitter:card", content: "summary" },
+      { name: "robots", content: "noindex, nofollow" },
+    ],
+  }),
   component: ReportView,
   notFoundComponent: () => <div className="p-10 text-center">Report not found.</div>,
 });

@@ -15,7 +15,6 @@ import {
 import {
   finalizeAssessment, generateMajorInsight, upsertAssessment,
 } from "@/lib/assessment.functions";
-import { generateAssessmentPdf } from "@/lib/report-pdf";
 
 export const Route = createFileRoute("/_authenticated/find-your-major")({
   head: () => ({
@@ -26,6 +25,7 @@ export const Route = createFileRoute("/_authenticated/find-your-major")({
       { property: "og:description", content: "Answer 30 questions and get a ranked, evidence-based shortlist of university majors." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
+      { name: "robots", content: "noindex, nofollow" },
     ],
   }),
   component: FindYourMajorPage,
@@ -352,6 +352,7 @@ function Results({ data, onRetake }: { data: ResultsPayload; onRetake: () => voi
   const download = async () => {
     setExporting(true);
     try {
+      const { generateAssessmentPdf } = await import("@/lib/report-pdf");
       generateAssessmentPdf(data, { date });
       toast.success("Report downloaded");
     } catch (e) {

@@ -31,7 +31,25 @@ export const Route = createFileRoute("/")({
           "One profile, smarter decisions: university matches, major assessment, scholarships and an application roadmap.",
       },
       { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://youradviser.lovable.app/" },
       { name: "twitter:card", content: "summary_large_image" },
+    ],
+    links: [
+      { rel: "canonical", href: "https://youradviser.lovable.app/" },
+      { rel: "preload", as: "image", href: heroStudents, fetchpriority: "high" },
+    ],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          name: "UniCompass",
+          url: "https://youradviser.lovable.app/",
+          description:
+            "Personalized university recommendations, major assessment and an application roadmap for high school students.",
+        }),
+      },
     ],
   }),
   component: Landing,
@@ -175,6 +193,8 @@ function Hero() {
             <img
               src={heroStudents}
               alt="University students on campus reviewing their study plans"
+              fetchPriority="high"
+              decoding="async"
               width={1200}
               height={1408}
               className="h-[380px] w-full object-cover md:h-[520px]"

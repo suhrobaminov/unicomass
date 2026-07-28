@@ -6,7 +6,17 @@ import { Button } from "@/components/ui/button";
 import { Compass, ArrowRight } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
-  head: () => ({ meta: [{ title: "Dashboard — UniCompass" }] }),
+  head: () => ({
+    meta: [
+      { title: "Dashboard — UniCompass" },
+      { name: "description", content: "Your admissions profile, saved strategy reports and next steps." },
+      { property: "og:title", content: "Dashboard — UniCompass" },
+      { property: "og:description", content: "Your admissions profile, saved strategy reports and next steps." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+      { name: "robots", content: "noindex, nofollow" },
+    ],
+  }),
   component: Dashboard,
 });
 
