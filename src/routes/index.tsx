@@ -193,6 +193,8 @@ function Hero() {
             <img
               src={heroStudents}
               alt="University students on campus reviewing their study plans"
+              fetchPriority="high"
+              decoding="async"
               width={1200}
               height={1408}
               className="h-[380px] w-full object-cover md:h-[520px]"
