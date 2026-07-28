@@ -35,6 +35,8 @@ function friendlyError(message: string): string {
   if (m.includes("email not confirmed")) return "Please confirm your email address first — check your inbox.";
   if (m.includes("already registered") || m.includes("already been registered"))
     return "An account with that email already exists. Try signing in instead.";
+  if (m.includes("known to be weak") || m.includes("pwned"))
+    return "That password has appeared in a data breach. Please choose a stronger, unique one.";
   if (m.includes("password should be at least")) return "Your password needs to be at least 6 characters.";
   if (m.includes("rate limit") || m.includes("too many"))
     return "Too many attempts. Please wait a minute and try again.";
