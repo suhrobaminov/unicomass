@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Disallow: /auth
+Disallow: /reset-password
+Disallow: /dashboard
+Disallow: /find-your-major
+Disallow: /reports/
+
+Sitemap: https://unicomass.vercel.app/sitemap.xml
