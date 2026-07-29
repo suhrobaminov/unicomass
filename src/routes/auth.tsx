@@ -7,8 +7,10 @@ import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
+import { Loader2, MailCheck } from "lucide-react";
 import { lovable } from "@/integrations/lovable";
+import { ensureProfile } from "@/lib/profile.functions";
+import { NEXT_KEY, safeNext } from "@/lib/auth-next";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
@@ -19,10 +21,7 @@ export const Route = createFileRoute("/auth")({
     ],
   }),
   validateSearch: (s: Record<string, unknown>): { next?: string } => {
-    const next =
-      typeof s.next === "string" && s.next.startsWith("/") && !s.next.startsWith("//")
-        ? s.next
-        : undefined;
+    const next = safeNext(typeof s.next === "string" ? s.next : undefined);
     return next ? { next } : {};
   },
   component: AuthPage,
@@ -33,16 +32,29 @@ function friendlyError(message: string): string {
   const m = message.toLowerCase();
   if (m.includes("invalid login credentials")) return "That email and password don't match an account.";
   if (m.includes("email not confirmed")) return "Please confirm your email address first — check your inbox.";
-  if (m.includes("already registered") || m.includes("already been registered"))
+  if (m.includes("user not found")) return "We couldn't find an account with that email.";
+  if (m.includes("already registered") || m.includes("already been registered") || m.includes("user already"))
     return "An account with that email already exists. Try signing in instead.";
   if (m.includes("known to be weak") || m.includes("pwned"))
     return "That password has appeared in a data breach. Please choose a stronger, unique one.";
-  if (m.includes("password should be at least")) return "Your password needs to be at least 6 characters.";
-  if (m.includes("rate limit") || m.includes("too many"))
+  if (m.includes("password should be at least")) return "Your password needs to be at least 8 characters.";
+  if (m.includes("rate limit") || m.includes("too many") || m.includes("over_email_send"))
     return "Too many attempts. Please wait a minute and try again.";
-  if (m.includes("unable to validate email")) return "That email address doesn't look valid.";
-  if (m.includes("network") || m.includes("fetch")) return "Network problem — check your connection and try again.";
+  if (m.includes("unable to validate email") || m.includes("invalid email")) return "That email address doesn't look valid.";
+  if (m.includes("error sending") || m.includes("smtp") || m.includes("email delivery"))
+    return "We couldn't send the email right now. Please try again in a moment.";
+  if (m.includes("failed to fetch") || m.includes("network") || m.includes("networkerror"))
+    return "Network problem — check your connection and try again.";
   return message || "Something went wrong. Please try again.";
+}
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i;
+
+function passwordProblem(pw: string): string | null {
+  if (pw.length < 8) return "Use at least 8 characters.";
+  if (!/[a-z]/i.test(pw)) return "Include at least one letter.";
+  if (!/\d/.test(pw)) return "Include at least one number.";
+  return null;
 }
 
 type Mode = "signin" | "signup" | "forgot";
@@ -52,12 +64,26 @@ function AuthPage() {
   const { next } = Route.useSearch();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [pending, setPending] = useState<null | Mode | "google">(null);
+  const [pending, setPending] = useState<null | Mode | "google" | "resend">(null);
   const [checkingSession, setCheckingSession] = useState(true);
+  const [unverified, setUnverified] = useState<string | null>(null);
 
-  const goNext = () => {
-    if (next) navigate({ to: next, replace: true });
-    else navigate({ to: "/dashboard", replace: true });
+  const callbackUrl = () =>
+    typeof window === "undefined" ? "" : `${window.location.origin}/auth/callback`;
+
+  const rememberNext = () => {
+    if (typeof window === "undefined") return;
+    if (next) sessionStorage.setItem(NEXT_KEY, next);
+    else sessionStorage.removeItem(NEXT_KEY);
+  };
+
+  const goNext = async () => {
+    try {
+      await ensureProfile();
+    } catch {
+      // non-fatal
+    }
+    navigate({ to: next ?? "/dashboard", replace: true });
   };
 
   // Session persistence: if a session already exists (refresh, return visit), move on.
@@ -65,7 +91,7 @@ function AuthPage() {
     let active = true;
     supabase.auth.getSession().then(({ data }) => {
       if (!active) return;
-      if (data.session) goNext();
+      if (data.session) void goNext();
       else setCheckingSession(false);
     });
     return () => {
@@ -74,49 +100,74 @@ function AuthPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [next]);
 
-  const validate = (needsPassword: boolean) => {
-    if (!email.trim() || !email.includes("@")) {
+  const validEmail = () => {
+    if (!EMAIL_RE.test(email.trim())) {
       toast.error("Enter a valid email address.");
-      return false;
-    }
-    if (needsPassword && password.length < 6) {
-      toast.error("Your password needs to be at least 6 characters.");
       return false;
     }
     return true;
   };
 
   const handleSignIn = async () => {
-    if (!validate(true)) return;
+    if (!validEmail()) return;
+    if (!password) {
+      toast.error("Enter your password.");
+      return;
+    }
     setPending("signin");
+    setUnverified(null);
     try {
-      const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: email.trim(),
+        password,
+      });
       if (error) throw error;
+      // Block unverified accounts even if the project allows the session.
+      if (data.user && !data.user.email_confirmed_at) {
+        await supabase.auth.signOut();
+        setUnverified(email.trim());
+        toast.error("Please verify your email address before signing in.");
+        return;
+      }
       toast.success("Welcome back");
-      goNext();
+      await goNext();
     } catch (e) {
-      toast.error(friendlyError((e as Error).message));
+      const msg = (e as Error).message;
+      if (msg.toLowerCase().includes("email not confirmed")) setUnverified(email.trim());
+      toast.error(friendlyError(msg));
     } finally {
       setPending(null);
     }
   };
 
   const handleSignUp = async () => {
-    if (!validate(true)) return;
+    if (!validEmail()) return;
+    const problem = passwordProblem(password);
+    if (problem) {
+      toast.error(problem);
+      return;
+    }
     setPending("signup");
+    setUnverified(null);
     try {
-      const emailRedirectTo = window.location.origin + (next ?? "/dashboard");
+      rememberNext();
       const { data, error } = await supabase.auth.signUp({
         email: email.trim(),
         password,
-        options: { emailRedirectTo },
+        options: { emailRedirectTo: callbackUrl() },
       });
       if (error) throw error;
+      // Supabase returns an obfuscated user with no identities for existing emails.
+      if (data.user && Array.isArray(data.user.identities) && data.user.identities.length === 0) {
+        toast.error("An account with that email already exists. Try signing in instead.");
+        return;
+      }
       if (data.session) {
         toast.success("Account created");
-        goNext();
+        await goNext();
       } else {
-        toast.success("Account created — check your email to confirm your address.");
+        setUnverified(email.trim());
+        toast.success("Account created — check your inbox to verify your email address.");
       }
     } catch (e) {
       toast.error(friendlyError((e as Error).message));
@@ -125,8 +176,26 @@ function AuthPage() {
     }
   };
 
+  const handleResend = async () => {
+    if (!unverified) return;
+    setPending("resend");
+    try {
+      const { error } = await supabase.auth.resend({
+        type: "signup",
+        email: unverified,
+        options: { emailRedirectTo: callbackUrl() },
+      });
+      if (error) throw error;
+      toast.success("Verification email sent again — check your inbox and spam folder.");
+    } catch (e) {
+      toast.error(friendlyError((e as Error).message));
+    } finally {
+      setPending(null);
+    }
+  };
+
   const handleForgot = async () => {
-    if (!validate(false)) return;
+    if (!validEmail()) return;
     setPending("forgot");
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
@@ -144,12 +213,14 @@ function AuthPage() {
   const handleGoogle = async () => {
     setPending("google");
     try {
+      rememberNext();
+      // redirect_uri must be a public same-origin URL, never a protected route.
       const result = await lovable.auth.signInWithOAuth("google", {
-        redirect_uri: window.location.origin + (next ?? "/dashboard"),
+        redirect_uri: callbackUrl(),
       });
       if (result.error) throw new Error(result.error.message || "Google sign-in failed");
       if (result.redirected) return;
-      goNext();
+      await goNext();
     } catch (e) {
       toast.error(friendlyError((e as Error).message));
     } finally {
@@ -208,7 +279,7 @@ function AuthPage() {
                 onChange={setPassword}
                 disabled={busy}
                 autoComplete="new-password"
-                hint="At least 6 characters."
+                hint="At least 8 characters, including a letter and a number."
               />
               <Button className="w-full" onClick={handleSignUp} disabled={busy}>
                 {pending === "signup" && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
@@ -227,6 +298,22 @@ function AuthPage() {
               </Button>
             </TabsContent>
           </Tabs>
+
+          {unverified && (
+            <div className="mt-6 rounded-lg border border-border bg-muted/40 p-4">
+              <p className="flex items-start gap-2 text-sm text-muted-foreground">
+                <MailCheck className="h-4 w-4 mt-0.5 shrink-0 text-primary" />
+                <span>
+                  We sent a verification link to <strong className="text-foreground">{unverified}</strong>. Click it to
+                  activate your account, then sign in.
+                </span>
+              </p>
+              <Button variant="outline" size="sm" className="mt-3" onClick={handleResend} disabled={busy}>
+                {pending === "resend" && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+                Resend verification email
+              </Button>
+            </div>
+          )}
 
           <div className="relative my-6">
             <div className="absolute inset-0 flex items-center">
