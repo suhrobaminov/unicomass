@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { ensureProfile } from "@/lib/profile.functions";
 import { NEXT_KEY, safeNext } from "@/lib/auth-next";
 
-export const Route = createFileRoute("/auth/callback")({
+export const Route = createFileRoute("/auth_/callback")({
   ssr: false,
   head: () => ({
     meta: [
