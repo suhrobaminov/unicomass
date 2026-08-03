@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { DonateDialog } from "@/components/donate-dialog";
 import heroStudents from "@/assets/hero-students.jpg";
+import { absoluteUrl } from "@/lib/site";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -31,11 +32,11 @@ export const Route = createFileRoute("/")({
           "One profile, smarter decisions: university matches, major assessment, scholarships and an application roadmap.",
       },
       { property: "og:type", content: "website" },
-      { property: "og:url", content: "https://youradviser.lovable.app/" },
+      { property: "og:url", content: absoluteUrl("/") },
       { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [
-      { rel: "canonical", href: "https://youradviser.lovable.app/" },
+      { rel: "canonical", href: absoluteUrl("/") },
       { rel: "preload", as: "image", href: heroStudents, fetchpriority: "high" },
     ],
     scripts: [
@@ -45,7 +46,7 @@ export const Route = createFileRoute("/")({
           "@context": "https://schema.org",
           "@type": "WebSite",
           name: "UniCompass",
-          url: "https://youradviser.lovable.app/",
+          url: absoluteUrl("/"),
           description:
             "Personalized university recommendations, major assessment and an application roadmap for high school students.",
         }),
