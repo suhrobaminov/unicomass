@@ -16,35 +16,14 @@ export const generateMajorInsight = createServerFn({ method: "POST" })
     return data;
   })
   .handler(async ({ data }) => {
-    const apiKey = process.env.LOVABLE_API_KEY;
-    if (!apiKey) throw new Error("AI service not configured.");
-
-    const prompt = `You are a warm, insightful career coach. Write a 3-4 sentence personalized narrative (2nd person) for a student.
-
-Profile: ${data.profileLabel}
-Top traits (0-1 strength): ${data.topTraits.map(([k, v]) => `${k}:${v.toFixed(2)}`).join(", ")}
-Top matched majors: ${data.topMajors.map((m) => `${m.name} (${Math.round(m.score * 100)}%)`).join(", ")}
-
-Explain what these signals reveal about how they think and what environments will let them thrive. Do NOT list majors — refer to them collectively. Be specific, warm, and confidence-building. Return plain text only, no headings or bullets.`;
-
-    const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
-      body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
-        messages: [{ role: "user", content: prompt }],
-      }),
+    const { openaiChat, buildMajorInsightPrompt } = await import("@/lib/openai.server");
+    const narrative = await openaiChat({
+      messages: [{ role: "user", content: buildMajorInsightPrompt(data) }],
+      temperature: 0.7,
     });
-
-    if (!res.ok) {
-      if (res.status === 429) throw new Error("AI is busy right now. Please try again in a moment.");
-      if (res.status === 402) throw new Error("AI credits exhausted. Please add credits in workspace settings.");
-      throw new Error(`AI error: ${(await res.text()).slice(0, 200)}`);
-    }
-    const json = await res.json();
-    const text: string = json.choices?.[0]?.message?.content?.trim() ?? "";
-    return { narrative: text };
+    return { narrative };
   });
+
 
 // Save an in-progress assessment (autosave).
 export const upsertAssessment = createServerFn({ method: "POST" })
