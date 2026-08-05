@@ -21,7 +21,7 @@ export default defineConfig({
       // (our SSR error-recovery wrapper around the generated handler).
       server: { entry: "server" },
     }),
-    nitro({ preset: "vercel", prerender: { routes: ["/"], crawlLinks: false } }),
+    nitro({ preset: "vercel" }),
     // React's Vite plugin must come after TanStack Start's.
     viteReact(),
   ],
