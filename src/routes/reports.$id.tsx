@@ -17,7 +17,7 @@ type Report = {
   actionable_next_steps: string[];
 };
 
-export const Route = createFileRoute("/_authenticated/reports/$id")({
+export const Route = createFileRoute("/reports/$id")({
   head: () => ({
     meta: [
       { title: "Strategy Report — UniCompass" },

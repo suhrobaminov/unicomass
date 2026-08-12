@@ -16,7 +16,7 @@ import {
   finalizeAssessment, generateMajorInsight, upsertAssessment,
 } from "@/lib/assessment.functions";
 
-export const Route = createFileRoute("/_authenticated/find-your-major")({
+export const Route = createFileRoute("/find-your-major")({
   head: () => ({
     meta: [
       { title: "Find Your Major — UniCompass" },
