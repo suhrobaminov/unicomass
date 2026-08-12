@@ -190,13 +190,14 @@ function FindYourMajorPage() {
           onRetake={() => {
             setResults(null);
             setAnswers({});
-            setAssessmentId(undefined);
+            saveAssessment({ answers: {}, completed: false, results: null });
             setCurrent(0);
             setStage("welcome");
           }}
         />
       )}
     </div>
+    </>
   );
 }
 
