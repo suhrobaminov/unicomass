@@ -4,6 +4,7 @@ import { ProfileWizard } from "@/components/profile-wizard";
 import { ReportsList } from "@/components/reports-list";
 import { Button } from "@/components/ui/button";
 import { Compass, ArrowRight } from "lucide-react";
+import { AppHeader } from "@/components/app-header";
 
 export const Route = createFileRoute("/dashboard")({
   head: () => ({
