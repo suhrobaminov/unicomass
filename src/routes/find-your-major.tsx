@@ -44,36 +44,23 @@ function FindYourMajorPage() {
   const [stage, setStage] = useState<Stage>("welcome");
   const [answers, setAnswers] = useState<AnswerMap>({});
   const [current, setCurrent] = useState(0);
-  const [assessmentId, setAssessmentId] = useState<string | undefined>();
   const [results, setResults] = useState<ResultsPayload | null>(null);
   const [loadingResume, setLoadingResume] = useState(true);
 
-  const upsert = useServerFn(upsertAssessment);
-  const finalize = useServerFn(finalizeAssessment);
   const insight = useServerFn(generateMajorInsight);
 
   useEffect(() => {
-    (async () => {
-      const { data } = await supabase
-        .from("major_assessments")
-        .select("id, answers, status")
-        .eq("status", "in_progress")
-        .order("updated_at", { ascending: false })
-        .limit(1);
-      const row = data?.[0];
-      if (row) {
-        setAssessmentId(row.id as string);
-        const parsed = (row.answers ?? {}) as Record<string, number>;
-        const restored: AnswerMap = {};
-        for (const [k, v] of Object.entries(parsed)) restored[Number(k)] = v as 1 | 2 | 3 | 4 | 5;
-        setAnswers(restored);
-        const answeredCount = Object.keys(restored).length;
-        if (answeredCount > 0 && answeredCount < QUESTIONS.length) {
-          setCurrent(Math.min(answeredCount, QUESTIONS.length - 1));
-        }
+    const saved = loadStore().assessment;
+    if (saved && !saved.completed) {
+      const restored: AnswerMap = {};
+      for (const [k, v] of Object.entries(saved.answers ?? {})) restored[Number(k)] = v as 1 | 2 | 3 | 4 | 5;
+      setAnswers(restored);
+      const answeredCount = Object.keys(restored).length;
+      if (answeredCount > 0 && answeredCount < QUESTIONS.length) {
+        setCurrent(Math.min(answeredCount, QUESTIONS.length - 1));
       }
-      setLoadingResume(false);
-    })();
+    }
+    setLoadingResume(false);
   }, []);
 
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -81,15 +68,10 @@ function FindYourMajorPage() {
     if (stage !== "quiz") return;
     if (Object.keys(answers).length === 0) return;
     if (saveTimer.current) clearTimeout(saveTimer.current);
-    saveTimer.current = setTimeout(async () => {
-      try {
-        const stringified: Record<string, number> = {};
-        for (const [k, v] of Object.entries(answers)) stringified[k] = v;
-        const r = await upsert({ data: { id: assessmentId, answers: stringified } });
-        if (!assessmentId) setAssessmentId(r.id);
-      } catch {
-        /* silent */
-      }
+    saveTimer.current = setTimeout(() => {
+      const stringified: Record<string, number> = {};
+      for (const [k, v] of Object.entries(answers)) stringified[k] = v;
+      saveAssessment({ answers: stringified, completed: false });
     }, 700);
     return () => { if (saveTimer.current) clearTimeout(saveTimer.current); };
   }, [answers, stage, assessmentId, upsert]);
