@@ -22,6 +22,8 @@ export const Route = createFileRoute("/dashboard")({
 
 function Dashboard() {
   return (
+    <>
+    <AppHeader />
     <main className="mx-auto max-w-6xl px-6 py-10">
       <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
         <div>
@@ -43,6 +45,7 @@ function Dashboard() {
         <TabsContent value="reports" className="mt-6"><ReportsList /></TabsContent>
       </Tabs>
     </main>
+    </>
   );
 }
 
