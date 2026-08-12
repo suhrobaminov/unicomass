@@ -7,14 +7,13 @@ import {
   ListChecks, Loader2, RotateCcw, Target, Wallet,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/integrations/supabase/client";
+import { AppHeader } from "@/components/app-header";
+import { loadStore, saveAssessment } from "@/lib/local-store";
 import {
   QUESTIONS, computeTraitScores, rankMajors, deriveProfileLabel,
   deriveStrengths, deriveImprovements, type AnswerMap, type Major,
 } from "@/lib/assessment-data";
-import {
-  finalizeAssessment, generateMajorInsight, upsertAssessment,
-} from "@/lib/assessment.functions";
+import { generateMajorInsight } from "@/lib/assessment.functions";
 
 export const Route = createFileRoute("/find-your-major")({
   head: () => ({
