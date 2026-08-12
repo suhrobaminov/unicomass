@@ -74,12 +74,12 @@ function FindYourMajorPage() {
       saveAssessment({ answers: stringified, completed: false });
     }, 700);
     return () => { if (saveTimer.current) clearTimeout(saveTimer.current); };
-  }, [answers, stage, assessmentId, upsert]);
+  }, [answers, stage]);
 
   const startFresh = () => {
     setAnswers({});
     setCurrent(0);
-    setAssessmentId(undefined);
+    saveAssessment({ answers: {}, completed: false, results: null });
     setStage("quiz");
   };
 
