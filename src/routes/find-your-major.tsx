@@ -136,18 +136,16 @@ function FindYourMajorPage() {
     try {
       const stringified: Record<string, number> = {};
       for (const [k, v] of Object.entries(answers)) stringified[k] = v;
-      await finalize({
-        data: {
-          id: assessmentId,
-          answers: stringified,
+      saveAssessment({
+        answers: stringified,
+        completed: true,
+        results: {
+          profileLabel: payload.profileLabel,
+          narrative: payload.narrative,
+          strengths: payload.strengths,
+          improvements: payload.improvements,
           trait_scores: traits,
-          results: {
-            profileLabel: payload.profileLabel,
-            narrative: payload.narrative,
-            strengths: payload.strengths,
-            improvements: payload.improvements,
-            ranked: payload.ranked.map((r) => ({ slug: r.major.slug, name: r.major.name, score: r.score })),
-          },
+          ranked: payload.ranked.map((r) => ({ slug: r.major.slug, name: r.major.name, score: r.score })),
         },
       });
     } catch (e) {
