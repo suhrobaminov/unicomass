@@ -165,6 +165,8 @@ function FindYourMajorPage() {
   const canResume = !loadingResume && answeredCount > 0 && answeredCount < QUESTIONS.length;
 
   return (
+    <>
+    <AppHeader />
     <div className="mx-auto w-full max-w-3xl px-6 py-14 md:py-20">
       {stage === "welcome" && (
         <Welcome onStart={startFresh} canResume={canResume} onResume={() => setStage("quiz")} answered={answeredCount} />
