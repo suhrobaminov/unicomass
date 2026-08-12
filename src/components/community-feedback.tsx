@@ -1,16 +1,13 @@
 import { useEffect, useState } from "react";
-import { Link } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Star, MessageSquareQuote, Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import type { User } from "@supabase/supabase-js";
 
 type Comment = {
   id: string;
-  user_id: string;
   display_name: string;
   rating: number;
   body: string;
@@ -44,18 +41,10 @@ function Stars({ value, onChange, size = 20 }: { value: number; onChange?: (n: n
 
 export function CommunityFeedback() {
   const [comments, setComments] = useState<Comment[]>([]);
-  const [user, setUser] = useState<User | null>(null);
   const [rating, setRating] = useState(5);
   const [body, setBody] = useState("");
   const [name, setName] = useState("");
   const [submitting, setSubmitting] = useState(false);
-
-  useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
-      setUser(data.user ?? null);
-      if (data.user) setName((data.user.user_metadata?.full_name as string) || data.user.email?.split("@")[0] || "");
-    });
-  }, []);
 
   useEffect(() => {
     supabase
@@ -82,14 +71,12 @@ export function CommunityFeedback() {
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) return;
     if (body.trim().length < 3) {
       toast.error("Review is too short");
       return;
     }
     setSubmitting(true);
     const { error } = await supabase.from("comments").insert({
-      user_id: user.id,
       display_name: name.trim().slice(0, 80) || "Anonymous",
       rating,
       body: body.trim().slice(0, 1000),
@@ -120,8 +107,7 @@ export function CommunityFeedback() {
           <div className="lg:col-span-1">
             <div className="rounded-2xl border border-border bg-card p-6 shadow-soft sticky top-24">
               <h3 className="font-display text-xl font-semibold">Leave a review</h3>
-              {user ? (
-                <form onSubmit={submit} className="mt-4 space-y-4">
+              <form onSubmit={submit} className="mt-4 space-y-4">
                   <div>
                     <label className="text-xs text-muted-foreground">Display name</label>
                     <Input value={name} onChange={(e) => setName(e.target.value)} maxLength={80} required />
@@ -145,13 +131,7 @@ export function CommunityFeedback() {
                   <Button type="submit" disabled={submitting} className="w-full">
                     {submitting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Posting…</> : "Post review"}
                   </Button>
-                </form>
-              ) : (
-                <div className="mt-4 space-y-4">
-                  <p className="text-sm text-muted-foreground">Sign in to share your experience with the community.</p>
-                  <Link to="/auth"><Button className="w-full">Sign in to review</Button></Link>
-                </div>
-              )}
+              </form>
             </div>
           </div>
 

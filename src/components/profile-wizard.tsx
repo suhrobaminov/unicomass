@@ -1,5 +1,4 @@
-import { useEffect, useState, useCallback, useRef } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { useEffect, useState, useCallback } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,23 +11,10 @@ import { Plus, Trash2, Sparkles, Loader2 } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { generateReport } from "@/lib/ai.functions";
-
-type Profile = {
-  full_name: string; region: string; intended_majors: string;
-  graduation_year: number | null;
-  gpa_unweighted: number | null; gpa_weighted: number | null;
-  class_rank: string;
-  sat_score: number | null; act_score: number | null;
-  ap_count: number; ib_count: number; honors_count: number;
-};
-type EC = { id?: string; name: string; category: string; leadership_role: string; hours_per_week: number | null; description: string; };
-type Award = { id?: string; title: string; selection_level: string; description: string; };
-
-const EMPTY_PROFILE: Profile = {
-  full_name: "", region: "", intended_majors: "", graduation_year: null,
-  gpa_unweighted: null, gpa_weighted: null, class_rank: "",
-  sat_score: null, act_score: null, ap_count: 0, ib_count: 0, honors_count: 0,
-};
+import {
+  EMPTY_PROFILE, loadStore, saveStore, saveReport, newId,
+  type Profile, type EC, type Award,
+} from "@/lib/local-store";
 
 const STEPS = ["Demographics", "Academics", "Activities", "Awards"];
 
@@ -40,107 +26,74 @@ export function ProfileWizard() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [generating, setGenerating] = useState(false);
-  const userIdRef = useRef<string | null>(null);
   const navigate = useNavigate();
   const generate = useServerFn(generateReport);
 
   useEffect(() => {
-    (async () => {
-      const { data: userData } = await supabase.auth.getUser();
-      if (!userData.user) return;
-      userIdRef.current = userData.user.id;
-      const [{ data: p }, { data: e }, { data: a }] = await Promise.all([
-        supabase.from("profiles").select("*").eq("user_id", userData.user.id).maybeSingle(),
-        supabase.from("extracurriculars").select("*").eq("user_id", userData.user.id).order("created_at"),
-        supabase.from("awards").select("*").eq("user_id", userData.user.id).order("created_at"),
-      ]);
-      if (p) setProfile({
-        ...EMPTY_PROFILE,
-        full_name: p.full_name ?? "",
-        region: p.region ?? "",
-        intended_majors: p.intended_majors ?? "",
-        graduation_year: p.graduation_year,
-        gpa_unweighted: p.gpa_unweighted != null ? Number(p.gpa_unweighted) : null,
-        gpa_weighted: p.gpa_weighted != null ? Number(p.gpa_weighted) : null,
-        class_rank: p.class_rank ?? "",
-        sat_score: p.sat_score,
-        act_score: p.act_score,
-        ap_count: p.ap_count ?? 0,
-        ib_count: p.ib_count ?? 0,
-        honors_count: p.honors_count ?? 0,
-      });
-      if (e) setEcs(e as EC[]);
-      if (a) setAwards(a as Award[]);
-      setLoading(false);
-    })();
+    const store = loadStore();
+    setProfile(store.profile);
+    setEcs(store.ecs);
+    setAwards(store.awards);
+    setLoading(false);
   }, []);
 
-  const saveProfile = useCallback(async () => {
-    if (!userIdRef.current) return;
+  const saveProfile = useCallback(() => {
     setSaving(true);
-    const { error } = await supabase.from("profiles").upsert(
-      { user_id: userIdRef.current, ...profile },
-      { onConflict: "user_id" }
-    );
+    saveStore({ profile });
     setSaving(false);
-    if (error) toast.error(error.message); else toast.success("Progress saved");
   }, [profile]);
 
   // autosave profile on change (debounced)
   useEffect(() => {
-    if (loading || !userIdRef.current) return;
-    const t = setTimeout(() => { void saveProfile(); }, 1200);
+    if (loading) return;
+    const t = setTimeout(() => { saveProfile(); }, 800);
     return () => clearTimeout(t);
   }, [profile, loading, saveProfile]);
 
-  const addEc = () => setEcs([...ecs, { name: "", category: "", leadership_role: "", hours_per_week: null, description: "" }]);
-  const updateEc = (i: number, patch: Partial<EC>) => setEcs(ecs.map((e, idx) => idx === i ? { ...e, ...patch } : e));
-  const removeEc = async (i: number) => {
-    const target = ecs[i];
-    if (target.id) await supabase.from("extracurriculars").delete().eq("id", target.id);
-    setEcs(ecs.filter((_, idx) => idx !== i));
+  const addEc = () => setEcs([...ecs, { id: newId(), name: "", category: "", leadership_role: "", hours_per_week: null, description: "" }]);
+  const updateEc = (i: number, patch: Partial<EC>) => {
+    const next = ecs.map((e, idx) => idx === i ? { ...e, ...patch } : e);
+    setEcs(next);
+    saveStore({ ecs: next });
   };
-  const saveEc = async (i: number) => {
-    if (!userIdRef.current) return;
-    const e = ecs[i];
-    if (!e.name.trim()) return toast.error("Activity name required");
-    const row = { user_id: userIdRef.current, name: e.name, category: e.category, leadership_role: e.leadership_role, hours_per_week: e.hours_per_week, description: e.description };
-    if (e.id) {
-      await supabase.from("extracurriculars").update(row).eq("id", e.id);
-    } else {
-      const { data } = await supabase.from("extracurriculars").insert(row).select().single();
-      if (data) updateEc(i, { id: data.id });
-    }
+  const removeEc = (i: number) => {
+    const next = ecs.filter((_, idx) => idx !== i);
+    setEcs(next);
+    saveStore({ ecs: next });
+  };
+  const saveEc = (i: number) => {
+    if (!ecs[i].name.trim()) return toast.error("Activity name required");
+    saveStore({ ecs });
     toast.success("Activity saved");
   };
 
-  const addAward = () => setAwards([...awards, { title: "", selection_level: "", description: "" }]);
-  const updateAward = (i: number, patch: Partial<Award>) => setAwards(awards.map((a, idx) => idx === i ? { ...a, ...patch } : a));
-  const removeAward = async (i: number) => {
-    const target = awards[i];
-    if (target.id) await supabase.from("awards").delete().eq("id", target.id);
-    setAwards(awards.filter((_, idx) => idx !== i));
+  const addAward = () => setAwards([...awards, { id: newId(), title: "", selection_level: "", description: "" }]);
+  const updateAward = (i: number, patch: Partial<Award>) => {
+    const next = awards.map((a, idx) => idx === i ? { ...a, ...patch } : a);
+    setAwards(next);
+    saveStore({ awards: next });
   };
-  const saveAward = async (i: number) => {
-    if (!userIdRef.current) return;
-    const a = awards[i];
-    if (!a.title.trim()) return toast.error("Award title required");
-    const row = { user_id: userIdRef.current, title: a.title, selection_level: a.selection_level, description: a.description };
-    if (a.id) await supabase.from("awards").update(row).eq("id", a.id);
-    else {
-      const { data } = await supabase.from("awards").insert(row).select().single();
-      if (data) updateAward(i, { id: data.id });
-    }
+  const removeAward = (i: number) => {
+    const next = awards.filter((_, idx) => idx !== i);
+    setAwards(next);
+    saveStore({ awards: next });
+  };
+  const saveAward = (i: number) => {
+    if (!awards[i].title.trim()) return toast.error("Award title required");
+    saveStore({ awards });
     toast.success("Award saved");
   };
 
   const handleGenerate = async () => {
     setGenerating(true);
     try {
-      await saveProfile();
-      const report = await generate();
+      saveProfile();
+      const payload = await generate({
+        data: { profile: { ...profile }, extracurriculars: ecs, awards },
+      });
+      const report = saveReport(payload as unknown as Record<string, unknown>);
       toast.success("Report generated");
-      navigate({ to: "/reports/$id", params: { id: (report as { id: string }).id } });
+      navigate({ to: "/reports/$id", params: { id: report.id } });
     } catch (e) {
       toast.error((e as Error).message);
     } finally { setGenerating(false); }

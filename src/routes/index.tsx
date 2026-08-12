@@ -112,12 +112,12 @@ function Nav() {
           ))}
         </nav>
         <div className="flex items-center gap-2">
-          <Link to="/auth" className="hidden sm:inline-flex">
+          <Link to="/find-your-major" className="hidden sm:inline-flex">
             <Button variant="ghost" size="sm">
-              Sign In
+              Find Your Major
             </Button>
           </Link>
-          <Link to="/auth">
+          <Link to="/dashboard">
             <Button size="sm" className="rounded-lg px-4">
               Get Started
             </Button>
@@ -161,7 +161,7 @@ function Hero() {
             application roadmap.
           </p>
           <div className="mt-9 flex flex-wrap items-center gap-3">
-            <Link to="/auth">
+            <Link to="/dashboard">
               <Button size="lg" className="h-12 rounded-xl px-7 text-base shadow-soft">
                 Analyze My Profile
                 <ArrowRight className="ml-2 h-4 w-4" />
@@ -311,7 +311,7 @@ function Features() {
                     </Button>
                   </Link>
                 ) : (
-                  <Link to="/auth">
+                  <Link to="/dashboard">
                     <Button variant="outline" size="sm" className="rounded-lg border-border">
                       {f.cta}
                       <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
@@ -420,11 +420,11 @@ function CTA() {
           Start with your profile
         </h2>
         <p className="mx-auto mt-4 max-w-xl text-muted-foreground">
-          Create an account, complete your profile once, and see where you stand. Free to
-          start, no credit card required.
+          Complete your profile once and see where you stand. No account needed — your
+          progress is saved right here on your device.
         </p>
         <div className="mt-8 flex flex-wrap justify-center gap-3">
-          <Link to="/auth">
+          <Link to="/dashboard">
             <Button size="lg" className="h-12 rounded-xl px-7 text-base">
               Analyze My Profile
             </Button>

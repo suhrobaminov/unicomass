@@ -11,14 +11,10 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
-import { Route as ResetPasswordRouteImport } from './routes/reset-password'
-import { Route as AuthRouteImport } from './routes/auth'
-import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as FindYourMajorRouteImport } from './routes/find-your-major'
+import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as AuthCallbackRouteImport } from './routes/auth_.callback'
-import { Route as AuthenticatedFindYourMajorRouteImport } from './routes/_authenticated/find-your-major'
-import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
-import { Route as AuthenticatedReportsIdRouteImport } from './routes/_authenticated/reports/$id'
+import { Route as ReportsIdRouteImport } from './routes/reports.$id'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
@@ -30,18 +26,14 @@ const RobotsDottxtRoute = RobotsDottxtRouteImport.update({
   path: '/robots.txt',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ResetPasswordRoute = ResetPasswordRouteImport.update({
-  id: '/reset-password',
-  path: '/reset-password',
+const FindYourMajorRoute = FindYourMajorRouteImport.update({
+  id: '/find-your-major',
+  path: '/find-your-major',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthRoute = AuthRouteImport.update({
-  id: '/auth',
-  path: '/auth',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
-  id: '/_authenticated',
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -49,108 +41,71 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthCallbackRoute = AuthCallbackRouteImport.update({
-  id: '/auth_/callback',
-  path: '/auth/callback',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AuthenticatedFindYourMajorRoute =
-  AuthenticatedFindYourMajorRouteImport.update({
-    id: '/find-your-major',
-    path: '/find-your-major',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedReportsIdRoute = AuthenticatedReportsIdRouteImport.update({
+const ReportsIdRoute = ReportsIdRouteImport.update({
   id: '/reports/$id',
   path: '/reports/$id',
-  getParentRoute: () => AuthenticatedRouteRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/auth': typeof AuthRoute
-  '/reset-password': typeof ResetPasswordRoute
+  '/dashboard': typeof DashboardRoute
+  '/find-your-major': typeof FindYourMajorRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
-  '/dashboard': typeof AuthenticatedDashboardRoute
-  '/find-your-major': typeof AuthenticatedFindYourMajorRoute
-  '/auth/callback': typeof AuthCallbackRoute
-  '/reports/$id': typeof AuthenticatedReportsIdRoute
+  '/reports/$id': typeof ReportsIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/auth': typeof AuthRoute
-  '/reset-password': typeof ResetPasswordRoute
+  '/dashboard': typeof DashboardRoute
+  '/find-your-major': typeof FindYourMajorRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
-  '/dashboard': typeof AuthenticatedDashboardRoute
-  '/find-your-major': typeof AuthenticatedFindYourMajorRoute
-  '/auth/callback': typeof AuthCallbackRoute
-  '/reports/$id': typeof AuthenticatedReportsIdRoute
+  '/reports/$id': typeof ReportsIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
-  '/auth': typeof AuthRoute
-  '/reset-password': typeof ResetPasswordRoute
+  '/dashboard': typeof DashboardRoute
+  '/find-your-major': typeof FindYourMajorRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
-  '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
-  '/_authenticated/find-your-major': typeof AuthenticatedFindYourMajorRoute
-  '/auth_/callback': typeof AuthCallbackRoute
-  '/_authenticated/reports/$id': typeof AuthenticatedReportsIdRoute
+  '/reports/$id': typeof ReportsIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/auth'
-    | '/reset-password'
-    | '/robots.txt'
-    | '/sitemap.xml'
     | '/dashboard'
     | '/find-your-major'
-    | '/auth/callback'
+    | '/robots.txt'
+    | '/sitemap.xml'
     | '/reports/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/auth'
-    | '/reset-password'
-    | '/robots.txt'
-    | '/sitemap.xml'
     | '/dashboard'
     | '/find-your-major'
-    | '/auth/callback'
+    | '/robots.txt'
+    | '/sitemap.xml'
     | '/reports/$id'
   id:
     | '__root__'
     | '/'
-    | '/_authenticated'
-    | '/auth'
-    | '/reset-password'
+    | '/dashboard'
+    | '/find-your-major'
     | '/robots.txt'
     | '/sitemap.xml'
-    | '/_authenticated/dashboard'
-    | '/_authenticated/find-your-major'
-    | '/auth_/callback'
-    | '/_authenticated/reports/$id'
+    | '/reports/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
-  AuthRoute: typeof AuthRoute
-  ResetPasswordRoute: typeof ResetPasswordRoute
+  DashboardRoute: typeof DashboardRoute
+  FindYourMajorRoute: typeof FindYourMajorRoute
   RobotsDottxtRoute: typeof RobotsDottxtRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
-  AuthCallbackRoute: typeof AuthCallbackRoute
+  ReportsIdRoute: typeof ReportsIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -169,25 +124,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RobotsDottxtRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/reset-password': {
-      id: '/reset-password'
-      path: '/reset-password'
-      fullPath: '/reset-password'
-      preLoaderRoute: typeof ResetPasswordRouteImport
+    '/find-your-major': {
+      id: '/find-your-major'
+      path: '/find-your-major'
+      fullPath: '/find-your-major'
+      preLoaderRoute: typeof FindYourMajorRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/auth': {
-      id: '/auth'
-      path: '/auth'
-      fullPath: '/auth'
-      preLoaderRoute: typeof AuthRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/_authenticated': {
-      id: '/_authenticated'
-      path: ''
-      fullPath: '/'
-      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -197,60 +145,23 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/auth_/callback': {
-      id: '/auth_/callback'
-      path: '/auth/callback'
-      fullPath: '/auth/callback'
-      preLoaderRoute: typeof AuthCallbackRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/_authenticated/find-your-major': {
-      id: '/_authenticated/find-your-major'
-      path: '/find-your-major'
-      fullPath: '/find-your-major'
-      preLoaderRoute: typeof AuthenticatedFindYourMajorRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/dashboard': {
-      id: '/_authenticated/dashboard'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/reports/$id': {
-      id: '/_authenticated/reports/$id'
+    '/reports/$id': {
+      id: '/reports/$id'
       path: '/reports/$id'
       fullPath: '/reports/$id'
-      preLoaderRoute: typeof AuthenticatedReportsIdRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      preLoaderRoute: typeof ReportsIdRouteImport
+      parentRoute: typeof rootRouteImport
     }
   }
 }
 
-interface AuthenticatedRouteRouteChildren {
-  AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
-  AuthenticatedFindYourMajorRoute: typeof AuthenticatedFindYourMajorRoute
-  AuthenticatedReportsIdRoute: typeof AuthenticatedReportsIdRoute
-}
-
-const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
-  AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
-  AuthenticatedFindYourMajorRoute: AuthenticatedFindYourMajorRoute,
-  AuthenticatedReportsIdRoute: AuthenticatedReportsIdRoute,
-}
-
-const AuthenticatedRouteRouteWithChildren =
-  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
-  AuthRoute: AuthRoute,
-  ResetPasswordRoute: ResetPasswordRoute,
+  DashboardRoute: DashboardRoute,
+  FindYourMajorRoute: FindYourMajorRoute,
   RobotsDottxtRoute: RobotsDottxtRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
-  AuthCallbackRoute: AuthCallbackRoute,
+  ReportsIdRoute: ReportsIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -1,19 +1,14 @@
 import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Link } from "@tanstack/react-router";
 import { FileText, Loader2 } from "lucide-react";
-
-type Row = { id: string; created_at: string; payload: { profile_strength_score?: number } };
+import { loadStore, type SavedReport } from "@/lib/local-store";
 
 export function ReportsList() {
-  const [rows, setRows] = useState<Row[] | null>(null);
+  const [rows, setRows] = useState<SavedReport[] | null>(null);
 
   useEffect(() => {
-    (async () => {
-      const { data } = await supabase.from("reports").select("id, created_at, payload").order("created_at", { ascending: false });
-      setRows((data as Row[]) ?? []);
-    })();
+    setRows(loadStore().reports);
   }, []);
 
   if (rows === null) return <div className="grid place-items-center py-16"><Loader2 className="animate-spin" /></div>;
@@ -33,7 +28,9 @@ export function ReportsList() {
                 </div>
               </div>
               <div className="text-right">
-                <div className="font-display text-3xl font-semibold text-primary">{r.payload.profile_strength_score ?? "—"}</div>
+                <div className="font-display text-3xl font-semibold text-primary">
+                  {(r.payload as { profile_strength_score?: number }).profile_strength_score ?? "—"}
+                </div>
                 <div className="text-xs text-muted-foreground">/ 100</div>
               </div>
             </div>

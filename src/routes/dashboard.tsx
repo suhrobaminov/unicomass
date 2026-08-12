@@ -4,8 +4,9 @@ import { ProfileWizard } from "@/components/profile-wizard";
 import { ReportsList } from "@/components/reports-list";
 import { Button } from "@/components/ui/button";
 import { Compass, ArrowRight } from "lucide-react";
+import { AppHeader } from "@/components/app-header";
 
-export const Route = createFileRoute("/_authenticated/dashboard")({
+export const Route = createFileRoute("/dashboard")({
   head: () => ({
     meta: [
       { title: "Dashboard — UniCompass" },
@@ -22,6 +23,8 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
 
 function Dashboard() {
   return (
+    <>
+    <AppHeader />
     <main className="mx-auto max-w-6xl px-6 py-10">
       <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
         <div>
@@ -43,6 +46,7 @@ function Dashboard() {
         <TabsContent value="reports" className="mt-6"><ReportsList /></TabsContent>
       </Tabs>
     </main>
+    </>
   );
 }
 
