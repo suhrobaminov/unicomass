@@ -15,8 +15,8 @@ export const generateMajorInsight = createServerFn({ method: "POST" })
     return data;
   })
   .handler(async ({ data }) => {
-    const { openaiChat, buildMajorInsightPrompt } = await import("@/lib/openai.server");
-    const narrative = await openaiChat({
+    const { geminiChat, buildMajorInsightPrompt } = await import("@/lib/gemini.server");
+    const narrative = await geminiChat({
       messages: [{ role: "user", content: buildMajorInsightPrompt(data) }],
       temperature: 0.7,
     });
