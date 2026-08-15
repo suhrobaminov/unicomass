@@ -1,7 +1,5 @@
-// Direct OpenAI API access. Server-only — never import from client code.
-// Requires the OPENAI_API_KEY environment variable.
-
-const OPENAI_URL = "https://api.openai.com/v1/chat/completions";
+// Direct Google Gemini API access. Server-only — never import from client code.
+// Requires the GEMINI_API_KEY environment variable.
 
 export type ChatMessage = { role: "system" | "user" | "assistant"; content: string };
 
@@ -12,44 +10,61 @@ export type ChatOptions = {
   temperature?: number;
 };
 
-/** Default model — matches the original product spec (GPT-4o mini). */
-export const DEFAULT_MODEL = "gpt-4o-mini";
+/** Default model — fast and cost-effective. */
+export const DEFAULT_MODEL = "gemini-2.5-flash";
 
-export async function openaiChat({
+export async function geminiChat({
   model = DEFAULT_MODEL,
   messages,
   jsonMode = false,
   temperature,
 }: ChatOptions): Promise<string> {
-  const apiKey = process.env.OPENAI_API_KEY;
-  if (!apiKey) throw new Error("AI service is not configured. Missing OPENAI_API_KEY.");
+  const apiKey = process.env["GEMINI_API_KEY"];
+  if (!apiKey) throw new Error("AI service is not configured. Missing GEMINI_API_KEY.");
 
-  const res = await fetch(OPENAI_URL, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`,
+  const systemText = messages
+    .filter((m) => m.role === "system")
+    .map((m) => m.content)
+    .join("\n\n");
+
+  const contents = messages
+    .filter((m) => m.role !== "system")
+    .map((m) => ({
+      role: m.role === "assistant" ? "model" : "user",
+      parts: [{ text: m.content }],
+    }));
+
+  const res = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-goog-api-key": apiKey,
+      },
+      body: JSON.stringify({
+        contents,
+        ...(systemText ? { systemInstruction: { parts: [{ text: systemText }] } } : {}),
+        generationConfig: {
+          ...(jsonMode ? { responseMimeType: "application/json" } : {}),
+          ...(temperature !== undefined ? { temperature } : {}),
+        },
+      }),
     },
-    body: JSON.stringify({
-      model,
-      messages,
-      ...(jsonMode ? { response_format: { type: "json_object" } } : {}),
-      ...(temperature !== undefined ? { temperature } : {}),
-    }),
-  });
+  );
 
   if (!res.ok) {
     const text = await res.text();
-    if (res.status === 401) throw new Error("AI service rejected the API key.");
+    if (res.status === 401 || res.status === 403) throw new Error("AI service rejected the API key.");
     if (res.status === 429) throw new Error("AI is busy or out of quota. Please try again shortly.");
     if (res.status >= 500) throw new Error("The AI provider is temporarily unavailable.");
     throw new Error(`AI error: ${text.slice(0, 200)}`);
   }
 
   const json = (await res.json()) as {
-    choices?: Array<{ message?: { content?: string } }>;
+    candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
   };
-  const content = json.choices?.[0]?.message?.content?.trim();
+  const content = json.candidates?.[0]?.content?.parts?.map((p) => p.text ?? "").join("").trim();
   if (!content) throw new Error("No response from AI.");
   return content;
 }

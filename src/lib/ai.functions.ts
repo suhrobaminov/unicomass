@@ -21,9 +21,9 @@ export const generateReport = createServerFn({ method: "POST" })
     } satisfies ProfilePayload;
   })
   .handler(async ({ data }) => {
-    const { openaiChat, ADMISSIONS_SYSTEM_PROMPT } = await import("@/lib/openai.server");
+    const { geminiChat, ADMISSIONS_SYSTEM_PROMPT } = await import("@/lib/gemini.server");
 
-    const content = await openaiChat({
+    const content = await geminiChat({
       jsonMode: true,
       messages: [
         { role: "system", content: ADMISSIONS_SYSTEM_PROMPT },
