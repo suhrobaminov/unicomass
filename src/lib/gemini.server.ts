@@ -1,5 +1,7 @@
-// Direct Google Gemini API access. Server-only — never import from client code.
-// Requires the GEMINI_API_KEY environment variable.
+// AI access for UniCompass. Server-only — never import from client code.
+//
+// Primary path: the built-in Lovable AI gateway (no user-supplied key needed).
+// Fallback path: a direct Google Gemini API key (GEMINI_API_KEY starting with "AIza").
 
 export type ChatMessage = { role: "system" | "user" | "assistant"; content: string };
 
@@ -11,23 +13,51 @@ export type ChatOptions = {
 };
 
 /** Default model — fast and cost-effective. */
-export const DEFAULT_MODEL = "gemini-2.5-flash";
+export const DEFAULT_MODEL = "google/gemini-2.5-flash";
 
-export async function geminiChat({
-  model = DEFAULT_MODEL,
-  messages,
-  jsonMode = false,
-  temperature,
-}: ChatOptions): Promise<string> {
-  const apiKey = process.env["GEMINI_API_KEY"];
-  if (!apiKey) throw new Error("AI service is not configured. Missing GEMINI_API_KEY.");
+const GATEWAY_URL = "https://ai.gateway.lovable.dev/v1/chat/completions";
 
-  const systemText = messages
+function friendlyError(status: number, text: string): Error {
+  if (status === 401 || status === 403) return new Error("AI service rejected the credentials.");
+  if (status === 429) return new Error("AI is busy right now. Please try again in a moment.");
+  if (status === 402) return new Error("AI credits exhausted. Please top up to continue.");
+  if (status >= 500) return new Error("The AI provider is temporarily unavailable.");
+  return new Error(`AI error: ${text.slice(0, 200)}`);
+}
+
+async function viaGateway(opts: Required<Pick<ChatOptions, "messages">> & ChatOptions): Promise<string> {
+  const apiKey = process.env["LOVABLE_API_KEY"];
+  if (!apiKey) throw new Error("AI service is not configured.");
+
+  const res = await fetch(GATEWAY_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
+    body: JSON.stringify({
+      model: opts.model ?? DEFAULT_MODEL,
+      messages: opts.messages,
+      ...(opts.temperature !== undefined ? { temperature: opts.temperature } : {}),
+      ...(opts.jsonMode ? { response_format: { type: "json_object" } } : {}),
+    }),
+  });
+
+  if (!res.ok) throw friendlyError(res.status, await res.text());
+
+  const json = (await res.json()) as { choices?: Array<{ message?: { content?: string } }> };
+  const content = json.choices?.[0]?.message?.content?.trim();
+  if (!content) throw new Error("No response from AI.");
+  return content;
+}
+
+async function viaGoogle(opts: ChatOptions & { messages: ChatMessage[] }): Promise<string> {
+  const apiKey = process.env["GEMINI_API_KEY"]!;
+  const model = (opts.model ?? DEFAULT_MODEL).replace(/^google\//, "");
+
+  const systemText = opts.messages
     .filter((m) => m.role === "system")
     .map((m) => m.content)
     .join("\n\n");
 
-  const contents = messages
+  const contents = opts.messages
     .filter((m) => m.role !== "system")
     .map((m) => ({
       role: m.role === "assistant" ? "model" : "user",
@@ -38,28 +68,19 @@ export async function geminiChat({
     `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
     {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-goog-api-key": apiKey,
-      },
+      headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
       body: JSON.stringify({
         contents,
         ...(systemText ? { systemInstruction: { parts: [{ text: systemText }] } } : {}),
         generationConfig: {
-          ...(jsonMode ? { responseMimeType: "application/json" } : {}),
-          ...(temperature !== undefined ? { temperature } : {}),
+          ...(opts.jsonMode ? { responseMimeType: "application/json" } : {}),
+          ...(opts.temperature !== undefined ? { temperature: opts.temperature } : {}),
         },
       }),
     },
   );
 
-  if (!res.ok) {
-    const text = await res.text();
-    if (res.status === 401 || res.status === 403) throw new Error("AI service rejected the API key.");
-    if (res.status === 429) throw new Error("AI is busy or out of quota. Please try again shortly.");
-    if (res.status >= 500) throw new Error("The AI provider is temporarily unavailable.");
-    throw new Error(`AI error: ${text.slice(0, 200)}`);
-  }
+  if (!res.ok) throw friendlyError(res.status, await res.text());
 
   const json = (await res.json()) as {
     candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
@@ -67,6 +88,23 @@ export async function geminiChat({
   const content = json.candidates?.[0]?.content?.parts?.map((p) => p.text ?? "").join("").trim();
   if (!content) throw new Error("No response from AI.");
   return content;
+}
+
+export async function geminiChat(opts: ChatOptions): Promise<string> {
+  const googleKey = process.env["GEMINI_API_KEY"];
+  const hasRealGoogleKey = !!googleKey && googleKey.startsWith("AIza");
+
+  if (process.env["LOVABLE_API_KEY"]) {
+    try {
+      return await viaGateway(opts);
+    } catch (err) {
+      if (!hasRealGoogleKey) throw err;
+      console.error("[AI] gateway failed, falling back to Google:", err);
+    }
+  }
+
+  if (hasRealGoogleKey) return viaGoogle(opts);
+  throw new Error("AI service is not configured.");
 }
 
 export const ADMISSIONS_SYSTEM_PROMPT = `You are a veteran Ivy League admissions officer with 20+ years of experience. You are highly critical, precise, and holistic. You evaluate how a student's course rigor aligns with their intended major, weigh leadership and impact over sheer activity count, and recommend a calibrated school list.
