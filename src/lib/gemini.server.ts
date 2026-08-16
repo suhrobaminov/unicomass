@@ -64,11 +64,19 @@ async function viaGoogle(opts: ChatOptions & { messages: ChatMessage[] }): Promi
       parts: [{ text: m.content }],
     }));
 
+  // Google AI Studio now issues "AQ." style keys alongside legacy "AIza" ones.
+  // Legacy keys go in the x-goog-api-key header; the newer tokens are accepted
+  // as OAuth-style bearer credentials, so send whichever matches the key shape.
+  const isLegacyKey = apiKey.startsWith("AIza");
+  const headers: Record<string, string> = { "Content-Type": "application/json" };
+  if (isLegacyKey) headers["x-goog-api-key"] = apiKey;
+  else headers["Authorization"] = `Bearer ${apiKey}`;
+
   const res = await fetch(
     `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
     {
       method: "POST",
-      headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
+      headers,
       body: JSON.stringify({
         contents,
         ...(systemText ? { systemInstruction: { parts: [{ text: systemText }] } } : {}),
@@ -91,21 +99,25 @@ async function viaGoogle(opts: ChatOptions & { messages: ChatMessage[] }): Promi
 }
 
 export async function geminiChat(opts: ChatOptions): Promise<string> {
-  const googleKey = process.env["GEMINI_API_KEY"];
-  const hasRealGoogleKey = !!googleKey && googleKey.startsWith("AIza");
+  const googleKey = process.env["GEMINI_API_KEY"]?.trim();
+  const hasGoogleKey = !!googleKey;
+  const hasGateway = !!process.env["LOVABLE_API_KEY"];
 
-  if (process.env["LOVABLE_API_KEY"]) {
+  // Custom initialization: whatever GEMINI_API_KEY holds (AIza… or AQ.…) is used
+  // as-is — no format validation, so Vercel can inject the key freely.
+  if (hasGoogleKey) {
     try {
-      return await viaGateway(opts);
+      return await viaGoogle(opts);
     } catch (err) {
-      if (!hasRealGoogleKey) throw err;
-      console.error("[AI] gateway failed, falling back to Google:", err);
+      if (!hasGateway) throw err;
+      console.error("[AI] direct Gemini call failed, falling back to gateway:", err);
     }
   }
 
-  if (hasRealGoogleKey) return viaGoogle(opts);
+  if (hasGateway) return viaGateway(opts);
   throw new Error("AI service is not configured.");
 }
+
 
 export const ADMISSIONS_SYSTEM_PROMPT = `You are a veteran Ivy League admissions officer with 20+ years of experience. You are highly critical, precise, and holistic. You evaluate how a student's course rigor aligns with their intended major, weigh leadership and impact over sheer activity count, and recommend a calibrated school list.
 
