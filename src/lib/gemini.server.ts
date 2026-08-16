@@ -13,7 +13,13 @@ export type ChatOptions = {
 };
 
 /** Default model — fast and cost-effective. */
-export const DEFAULT_MODEL = "google/gemini-2.5-flash";
+export const DEFAULT_MODEL = "gemini-flash-latest";
+
+/** Model used on the Lovable gateway fallback path. */
+const GATEWAY_MODEL = "google/gemini-2.5-flash";
+
+/** Model used on the Groq fallback path. */
+const GROQ_MODEL = "llama-3.3-70b-versatile";
 
 const GATEWAY_URL = "https://ai.gateway.lovable.dev/v1/chat/completions";
 
@@ -33,7 +39,7 @@ async function viaGateway(opts: Required<Pick<ChatOptions, "messages">> & ChatOp
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
     body: JSON.stringify({
-      model: opts.model ?? DEFAULT_MODEL,
+      model: GATEWAY_MODEL,
       messages: opts.messages,
       ...(opts.temperature !== undefined ? { temperature: opts.temperature } : {}),
       ...(opts.jsonMode ? { response_format: { type: "json_object" } } : {}),
@@ -64,13 +70,12 @@ async function viaGoogle(opts: ChatOptions & { messages: ChatMessage[] }): Promi
       parts: [{ text: m.content }],
     }));
 
-  // Google AI Studio now issues "AQ." style keys alongside legacy "AIza" ones.
-  // Legacy keys go in the x-goog-api-key header; the newer tokens are accepted
-  // as OAuth-style bearer credentials, so send whichever matches the key shape.
-  const isLegacyKey = apiKey.startsWith("AIza");
-  const headers: Record<string, string> = { "Content-Type": "application/json" };
-  if (isLegacyKey) headers["x-goog-api-key"] = apiKey;
-  else headers["Authorization"] = `Bearer ${apiKey}`;
+  // Google AI Studio issues both legacy "AIza" and newer "AQ." keys; both are
+  // sent the same way, as an x-goog-api-key header.
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    "x-goog-api-key": apiKey,
+  };
 
   const res = await fetch(
     `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
@@ -98,6 +103,25 @@ async function viaGoogle(opts: ChatOptions & { messages: ChatMessage[] }): Promi
   return content;
 }
 
+async function viaGroq(opts: ChatOptions): Promise<string> {
+  const apiKey = process.env["GROQ_API_KEY"]!;
+  const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
+    body: JSON.stringify({
+      model: GROQ_MODEL,
+      messages: opts.messages,
+      ...(opts.temperature !== undefined ? { temperature: opts.temperature } : {}),
+      ...(opts.jsonMode ? { response_format: { type: "json_object" } } : {}),
+    }),
+  });
+  if (!res.ok) throw friendlyError(res.status, await res.text());
+  const json = (await res.json()) as { choices?: Array<{ message?: { content?: string } }> };
+  const content = json.choices?.[0]?.message?.content?.trim();
+  if (!content) throw new Error("No response from AI.");
+  return content;
+}
+
 export async function geminiChat(opts: ChatOptions): Promise<string> {
   const googleKey = process.env["GEMINI_API_KEY"]?.trim();
   const hasGoogleKey = !!googleKey;
@@ -105,12 +129,23 @@ export async function geminiChat(opts: ChatOptions): Promise<string> {
 
   // Custom initialization: whatever GEMINI_API_KEY holds (AIza… or AQ.…) is used
   // as-is — no format validation, so Vercel can inject the key freely.
+  const hasGroq = !!process.env["GROQ_API_KEY"]?.trim();
+
   if (hasGoogleKey) {
     try {
       return await viaGoogle(opts);
     } catch (err) {
+      if (!hasGroq && !hasGateway) throw err;
+      console.error("[AI] direct Gemini call failed, trying fallback:", err);
+    }
+  }
+
+  if (hasGroq) {
+    try {
+      return await viaGroq(opts);
+    } catch (err) {
       if (!hasGateway) throw err;
-      console.error("[AI] direct Gemini call failed, falling back to gateway:", err);
+      console.error("[AI] Groq call failed, falling back to gateway:", err);
     }
   }
 
