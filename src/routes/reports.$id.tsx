@@ -1,21 +1,13 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Printer, Loader2 } from "lucide-react";
-
-type School = { school_name: string; tier: "Reach" | "Target" | "Safety"; admission_rate_estimate: string; reason_for_tier: string };
-type Report = {
-  profile_strength_score: number;
-  summary_bullets: string[];
-  categorized_schools: School[];
-  profile_gaps: string[];
-  actionable_next_steps: string[];
-};
+import { getReport } from "@/lib/local-store";
+import { normalizeReport, type NormalizedReport, type School, type Tier } from "@/lib/report-normalize";
 
 export const Route = createFileRoute("/reports/$id")({
   head: () => ({
@@ -35,25 +27,50 @@ export const Route = createFileRoute("/reports/$id")({
 
 function ReportView() {
   const { id } = Route.useParams();
-  const [report, setReport] = useState<Report | null>(null);
+  const [report, setReport] = useState<NormalizedReport | null>(null);
   const [createdAt, setCreatedAt] = useState<string>("");
   const [checked, setChecked] = useState<Record<number, boolean>>({});
   const [loading, setLoading] = useState(true);
+  const [missing, setMissing] = useState(false);
 
   useEffect(() => {
-    (async () => {
-      const { data, error } = await supabase.from("reports").select("payload, created_at").eq("id", id).maybeSingle();
-      if (error || !data) { setLoading(false); throw notFound(); }
-      setReport(data.payload as Report);
-      setCreatedAt(data.created_at);
+    try {
+      const saved = getReport(id);
+      if (!saved) {
+        setMissing(true);
+      } else {
+        setReport(normalizeReport(saved.payload));
+        setCreatedAt(saved.created_at ?? "");
+      }
+    } catch {
+      setMissing(true);
+    } finally {
       setLoading(false);
-    })();
+    }
   }, [id]);
 
   if (loading) return <div className="grid place-items-center py-20"><Loader2 className="animate-spin" /></div>;
-  if (!report) return null;
 
-  const byTier = (tier: School["tier"]) => report.categorized_schools.filter(s => s.tier === tier);
+  if (missing || !report) {
+    return (
+      <main className="mx-auto max-w-2xl px-6 py-20 text-center">
+        <h1 className="font-display text-2xl font-semibold">Report not found</h1>
+        <p className="mt-2 text-muted-foreground">
+          Reports are stored on this device. If you cleared your browser data or switched devices, generate a new one.
+        </p>
+        <Link to="/dashboard" className="mt-6 inline-block"><Button>Back to dashboard</Button></Link>
+      </main>
+    );
+  }
+
+  const schools = report.categorized_schools ?? [];
+  const byTier = (tier: Tier) => schools.filter((s) => s.tier === tier);
+  const bullets = report.summary_bullets ?? [];
+  const gaps = report.profile_gaps ?? [];
+  const steps = report.actionable_next_steps ?? [];
+  const dateLabel = createdAt && !Number.isNaN(Date.parse(createdAt))
+    ? new Date(createdAt).toLocaleDateString()
+    : "";
 
   return (
     <main className="mx-auto max-w-6xl px-6 py-10">
@@ -63,71 +80,98 @@ function ReportView() {
       </div>
 
       <div className="mb-8">
-        <div className="text-xs text-muted-foreground uppercase tracking-wide">Strategy Report • {new Date(createdAt).toLocaleDateString()}</div>
+        <div className="text-xs text-muted-foreground uppercase tracking-wide">
+          Strategy Report{dateLabel ? ` • ${dateLabel}` : ""}
+        </div>
         <h1 className="font-display text-4xl font-semibold mt-1">Your admissions analysis</h1>
       </div>
+
+      {report.raw_text && (
+        <Card className="p-6 mb-8">
+          <h2 className="font-display text-xl font-semibold mb-3">Analysis</h2>
+          <p className="whitespace-pre-wrap text-sm leading-relaxed text-muted-foreground">{report.raw_text}</p>
+        </Card>
+      )}
 
       {/* Overview */}
       <Card className="p-8 shadow-soft mb-8">
         <div className="grid md:grid-cols-[auto_1fr] gap-8 items-center">
-          <ScoreRing score={report.profile_strength_score} />
+          {report.profile_strength_score !== null && <ScoreRing score={report.profile_strength_score} />}
           <div>
             <div className="text-sm uppercase tracking-wide text-muted-foreground">Profile strength</div>
             <h2 className="font-display text-2xl font-semibold mt-1 mb-4">Your strategy at a glance</h2>
-            <ul className="space-y-2">
-              {report.summary_bullets.map((b, i) => (
-                <li key={i} className="flex gap-2 text-sm"><span className="text-accent">◆</span><span>{b}</span></li>
-              ))}
-            </ul>
+            {bullets.length > 0 ? (
+              <ul className="space-y-2">
+                {bullets.map((b, i) => (
+                  <li key={i} className="flex gap-2 text-sm"><span className="text-accent">◆</span><span>{b}</span></li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-sm text-muted-foreground">No summary was returned for this report.</p>
+            )}
           </div>
         </div>
       </Card>
 
       {/* Schools */}
       <h2 className="font-display text-2xl font-semibold mb-4">Recommended schools</h2>
-      <Tabs defaultValue="Reach" className="mb-8">
-        <TabsList>
-          {(["Reach", "Target", "Safety"] as const).map(t => (
-            <TabsTrigger key={t} value={t}>{t} ({byTier(t).length})</TabsTrigger>
+      {schools.length > 0 ? (
+        <Tabs defaultValue="Reach" className="mb-8">
+          <TabsList>
+            {(["Reach", "Target", "Safety"] as const).map((t) => (
+              <TabsTrigger key={t} value={t}>{t} ({byTier(t).length})</TabsTrigger>
+            ))}
+          </TabsList>
+          {(["Reach", "Target", "Safety"] as const).map((tier) => (
+            <TabsContent key={tier} value={tier} className="mt-4">
+              {byTier(tier).length > 0 ? (
+                <div className="grid md:grid-cols-2 gap-4">
+                  {byTier(tier).map((s, i) => <SchoolCard key={`${s.school_name}-${i}`} school={s} />)}
+                </div>
+              ) : (
+                <Card className="p-6 text-sm text-muted-foreground">No {tier.toLowerCase()} schools in this report.</Card>
+              )}
+            </TabsContent>
           ))}
-        </TabsList>
-        {(["Reach", "Target", "Safety"] as const).map(tier => (
-          <TabsContent key={tier} value={tier} className="mt-4">
-            <div className="grid md:grid-cols-2 gap-4">
-              {byTier(tier).map((s, i) => <SchoolCard key={i} school={s} />)}
-            </div>
-          </TabsContent>
-        ))}
-      </Tabs>
+        </Tabs>
+      ) : (
+        <Card className="p-6 mb-8 text-sm text-muted-foreground">
+          No school recommendations were returned. Try generating the report again.
+        </Card>
+      )}
 
       {/* Gaps */}
-      <Card className="p-6 mb-8">
-        <h2 className="font-display text-xl font-semibold mb-4">Profile gaps</h2>
-        <ul className="space-y-2">
-          {report.profile_gaps.map((g, i) => (
-            <li key={i} className="flex gap-3 text-sm">
-              <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-destructive flex-shrink-0" />
-              <span>{g}</span>
-            </li>
-          ))}
-        </ul>
-      </Card>
+      {gaps.length > 0 && (
+        <Card className="p-6 mb-8">
+          <h2 className="font-display text-xl font-semibold mb-4">Profile gaps</h2>
+          <ul className="space-y-2">
+            {gaps.map((g, i) => (
+              <li key={i} className="flex gap-3 text-sm">
+                <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-destructive flex-shrink-0" />
+                <span>{g}</span>
+              </li>
+            ))}
+          </ul>
+        </Card>
+      )}
 
       {/* Roadmap */}
-      <Card className="p-6">
-        <h2 className="font-display text-xl font-semibold mb-4">Your roadmap</h2>
-        <div className="space-y-3">
-          {report.actionable_next_steps.map((step, i) => (
-            <label key={i} className="flex items-start gap-3 rounded-lg border border-border p-3 hover:bg-secondary/40 cursor-pointer">
-              <Checkbox checked={checked[i] ?? false} onCheckedChange={(v) => setChecked({ ...checked, [i]: !!v })} />
-              <div>
-                <div className="text-xs text-muted-foreground">Step {i + 1}</div>
-                <div className={checked[i] ? "line-through text-muted-foreground" : ""}>{step}</div>
-              </div>
-            </label>
-          ))}
-        </div>
-      </Card>
+      {steps.length > 0 && (
+        <Card className="p-6">
+          <h2 className="font-display text-xl font-semibold mb-4">Your roadmap</h2>
+          <div className="space-y-3">
+            {steps.map((step, i) => (
+              <label key={i} className="flex items-start gap-3 rounded-lg border border-border p-3 hover:bg-secondary/40 cursor-pointer">
+                <Checkbox checked={checked[i] ?? false} onCheckedChange={(v) => setChecked({ ...checked, [i]: !!v })} />
+                <div>
+                  <div className="text-xs text-muted-foreground">Step {i + 1}</div>
+                  <div className={checked[i] ? "line-through text-muted-foreground" : ""}>{step}</div>
+                </div>
+              </label>
+            ))}
+          </div>
+        </Card>
+      )}
     </main>
   );
 }
@@ -146,7 +190,7 @@ function ScoreRing({ score }: { score: number }) {
 }
 
 function SchoolCard({ school }: { school: School }) {
-  const tierColor: Record<School["tier"], string> = {
+  const tierColor: Record<Tier, string> = {
     Reach: "bg-[oklch(var(--reach)/0.1)] text-[oklch(var(--reach))] border-[oklch(var(--reach)/0.3)]",
     Target: "bg-[oklch(var(--target)/0.1)] text-[oklch(var(--target))] border-[oklch(var(--target)/0.3)]",
     Safety: "bg-[oklch(var(--safety)/0.1)] text-[oklch(var(--safety))] border-[oklch(var(--safety)/0.3)]",
@@ -158,7 +202,9 @@ function SchoolCard({ school }: { school: School }) {
         <Badge variant="outline" className={tierColor[school.tier]}>{school.tier}</Badge>
       </div>
       <div className="text-xs text-muted-foreground mb-3">Acceptance rate: {school.admission_rate_estimate}</div>
-      <p className="text-sm text-muted-foreground leading-relaxed">{school.reason_for_tier}</p>
+      {school.reason_for_tier && (
+        <p className="text-sm text-muted-foreground leading-relaxed">{school.reason_for_tier}</p>
+      )}
     </Card>
   );
 }

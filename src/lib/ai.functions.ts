@@ -34,20 +34,7 @@ export const generateReport = createServerFn({ method: "POST" })
       ],
     });
 
-    try {
-      return JSON.parse(content) as {
-        profile_strength_score: number;
-        summary_bullets: string[];
-        categorized_schools: Array<{
-          school_name: string;
-          tier: string;
-          admission_rate_estimate: string;
-          reason_for_tier: string;
-        }>;
-        profile_gaps: string[];
-        actionable_next_steps: string[];
-      };
-    } catch {
-      throw new Error("AI returned invalid JSON.");
-    }
+    const { normalizeReport } = await import("@/lib/report-normalize");
+    return normalizeReport(content);
   });
+
