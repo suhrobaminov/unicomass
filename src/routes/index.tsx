@@ -425,11 +425,11 @@ function CTA() {
           progress is saved right here on your device.
         </p>
         <div className="mt-8 flex flex-wrap justify-center gap-3">
-          <Link to="/dashboard">
+          <LoginDialog>
             <Button size="lg" className="h-12 rounded-xl px-7 text-base">
               Analyze My Profile
             </Button>
-          </Link>
+          </LoginDialog>
           <a href="#how-it-works">
             <Button size="lg" variant="outline" className="h-12 rounded-xl border-border px-7 text-base">
               How It Works
