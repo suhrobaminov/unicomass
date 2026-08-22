@@ -118,11 +118,11 @@ function Nav() {
               Find Your Major
             </Button>
           </Link>
-          <Link to="/dashboard">
+          <LoginDialog>
             <Button size="sm" className="rounded-lg px-4">
               Get Started
             </Button>
-          </Link>
+          </LoginDialog>
           <a
             href="#features"
             className="grid h-9 w-9 place-items-center rounded-lg border border-border text-muted-foreground lg:hidden"
