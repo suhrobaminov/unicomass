@@ -13,6 +13,7 @@ import {
   Menu,
 } from "lucide-react";
 import { DonateDialog } from "@/components/donate-dialog";
+import { LoginDialog } from "@/components/login-dialog";
 import heroStudents from "@/assets/hero-students.jpg";
 import { absoluteUrl } from "@/lib/site";
 
