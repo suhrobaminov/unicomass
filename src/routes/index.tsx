@@ -13,6 +13,7 @@ import {
   Menu,
 } from "lucide-react";
 import { DonateDialog } from "@/components/donate-dialog";
+import { LoginDialog } from "@/components/login-dialog";
 import heroStudents from "@/assets/hero-students.jpg";
 import { absoluteUrl } from "@/lib/site";
 
@@ -117,11 +118,11 @@ function Nav() {
               Find Your Major
             </Button>
           </Link>
-          <Link to="/dashboard">
+          <LoginDialog>
             <Button size="sm" className="rounded-lg px-4">
               Get Started
             </Button>
-          </Link>
+          </LoginDialog>
           <a
             href="#features"
             className="grid h-9 w-9 place-items-center rounded-lg border border-border text-muted-foreground lg:hidden"
@@ -161,12 +162,12 @@ function Hero() {
             application roadmap.
           </p>
           <div className="mt-9 flex flex-wrap items-center gap-3">
-            <Link to="/dashboard">
+            <LoginDialog>
               <Button size="lg" className="h-12 rounded-xl px-7 text-base shadow-soft">
                 Analyze My Profile
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
-            </Link>
+            </LoginDialog>
             <a href="#how-it-works">
               <Button
                 size="lg"
@@ -424,11 +425,11 @@ function CTA() {
           progress is saved right here on your device.
         </p>
         <div className="mt-8 flex flex-wrap justify-center gap-3">
-          <Link to="/dashboard">
+          <LoginDialog>
             <Button size="lg" className="h-12 rounded-xl px-7 text-base">
               Analyze My Profile
             </Button>
-          </Link>
+          </LoginDialog>
           <a href="#how-it-works">
             <Button size="lg" variant="outline" className="h-12 rounded-xl border-border px-7 text-base">
               How It Works
