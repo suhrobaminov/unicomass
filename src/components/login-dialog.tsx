@@ -18,6 +18,12 @@ import {
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 
+const POST_AUTH_PATH_KEY = "unicompass:post-auth-path";
+
+function safeNextPath(next: string) {
+  return next.startsWith("/") && !next.startsWith("//") ? next : "/dashboard";
+}
+
 export function LoginDialog({ children, next = "/dashboard" }: { children: React.ReactNode; next?: string }) {
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
@@ -27,11 +33,13 @@ export function LoginDialog({ children, next = "/dashboard" }: { children: React
 
   async function handleGoogle() {
     setBusy(true);
+    sessionStorage.setItem(POST_AUTH_PATH_KEY, safeNextPath(next));
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo: window.location.origin + next },
+      options: { redirectTo: window.location.origin },
     });
     if (error) {
+      sessionStorage.removeItem(POST_AUTH_PATH_KEY);
       setBusy(false);
       toast.error(error.message);
     }

@@ -11,6 +11,36 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { Toaster } from "@/components/ui/sonner";
+import { supabase } from "@/integrations/supabase/client";
+
+const POST_AUTH_PATH_KEY = "unicompass:post-auth-path";
+
+function AuthReturnHandler() {
+  useEffect(() => {
+    const finishGoogleSignIn = () => {
+      const destination = sessionStorage.getItem(POST_AUTH_PATH_KEY);
+      if (!destination) return;
+
+      sessionStorage.removeItem(POST_AUTH_PATH_KEY);
+      const safeDestination = destination.startsWith("/") && !destination.startsWith("//")
+        ? destination
+        : "/dashboard";
+      window.location.replace(safeDestination);
+    };
+
+    const { data } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session) finishGoogleSignIn();
+    });
+
+    supabase.auth.getSession().then(({ data: sessionData }) => {
+      if (sessionData.session) finishGoogleSignIn();
+    });
+
+    return () => data.subscription.unsubscribe();
+  }, []);
+
+  return null;
+}
 
 function NotFoundComponent() {
   return (
@@ -83,6 +113,7 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   return (
     <QueryClientProvider client={queryClient}>
+      <AuthReturnHandler />
       <Outlet />
       <Toaster richColors position="top-right" />
     </QueryClientProvider>
