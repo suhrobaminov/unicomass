@@ -16,7 +16,7 @@ export type ChatOptions = {
 };
 
 /** Default model — fast and cost-effective. */
-export const DEFAULT_MODEL = "gemini-flash-latest";
+export const DEFAULT_MODEL = "gemini-3.6-flash";
 
 function friendlyError(err: unknown): Error {
   const text = err instanceof Error ? err.message : String(err);
