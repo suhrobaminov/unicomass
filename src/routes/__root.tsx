@@ -26,7 +26,8 @@ function AuthReturnHandler() {
       params.get("error") || hash.get("error");
     if (oauthError) {
       sessionStorage.removeItem(POST_AUTH_PATH_KEY);
-      toast.error(`Google sign-in failed: ${oauthError.replace(/\+/g, " ")}`);
+      const msg = `Google sign-in failed: ${oauthError.replace(/\+/g, " ")}`;
+      setTimeout(() => toast.error(msg), 500);
       window.history.replaceState(null, "", window.location.pathname);
     }
     const finishGoogleSignIn = () => {
