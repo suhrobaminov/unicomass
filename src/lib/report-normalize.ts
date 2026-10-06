@@ -11,6 +11,7 @@ export type School = {
   tier: Tier;
   admission_rate_estimate: string;
   reason_for_tier: string;
+  review: string;
 };
 
 export type NormalizedReport = {
@@ -66,6 +67,7 @@ function toSchool(v: unknown, fallbackTier: Tier | null): School | null {
       tier: fallbackTier ?? "Target",
       admission_rate_estimate: "—",
       reason_for_tier: "",
+      review: "",
     };
   }
   const r = asRecord(v);
@@ -82,6 +84,7 @@ function toSchool(v: unknown, fallbackTier: Tier | null): School | null {
       "—",
     reason_for_tier:
       toText(r["reason_for_tier"]) || toText(r["reason"]) || toText(r["why"]) || toText(r["rationale"]),
+    review: toText(r["review"]) || toText(r["assessment"]) || toText(r["fit_review"]),
   };
 }
 

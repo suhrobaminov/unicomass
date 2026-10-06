@@ -23,6 +23,9 @@ export const generateReport = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const { geminiChat, ADMISSIONS_SYSTEM_PROMPT } = await import("@/lib/gemini.server");
 
+    const { normalizeReport } = await import("@/lib/report-normalize");
+    // Retry once if the model returns malformed JSON or no schools.
+    for (let attempt = 0; attempt < 2; attempt++) {
     const content = await geminiChat({
       jsonMode: true,
       messages: [
@@ -34,7 +37,10 @@ export const generateReport = createServerFn({ method: "POST" })
       ],
     });
 
-    const { normalizeReport } = await import("@/lib/report-normalize");
-    return normalizeReport(content);
+    const report = normalizeReport(content);
+    if (report.categorized_schools.length > 0) return report;
+    console.error("[ai] report had no schools, attempt", attempt + 1, content.slice(0, 300));
+    }
+    throw new Error("The AI returned a report without university recommendations. Please try again.");
   });
 
