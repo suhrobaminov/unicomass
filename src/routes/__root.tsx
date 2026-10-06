@@ -17,6 +17,17 @@ const POST_AUTH_PATH_KEY = "unicompass:post-auth-path";
 
 function AuthReturnHandler() {
   useEffect(() => {
+    // Surface OAuth errors returned by the auth server (query or hash).
+    const params = new URLSearchParams(window.location.search);
+    const hash = new URLSearchParams(window.location.hash.replace(/^#/, ""));
+    const oauthError =
+      params.get("error_description") || hash.get("error_description") ||
+      params.get("error") || hash.get("error");
+    if (oauthError) {
+      sessionStorage.removeItem(POST_AUTH_PATH_KEY);
+      toast.error(`Google sign-in failed: ${oauthError.replace(/\+/g, " ")}`);
+      window.history.replaceState(null, "", window.location.pathname);
+    }
     const finishGoogleSignIn = () => {
       const destination = sessionStorage.getItem(POST_AUTH_PATH_KEY);
       if (!destination) return;
