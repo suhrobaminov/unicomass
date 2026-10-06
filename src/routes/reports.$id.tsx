@@ -114,7 +114,8 @@ function ReportView() {
       </Card>
 
       {/* Schools */}
-      <h2 className="font-display text-2xl font-semibold mb-4">Recommended schools</h2>
+      <h2 className="font-display text-2xl font-semibold mb-1">Recommended schools</h2>
+      <p className="mb-4 text-xs text-muted-foreground">AI-generated assessments based on your profile. Acceptance rates are approximate — verify on each university's official site.</p>
       {schools.length > 0 ? (
         <Tabs defaultValue="Reach" className="mb-8">
           <TabsList>
@@ -201,9 +202,15 @@ function SchoolCard({ school }: { school: School }) {
         <h3 className="font-semibold text-lg">{school.school_name}</h3>
         <Badge variant="outline" className={tierColor[school.tier]}>{school.tier}</Badge>
       </div>
-      <div className="text-xs text-muted-foreground mb-3">Acceptance rate: {school.admission_rate_estimate}</div>
+      <div className="text-xs text-muted-foreground mb-3">Est. acceptance rate: {school.admission_rate_estimate}</div>
       {school.reason_for_tier && (
         <p className="text-sm text-muted-foreground leading-relaxed">{school.reason_for_tier}</p>
+      )}
+      {school.review && (
+        <div className="mt-3 border-t border-border pt-3">
+          <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground">AI-generated assessment</div>
+          <p className="mt-1 text-sm leading-relaxed">{school.review}</p>
+        </div>
       )}
     </Card>
   );

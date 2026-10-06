@@ -32,42 +32,88 @@ function friendlyError(err: unknown): Error {
   return new Error(`AI error: ${text.slice(0, 200)}`);
 }
 
-export async function geminiChat(opts: ChatOptions): Promise<string> {
-  const apiKey = process.env["GEMINI_API_KEY"]?.trim();
-  if (!apiKey) throw new Error("AI service is not configured.");
+const GEMINI_FALLBACK_MODELS = ["gemini-2.5-flash", "gemini-flash-latest"];
+const GROQ_MODEL = "openai/gpt-oss-120b";
 
+async function callGemini(apiKey: string, model: string, opts: ChatOptions): Promise<string> {
   const ai = new GoogleGenAI({ apiKey });
-  const model = (opts.model ?? DEFAULT_MODEL).replace(/^google\//, "");
-
   const systemInstruction = opts.messages
     .filter((m) => m.role === "system")
     .map((m) => m.content)
     .join("\n\n");
-
   const contents = opts.messages
     .filter((m) => m.role !== "system")
     .map((m) => ({
       role: m.role === "assistant" ? "model" : "user",
       parts: [{ text: m.content }],
     }));
+  const res = await ai.models.generateContent({
+    model,
+    contents,
+    config: {
+      ...(systemInstruction ? { systemInstruction } : {}),
+      ...(opts.jsonMode ? { responseMimeType: "application/json" } : {}),
+      ...(opts.temperature !== undefined ? { temperature: opts.temperature } : {}),
+    },
+  });
+  const content = (res.text ?? "").trim();
+  if (!content) throw new Error("No response from AI.");
+  return content;
+}
 
-  try {
-    const res = await ai.models.generateContent({
-      model,
-      contents,
-      config: {
-        ...(systemInstruction ? { systemInstruction } : {}),
-        ...(opts.jsonMode ? { responseMimeType: "application/json" } : {}),
-        ...(opts.temperature !== undefined ? { temperature: opts.temperature } : {}),
-      },
-    });
+async function callGroq(apiKey: string, opts: ChatOptions): Promise<string> {
+  const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+    body: JSON.stringify({
+      model: GROQ_MODEL,
+      messages: opts.messages,
+      ...(opts.jsonMode ? { response_format: { type: "json_object" } } : {}),
+      ...(opts.temperature !== undefined ? { temperature: opts.temperature } : {}),
+    }),
+  });
+  const text = await res.text();
+  if (!res.ok) throw new Error(`Groq ${res.status}: ${text.slice(0, 200)}`);
+  const json = JSON.parse(text) as { choices?: Array<{ message?: { content?: string } }> };
+  const content = (json.choices?.[0]?.message?.content ?? "").trim();
+  if (!content) throw new Error("No response from AI.");
+  return content;
+}
 
-    const content = (res.text ?? "").trim();
-    if (!content) throw new Error("No response from AI.");
-    return content;
-  } catch (err) {
-    throw friendlyError(err);
+/**
+ * Tries Gemini (requested model, then stable fallbacks), then Groq if a
+ * GROQ_API_KEY is configured. Every failure is logged server-side; the last
+ * error is surfaced to the user so nothing fails silently.
+ */
+export async function geminiChat(opts: ChatOptions): Promise<string> {
+  const geminiKey = process.env["GEMINI_API_KEY"]?.trim();
+  const groqKey = process.env["GROQ_API_KEY"]?.trim();
+  if (!geminiKey && !groqKey) throw new Error("AI service is not configured (missing GEMINI_API_KEY).");
+
+  let lastErr: unknown = null;
+  if (geminiKey) {
+    const primary = (opts.model ?? DEFAULT_MODEL).replace(/^google\//, "");
+    const models = [primary, ...GEMINI_FALLBACK_MODELS.filter((m) => m !== primary)];
+    for (const model of models) {
+      try {
+        return await callGemini(geminiKey, model, opts);
+      } catch (err) {
+        lastErr = err;
+        console.error(`[ai] Gemini ${model} failed:`, err instanceof Error ? err.message : err);
+        // An invalid key fails identically for every model — skip ahead.
+        if (/API key not valid|API_KEY_INVALID|401|403|PERMISSION_DENIED/i.test(String(err))) break;
+      }
+    }
   }
+  if (groqKey) {
+    try {
+      return await callGroq(groqKey, opts);
+    } catch (err) {
+      lastErr = err;
+      console.error("[ai] Groq fallback failed:", err instanceof Error ? err.message : err);
+    }
+  }
+  throw friendlyError(lastErr);
 }
 
 export const ADMISSIONS_SYSTEM_PROMPT = `You are a veteran Ivy League admissions officer with 20+ years of experience. You are highly critical, precise, and holistic. You evaluate how a student's course rigor aligns with their intended major, weigh leadership and impact over sheer activity count, and recommend a calibrated school list.
@@ -84,8 +130,8 @@ Schema:
   "profile_strength_score": integer 1-100,
   "summary_bullets": string[] (3-5 short strategy bullets),
   "categorized_schools": [
-    { "school_name": string, "tier": "Reach"|"Target"|"Safety", "admission_rate_estimate": string (e.g. "~5%"), "reason_for_tier": string (exactly 2 sentences tied to this student's stats) }
-  ] (exactly 5 with tier "Reach", 5 with tier "Target", 4 with tier "Safety"),
+    { "school_name": string, "tier": "Reach"|"Target"|"Safety", "admission_rate_estimate": string (approximate historical selectivity, e.g. "~5%"), "reason_for_tier": string (exactly 2 sentences tied to this student's stats), "review": string (2-3 sentence assessment of how well this school fits the student's intended major, strengths and gaps) }
+  ] (exactly 5 with tier "Reach", 5 with tier "Target", 4 with tier "Safety"; real, accredited universities only),
   "profile_gaps": string[] (3-6 specific weaknesses),
   "actionable_next_steps": string[] (4-5 chronological, concrete steps)
 }`;
