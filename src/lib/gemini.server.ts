@@ -85,36 +85,59 @@ async function callGroq(apiKey: string, opts: ChatOptions): Promise<string> {
  * GROQ_API_KEY is configured. Every failure is logged server-side; the last
  * error is surfaced to the user so nothing fails silently.
  */
+function classify(err: unknown): string {
+  const t = err instanceof Error ? err.message : String(err);
+  if (/API key not valid|API_KEY_INVALID|invalid_api_key|Invalid API Key|401|403|PERMISSION_DENIED|UNAUTHENTICATED/i.test(t)) return "key rejected (invalid or revoked)";
+  if (/429|RESOURCE_EXHAUSTED|quota|rate limit/i.test(t)) return "quota/rate limit reached";
+  if (/404|not found|NOT_FOUND/i.test(t)) return "model not available for this key";
+  if (/5\d\d|UNAVAILABLE|INTERNAL|overloaded/i.test(t)) return "provider temporarily unavailable";
+  return "request failed";
+}
+
 export async function geminiChat(opts: ChatOptions): Promise<string> {
   const geminiKey = process.env["GEMINI_API_KEY"]?.trim();
   const groqKey = process.env["GROQ_API_KEY"]?.trim();
-  if (!geminiKey && !groqKey) throw new Error("AI service is not configured (missing GEMINI_API_KEY).");
+  if (!geminiKey && !groqKey) {
+    throw new Error(
+      "AI is not configured: neither GEMINI_API_KEY nor GROQ_API_KEY is set on the server. Add one in your hosting environment variables and redeploy.",
+    );
+  }
 
-  let lastErr: unknown = null;
+  const problems: string[] = [];
   if (geminiKey) {
     const primary = (opts.model ?? DEFAULT_MODEL).replace(/^google\//, "");
     const models = [primary, ...GEMINI_FALLBACK_MODELS.filter((m) => m !== primary)];
+    let geminiIssue = "";
     for (const model of models) {
       try {
         return await callGemini(geminiKey, model, opts);
       } catch (err) {
-        lastErr = err;
+        geminiIssue = classify(err);
         console.error(`[ai] Gemini ${model} failed:`, err instanceof Error ? err.message : err);
-        // An invalid key fails identically for every model — skip ahead.
-        if (/API key not valid|API_KEY_INVALID|401|403|PERMISSION_DENIED/i.test(String(err))) break;
+        if (geminiIssue.startsWith("key rejected")) break;
       }
     }
+    problems.push(`GEMINI_API_KEY: ${geminiIssue}`);
+  } else {
+    problems.push("GEMINI_API_KEY: not set");
   }
   if (groqKey) {
     try {
       return await callGroq(groqKey, opts);
     } catch (err) {
-      lastErr = err;
       console.error("[ai] Groq fallback failed:", err instanceof Error ? err.message : err);
+      problems.push(`GROQ_API_KEY: ${classify(err)}`);
     }
+  } else {
+    problems.push("GROQ_API_KEY: not set");
   }
-  throw friendlyError(lastErr);
+  const keyIssue = problems.some((p) => /not set|key rejected/.test(p));
+  throw new Error(
+    `AI request failed — ${problems.join("; ")}.` +
+      (keyIssue ? " Update the key in your hosting environment variables and redeploy." : " Please try again shortly."),
+  );
 }
+void friendlyError;
 
 export const ADMISSIONS_SYSTEM_PROMPT = `You are a veteran Ivy League admissions officer with 20+ years of experience. You are highly critical, precise, and holistic. You evaluate how a student's course rigor aligns with their intended major, weigh leadership and impact over sheer activity count, and recommend a calibrated school list.
 
