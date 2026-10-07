@@ -16,7 +16,7 @@ export type ChatOptions = {
 };
 
 /** Default model — fast and cost-effective. */
-export const DEFAULT_MODEL = "gemini-3.6-flash";
+export const DEFAULT_MODEL = "gemini-3.8-flash";
 
 function friendlyError(err: unknown): Error {
   const text = err instanceof Error ? err.message : String(err);
@@ -32,7 +32,20 @@ function friendlyError(err: unknown): Error {
   return new Error(`AI error: ${text.slice(0, 200)}`);
 }
 
-const GEMINI_FALLBACK_MODELS = ["gemini-2.5-flash", "gemini-flash-latest"];
+const GEMINI_FALLBACK_MODELS = ["gemini-3.7-flash", "gemini-3.6-flash", "gemini-3.5-flash"];
+
+/** Bounded retry for transient provider errors before moving to the next model. */
+const MAX_ATTEMPTS_PER_MODEL = 3;
+const RETRY_BASE_DELAY_MS = 500;
+
+function isTransient(err: unknown): boolean {
+  const t = err instanceof Error ? err.message : String(err);
+  return /429|RESOURCE_EXHAUSTED|quota|rate limit|5\d\d|UNAVAILABLE|INTERNAL|overloaded|timeout|timed out|network|fetch failed/i.test(
+    t,
+  );
+}
+
+const delay = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
 const GROQ_MODEL = "openai/gpt-oss-120b";
 
 async function callGemini(apiKey: string, model: string, opts: ChatOptions): Promise<string> {
@@ -109,15 +122,28 @@ export async function geminiChat(opts: ChatOptions): Promise<string> {
     const models = [primary, ...GEMINI_FALLBACK_MODELS.filter((m) => m !== primary)];
     let geminiIssue = "";
     for (const model of models) {
-      try {
-        return await callGemini(geminiKey, model, opts);
-      } catch (err) {
-        geminiIssue = classify(err);
-        console.error(`[ai] Gemini ${model} failed:`, err instanceof Error ? err.message : err);
-        if (geminiIssue.startsWith("key rejected")) break;
+      for (let attempt = 1; attempt <= MAX_ATTEMPTS_PER_MODEL; attempt++) {
+        try {
+          return await callGemini(geminiKey, model, opts);
+        } catch (err) {
+          geminiIssue = classify(err);
+          console.error(
+            `[ai] Gemini ${model} failed (attempt ${attempt}):`,
+            err instanceof Error ? err.message : err,
+          );
+          // Invalid key: retrying or trying other models with the same key won't help.
+          if (geminiIssue.startsWith("key rejected")) break;
+          // Transient provider issues get bounded retries with exponential backoff.
+          if (attempt < MAX_ATTEMPTS_PER_MODEL && isTransient(err)) {
+            await delay(RETRY_BASE_DELAY_MS * 2 ** (attempt - 1));
+            continue;
+          }
+          break; // Non-transient failure — move on to the next model.
+        }
       }
+      if (geminiIssue.startsWith("key rejected")) break;
     }
-    problems.push(`GEMINI_API_KEY: ${geminiIssue}`);
+    problems.push(`Gemini: ${geminiIssue}`);
   } else {
     problems.push("GEMINI_API_KEY: not set");
   }
@@ -126,16 +152,25 @@ export async function geminiChat(opts: ChatOptions): Promise<string> {
       return await callGroq(groqKey, opts);
     } catch (err) {
       console.error("[ai] Groq fallback failed:", err instanceof Error ? err.message : err);
-      problems.push(`GROQ_API_KEY: ${classify(err)}`);
+      problems.push(`Groq: ${classify(err)}`);
     }
   } else {
     problems.push("GROQ_API_KEY: not set");
   }
-  const keyIssue = problems.some((p) => /not set|key rejected/.test(p));
-  throw new Error(
-    `AI request failed — ${problems.join("; ")}.` +
-      (keyIssue ? " Update the key in your hosting environment variables and redeploy." : " Please try again shortly."),
+  const providerDown = problems.some((p) =>
+    /temporarily unavailable|quota\/rate limit|overloaded/i.test(p),
   );
+  const keyIssue = !providerDown && problems.some((p) => /not set|key rejected/i.test(p));
+  let advice: string;
+  if (keyIssue) {
+    advice = " Update the missing or invalid key in your hosting environment variables and redeploy.";
+  } else if (providerDown) {
+    advice =
+      " The AI provider is temporarily unavailable or rate-limited — please try again in a few minutes.";
+  } else {
+    advice = " Please try again shortly.";
+  }
+  throw new Error(`AI request failed — ${problems.join("; ")}.${advice}`);
 }
 void friendlyError;
 
