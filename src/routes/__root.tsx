@@ -18,7 +18,6 @@ const POST_AUTH_PATH_KEY = "unicompass:post-auth-path";
 
 function AuthReturnHandler() {
   useEffect(() => {
-    // Surface OAuth errors returned by the auth server (query or hash).
     const params = new URLSearchParams(window.location.search);
     const hash = new URLSearchParams(window.location.hash.replace(/^#/, ""));
     const oauthError =
@@ -103,7 +102,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     links: [
       { rel: "stylesheet", href: appCss },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
-      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "" },
+      { rel: "preconnect", href: "https://fonts.gstatic.com" },
       { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" },
     ],
   }),
@@ -128,6 +127,18 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <AuthReturnHandler />
       <Outlet />
+      <footer className="border-t bg-background px-6 py-8">
+        <div className="mx-auto flex max-w-6xl flex-col gap-3 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <div className="font-medium text-foreground">UniCompass</div>
+            <div>Created by Suhrob Aminov</div>
+          </div>
+          <div className="flex gap-4">
+            <a href="https://t.me/Uzbek_npc" target="_blank" rel="noreferrer" className="hover:text-foreground transition-colors">Telegram: @Uzbek_npc</a>
+            <a href="https://instagram.com/Uzbek.npc" target="_blank" rel="noreferrer" className="hover:text-foreground transition-colors">Instagram: @Uzbek.npc</a>
+          </div>
+        </div>
+      </footer>
       <Toaster richColors position="top-right" />
     </QueryClientProvider>
   );
