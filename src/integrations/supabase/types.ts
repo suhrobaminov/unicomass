@@ -220,7 +220,16 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_public_comments: {
+        Args: { _limit?: number }
+        Returns: {
+          body: string
+          created_at: string
+          display_name: string
+          id: string
+          rating: number
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never
