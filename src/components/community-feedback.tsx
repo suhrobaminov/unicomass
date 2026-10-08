@@ -46,27 +46,14 @@ export function CommunityFeedback() {
   const [name, setName] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-  useEffect(() => {
+  const loadComments = () => {
     supabase
-      .from("comments")
-      .select("*")
-      .order("created_at", { ascending: false })
-      .limit(24)
-      .then(({ data }) => setComments((data as Comment[]) ?? []));
+      .rpc("get_public_comments", { _limit: 24 })
+      .then(({ data }) => setComments((data as unknown as Comment[]) ?? []));
+  };
 
-    const channel = supabase
-      .channel("comments-feed")
-      .on("postgres_changes", { event: "INSERT", schema: "public", table: "comments" }, (payload) => {
-        setComments((prev) => [payload.new as Comment, ...prev].slice(0, 24));
-      })
-      .on("postgres_changes", { event: "DELETE", schema: "public", table: "comments" }, (payload) => {
-        setComments((prev) => prev.filter((c) => c.id !== (payload.old as Comment).id));
-      })
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
+  useEffect(() => {
+    loadComments();
   }, []);
 
   const submit = async (e: React.FormEvent) => {
