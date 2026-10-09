@@ -1,11 +1,14 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { EmailOtpForm } from "@/components/email-otp-form";
-import { GoogleSignInButton } from "@/components/google-sign-in-button";
+import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
 
 type Search = { next?: string };
+const POST_AUTH_PATH_KEY = "unicompass:post-auth-path";
 
 function safeNextPath(next?: string) {
   return next?.startsWith("/") && !next.startsWith("//") ? next : "/dashboard";
@@ -32,6 +35,7 @@ export const Route = createFileRoute("/auth")({
 function AuthPage() {
   const { next } = Route.useSearch();
   const navigate = useNavigate();
+  const [busy, setBusy] = useState(false);
 
   useEffect(() => {
     const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
@@ -43,6 +47,20 @@ function AuthPage() {
     return () => sub.subscription.unsubscribe();
   }, [navigate, next]);
 
+  async function handleGoogle() {
+    setBusy(true);
+    sessionStorage.setItem(POST_AUTH_PATH_KEY, safeNextPath(next));
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: { redirectTo: window.location.origin },
+    });
+    if (error) {
+      sessionStorage.removeItem(POST_AUTH_PATH_KEY);
+      setBusy(false);
+      toast.error(error.message);
+    }
+  }
+
   return (
     <main className="mx-auto flex max-w-md flex-col px-6 py-16">
       <div className="mb-8 text-center">
@@ -53,7 +71,10 @@ function AuthPage() {
       </div>
 
       <Card className="p-6">
-        <GoogleSignInButton onSignedIn={() => navigate({ to: safeNextPath(next), replace: true })} />
+        <Button variant="outline" className="w-full" onClick={handleGoogle} disabled={busy}>
+          {busy ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+          Continue with Google
+        </Button>
 
         <div className="my-6 flex items-center gap-3 text-xs text-muted-foreground">
           <div className="h-px flex-1 bg-border" /> or <div className="h-px flex-1 bg-border" />
