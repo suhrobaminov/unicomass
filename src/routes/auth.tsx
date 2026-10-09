@@ -1,14 +1,72 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { EmailOtpForm } from "@/components/email-otp-form";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
 
 type Search = { next?: string };
-const POST_AUTH_PATH_KEY = "unicompass:post-auth-path";
+
+// Public Google Web Client ID (not a secret).
+const GOOGLE_CLIENT_ID =
+  "399336357296-r2sg53a2pk73nro5ui03bqk6ustkqk6na.apps.googleusercontent.com";
+const GIS_SRC = "https://accounts.google.com/gsi/client";
+
+type GoogleCredentialResponse = { credential?: string };
+declare global {
+  interface Window {
+    google?: {
+      accounts: {
+        id: {
+          initialize: (config: {
+            client_id: string;
+            callback: (response: GoogleCredentialResponse) => void;
+            nonce?: string;
+            use_fedcm_for_prompt?: boolean;
+            auto_select?: boolean;
+          }) => void;
+          renderButton: (el: HTMLElement, options: Record<string, unknown>) => void;
+          cancel: () => void;
+        };
+      };
+    };
+  }
+}
+
+let gisPromise: Promise<void> | null = null;
+function loadGis(): Promise<void> {
+  if (window.google?.accounts?.id) return Promise.resolve();
+  if (gisPromise) return gisPromise;
+  gisPromise = new Promise<void>((resolve, reject) => {
+    const existing = document.querySelector<HTMLScriptElement>(`script[src="${GIS_SRC}"]`);
+    const script = existing ?? document.createElement("script");
+    const onLoad = () => resolve();
+    const onError = () => {
+      gisPromise = null;
+      script.remove();
+      reject(new Error("Could not load Google sign-in."));
+    };
+    script.addEventListener("load", onLoad, { once: true });
+    script.addEventListener("error", onError, { once: true });
+    if (!existing) {
+      script.src = GIS_SRC;
+      script.async = true;
+      script.defer = true;
+      document.head.appendChild(script);
+    }
+  });
+  return gisPromise;
+}
+
+async function makeNonce() {
+  const bytes = crypto.getRandomValues(new Uint8Array(32));
+  const raw = btoa(String.fromCharCode(...bytes)).replace(/[+/=]/g, "");
+  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(raw));
+  const hashed = Array.from(new Uint8Array(digest))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+  return { raw, hashed };
+}
 
 function safeNextPath(next?: string) {
   return next?.startsWith("/") && !next.startsWith("//") ? next : "/dashboard";
@@ -35,7 +93,8 @@ export const Route = createFileRoute("/auth")({
 function AuthPage() {
   const { next } = Route.useSearch();
   const navigate = useNavigate();
-  const [busy, setBusy] = useState(false);
+  const buttonRef = useRef<HTMLDivElement>(null);
+  const [gisError, setGisError] = useState<string | null>(null);
 
   useEffect(() => {
     const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
@@ -47,19 +106,53 @@ function AuthPage() {
     return () => sub.subscription.unsubscribe();
   }, [navigate, next]);
 
-  async function handleGoogle() {
-    setBusy(true);
-    sessionStorage.setItem(POST_AUTH_PATH_KEY, safeNextPath(next));
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: { redirectTo: window.location.origin },
-    });
-    if (error) {
-      sessionStorage.removeItem(POST_AUTH_PATH_KEY);
-      setBusy(false);
-      toast.error(error.message);
-    }
-  }
+  useEffect(() => {
+    let cancelled = false;
+    const container = buttonRef.current;
+    (async () => {
+      try {
+        const [{ raw, hashed }] = await Promise.all([makeNonce(), loadGis()]);
+        if (cancelled || !container || !window.google) return;
+        window.google.accounts.id.initialize({
+          client_id: GOOGLE_CLIENT_ID,
+          nonce: hashed,
+          use_fedcm_for_prompt: true,
+          callback: async (response) => {
+            if (!response.credential) {
+              toast.error("Google sign-in was cancelled or failed.");
+              return;
+            }
+            const { error } = await supabase.auth.signInWithIdToken({
+              provider: "google",
+              token: response.credential,
+              nonce: raw,
+            });
+            if (error) {
+              toast.error(`Google sign-in failed: ${error.message}`);
+              return;
+            }
+            navigate({ to: safeNextPath(next), replace: true });
+          },
+        });
+        container.innerHTML = "";
+        window.google.accounts.id.renderButton(container, {
+          type: "standard",
+          theme: "outline",
+          size: "large",
+          text: "continue_with",
+          shape: "rectangular",
+          width: Math.min(container.offsetWidth || 336, 400),
+        });
+      } catch (e) {
+        if (!cancelled) setGisError(e instanceof Error ? e.message : "Google sign-in unavailable.");
+      }
+    })();
+    return () => {
+      cancelled = true;
+      window.google?.accounts.id.cancel();
+      if (container) container.innerHTML = "";
+    };
+  }, [navigate, next]);
 
   return (
     <main className="mx-auto flex max-w-md flex-col px-6 py-16">
@@ -71,10 +164,8 @@ function AuthPage() {
       </div>
 
       <Card className="p-6">
-        <Button variant="outline" className="w-full" onClick={handleGoogle} disabled={busy}>
-          {busy ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-          Continue with Google
-        </Button>
+        <div ref={buttonRef} className="flex min-h-[44px] w-full justify-center" />
+        {gisError ? <p className="mt-2 text-center text-sm text-destructive">{gisError}</p> : null}
 
         <div className="my-6 flex items-center gap-3 text-xs text-muted-foreground">
           <div className="h-px flex-1 bg-border" /> or <div className="h-px flex-1 bg-border" />
