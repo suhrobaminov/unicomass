@@ -2,9 +2,8 @@
 
 import { useState } from "react";
 import { useNavigate, Link } from "@tanstack/react-router";
-import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
 import { EmailOtpForm } from "@/components/email-otp-form";
+import { GoogleSignInButton } from "@/components/google-sign-in-button";
 import {
   Dialog,
   DialogContent,
@@ -13,10 +12,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
-
-const POST_AUTH_PATH_KEY = "unicompass:post-auth-path";
 
 function safeNextPath(next: string) {
   return next.startsWith("/") && !next.startsWith("//") ? next : "/dashboard";
@@ -25,21 +20,6 @@ function safeNextPath(next: string) {
 export function LoginDialog({ children, next = "/dashboard" }: { children: React.ReactNode; next?: string }) {
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
-  const [busy, setBusy] = useState(false);
-
-  async function handleGoogle() {
-    setBusy(true);
-    sessionStorage.setItem(POST_AUTH_PATH_KEY, safeNextPath(next));
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: { redirectTo: window.location.origin },
-    });
-    if (error) {
-      sessionStorage.removeItem(POST_AUTH_PATH_KEY);
-      setBusy(false);
-      toast.error(error.message);
-    }
-  }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -52,10 +32,12 @@ export function LoginDialog({ children, next = "/dashboard" }: { children: React
           </DialogDescription>
         </DialogHeader>
 
-        <Button variant="outline" className="w-full" onClick={handleGoogle} disabled={busy}>
-          {busy ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-          Continue with Google
-        </Button>
+        <GoogleSignInButton
+          onSignedIn={() => {
+            setOpen(false);
+            navigate({ to: safeNextPath(next), replace: true });
+          }}
+        />
 
         <div className="my-2 flex items-center gap-3 text-xs text-muted-foreground">
           <div className="h-px flex-1 bg-border" /> or <div className="h-px flex-1 bg-border" />
