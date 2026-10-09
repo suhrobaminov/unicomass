@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Search,
@@ -94,6 +95,7 @@ function Logo() {
 }
 
 function Nav() {
+  const [mobileOpen, setMobileOpen] = useState(false);
   return (
     <header
       id="top"
@@ -123,15 +125,32 @@ function Nav() {
               Get Started
             </Button>
           </LoginDialog>
-          <a
-            href="#features"
+          <button
+            type="button"
+            onClick={() => setMobileOpen((open) => !open)}
             className="grid h-9 w-9 place-items-center rounded-lg border border-border text-muted-foreground lg:hidden"
-            aria-label="Browse features"
+            aria-label={mobileOpen ? "Close navigation menu" : "Open navigation menu"}
+            aria-expanded={mobileOpen}
+            aria-controls="mobile-navigation"
           >
             <Menu className="h-4 w-4" />
-          </a>
+          </button>
         </div>
       </div>
+      {mobileOpen && (
+        <nav id="mobile-navigation" className="border-t border-border bg-background px-6 py-3 lg:hidden">
+          {navLinks.map((link) => (
+            <a
+              key={link.label}
+              href={link.href}
+              onClick={() => setMobileOpen(false)}
+              className="block rounded-lg px-3 py-3 text-sm font-medium text-muted-foreground hover:bg-secondary hover:text-foreground"
+            >
+              {link.label}
+            </a>
+          ))}
+        </nav>
+      )}
     </header>
   );
 }
