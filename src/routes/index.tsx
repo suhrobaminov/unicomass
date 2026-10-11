@@ -362,7 +362,7 @@ const features = [
 function Features() {
   return (
     <section id="features" className="border-y border-[#34342e] bg-[#171813] text-[#f2efe5]">
-      <div className="mx-auto max-w-6xl px-6 py-16 md:py-24">
+      <div className="mx-auto max-w-6xl px-6 py-16 text-[#f2efe5] md:py-24">
         <div className="max-w-2xl">
           <h2 className="font-display text-3xl font-semibold tracking-tight md:text-4xl">
             Everything you need to apply with confidence
@@ -423,7 +423,7 @@ const steps = [
 
 function HowItWorks() {
   return (
-    <section id="how-it-works" className="mx-auto max-w-6xl px-6 py-16 md:py-24">
+    <section id="how-it-works" className="mx-auto max-w-6xl px-6 py-16 text-[#f2efe5] md:py-24">
       <div className="max-w-2xl">
         <h2 className="font-display text-3xl font-semibold tracking-tight md:text-4xl">How it works</h2>
         <p className="mt-4 text-muted-foreground">
@@ -542,30 +542,20 @@ function Resources() {
 
 function CTA() {
   return (
-    <section id="contact" className="mx-auto max-w-6xl px-6 py-16 md:py-24">
-      <div className="rounded-3xl border border-border bg-card px-8 py-14 text-center shadow-soft md:px-16">
-        <h2 className="font-display text-3xl font-semibold tracking-tight md:text-4xl">Questions or feedback?</h2>
-        <p className="mx-auto mt-4 max-w-xl text-muted-foreground">
-          Need help with UniCompass or have an idea to share? Contact the creator directly through any of these channels.
-        </p>
-        <div className="mt-8 flex flex-wrap justify-center gap-3">
-          <a href="mailto:suhrobaminov067@gmail.com" className="inline-flex">
-            <Button size="lg" className="h-12 rounded-xl px-5 text-base">
-              <MessageSquareText className="mr-2 h-4 w-4" /> Email
-            </Button>
-          </a>
-          <a href="https://t.me/Uzbek_npc" target="_blank" rel="noopener noreferrer" className="inline-flex">
-            <Button size="lg" variant="outline" className="h-12 rounded-xl border-border px-5 text-base">
-              <Send className="mr-2 h-4 w-4" /> Telegram
-            </Button>
-          </a>
-          <a href="https://www.instagram.com/Uzbek.npc/" target="_blank" rel="noopener noreferrer" className="inline-flex">
-            <Button size="lg" variant="outline" className="h-12 rounded-xl border-border px-5 text-base">
-              Instagram <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
-          </a>
+    <section id="contact" className="relative overflow-hidden bg-[#11120f] px-6 py-20 text-[#f2efe5] md:py-28">
+      <div className="pointer-events-none absolute left-1/2 top-0 h-px w-[min(80%,900px)] -translate-x-1/2 bg-gradient-to-r from-transparent via-[#c3a977]/70 to-transparent"/>
+      <div className="mx-auto grid max-w-6xl gap-10 border border-[#39382f] bg-[#171813] p-7 sm:p-10 md:grid-cols-[1fr_auto] md:items-end md:p-14">
+        <div>
+          <p className="text-[10px] font-semibold uppercase tracking-[.24em] text-[#c3a977]">A note to the creator</p>
+          <h2 className="mt-5 max-w-2xl font-serif text-4xl leading-[1.05] tracking-tight sm:text-5xl md:text-6xl">Good journeys begin<br/><em className="font-normal text-[#c3a977]">with a conversation.</em></h2>
+          <p className="mt-5 max-w-lg text-sm leading-6 text-[#b9b7ac] md:text-base">Questions, ideas, or something we should improve? Reach out directly. Every thoughtful note helps make UniCompass better.</p>
+          <p className="mt-7 text-xs uppercase tracking-[.16em] text-[#858477]">Created by Suhrob Aminov · UniCompass</p>
         </div>
-        <p className="mt-5 text-sm text-muted-foreground">Created by Suhrob Aminov · UniCompass</p>
+        <div className="flex flex-wrap gap-3 md:max-w-[210px] md:flex-col">
+          <a href="mailto:suhrobaminov067@gmail.com" className="inline-flex min-h-12 items-center justify-center gap-2 border border-[#c3a977] bg-[#c3a977] px-5 text-sm font-semibold text-[#171813] transition-colors hover:bg-[#d6c394]"><MessageSquareText className="h-4 w-4"/> Email me <ArrowRight className="h-4 w-4"/></a>
+          <a href="https://t.me/Uzbek_npc" target="_blank" rel="noopener noreferrer" className="inline-flex min-h-12 items-center justify-center gap-2 border border-[#48473c] px-5 text-sm font-medium text-[#f2efe5] transition-colors hover:border-[#c3a977] hover:text-[#d6c394]"><Send className="h-4 w-4"/> Telegram</a>
+          <a href="https://www.instagram.com/Uzbek.npc/" target="_blank" rel="noopener noreferrer" className="inline-flex min-h-12 items-center justify-center gap-2 border border-[#48473c] px-5 text-sm font-medium text-[#f2efe5] transition-colors hover:border-[#c3a977] hover:text-[#d6c394]">Instagram <ArrowRight className="h-4 w-4"/></a>
+        </div>
       </div>
     </section>
   );
@@ -573,7 +563,7 @@ function CTA() {
 
 function Footer() {
   return (
-    <footer className="border-t border-border bg-secondary/40">
+    <footer className="border-t border-[#34342e] bg-[#0b0c0a] text-[#f2efe5]">
       <div className="mx-auto max-w-6xl px-6 py-12">
         <div className="flex flex-col gap-8 md:flex-row md:items-start md:justify-between">
           <div className="max-w-xs">
