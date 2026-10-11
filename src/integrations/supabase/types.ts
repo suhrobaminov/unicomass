@@ -14,6 +14,27 @@ export type Database = {
   }
   public: {
     Tables: {
+      site_feedback: {
+        Row: {
+          category: string
+          created_at: string
+          id: number
+          message: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          id?: number
+          message: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          id?: number
+          message?: string
+        }
+        Relationships: []
+      }
       awards: {
         Row: {
           created_at: string
