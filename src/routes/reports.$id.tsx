@@ -49,17 +49,17 @@ function ReportView() {
     }
   }, [id]);
 
-  if (loading) return <div className="grid place-items-center py-20"><Loader2 className="animate-spin" /></div>;
+  if (loading) return <div role="status" aria-label="Loading strategy report" className="site-width space-y-4 py-16"><div className="loading-sheen h-8 w-56" /><div className="loading-sheen h-40 w-full" /><div className="loading-sheen h-64 w-full" /><Loader2 className="sr-only animate-spin" /></div>;
 
   if (missing || !report) {
     return (
-      <main className="mx-auto max-w-2xl px-6 py-20 text-center">
+      <main className="site-width page-enter py-16 text-center"><div className="mx-auto max-w-2xl">
         <h1 className="font-display text-2xl font-semibold">Report not found</h1>
         <p className="mt-2 text-muted-foreground">
           Reports are stored on this device. If you cleared your browser data or switched devices, generate a new one.
         </p>
         <Link to="/dashboard" className="mt-6 inline-block"><Button>Back to dashboard</Button></Link>
-      </main>
+      </div></main>
     );
   }
 
@@ -73,8 +73,8 @@ function ReportView() {
     : "";
 
   return (
-    <main className="mx-auto max-w-6xl px-6 py-10">
-      <div className="flex items-center justify-between mb-6 no-print">
+    <main className="site-width page-enter report-document py-8 sm:py-10">
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3 no-print">
         <Link to="/dashboard"><Button variant="ghost" size="sm"><ArrowLeft className="h-4 w-4 mr-1" />Back</Button></Link>
         <Button onClick={() => window.print()} variant="outline"><Printer className="h-4 w-4 mr-2" />Export PDF</Button>
       </div>
@@ -83,18 +83,18 @@ function ReportView() {
         <div className="text-xs text-muted-foreground uppercase tracking-wide">
           Strategy Report{dateLabel ? ` • ${dateLabel}` : ""}
         </div>
-        <h1 className="font-display text-4xl font-semibold mt-1">Your admissions analysis</h1>
+        <h1 className="mt-2 font-display text-3xl font-semibold sm:text-4xl">Your admissions analysis</h1>
       </div>
 
       {report.raw_text && (
-        <Card className="p-6 mb-8">
+        <Card className="mb-8 p-5 sm:p-6">
           <h2 className="font-display text-xl font-semibold mb-3">Analysis</h2>
           <p className="whitespace-pre-wrap text-sm leading-relaxed text-muted-foreground">{report.raw_text}</p>
         </Card>
       )}
 
       {/* Overview */}
-      <Card className="p-8 shadow-soft mb-8">
+      <Card className="card-lift mb-8 p-5 shadow-soft sm:p-8">
         <div className="grid md:grid-cols-[auto_1fr] gap-8 items-center">
           {report.profile_strength_score !== null && <ScoreRing score={report.profile_strength_score} />}
           <div>
@@ -118,7 +118,7 @@ function ReportView() {
       <p className="mb-4 text-xs text-muted-foreground">AI-generated assessments based on your profile. Acceptance rates are approximate — verify on each university's official site.</p>
       {schools.length > 0 ? (
         <Tabs defaultValue="Reach" className="mb-8">
-          <TabsList>
+          <TabsList className="mb-2 h-auto w-full justify-start gap-1 rounded-lg border bg-card p-1 sm:w-auto">
             {(["Reach", "Target", "Safety"] as const).map((t) => (
               <TabsTrigger key={t} value={t}>{t} ({byTier(t).length})</TabsTrigger>
             ))}
@@ -126,7 +126,7 @@ function ReportView() {
           {(["Reach", "Target", "Safety"] as const).map((tier) => (
             <TabsContent key={tier} value={tier} className="mt-4">
               {byTier(tier).length > 0 ? (
-                <div className="grid md:grid-cols-2 gap-4">
+                <div className="stagger grid gap-4 md:grid-cols-2">
                   {byTier(tier).map((s, i) => <SchoolCard key={`${s.school_name}-${i}`} school={s} />)}
                 </div>
               ) : (
@@ -158,7 +158,7 @@ function ReportView() {
 
       {/* Roadmap */}
       {steps.length > 0 && (
-        <Card className="p-6">
+        <Card className="p-5 sm:p-6">
           <h2 className="font-display text-xl font-semibold mb-4">Your roadmap</h2>
           <div className="space-y-3">
             {steps.map((step, i) => (
@@ -182,7 +182,7 @@ function ScoreRing({ score }: { score: number }) {
   const offset = c - (score / 100) * c;
   const color = score >= 80 ? "var(--safety)" : score >= 60 ? "var(--target)" : "var(--reach)";
   return (
-    <svg width={size} height={size} className="-rotate-90">
+    <svg width={size} height={size} role="img" aria-label={`Profile strength ${score} out of 100`} className="score-ring -rotate-90">
       <circle cx={size / 2} cy={size / 2} r={r} stroke="var(--border)" strokeWidth={stroke} fill="none" />
       <circle cx={size / 2} cy={size / 2} r={r} stroke={color} strokeWidth={stroke} fill="none" strokeLinecap="round" strokeDasharray={c} strokeDashoffset={offset} />
       <text x="50%" y="50%" textAnchor="middle" dy=".35em" className="rotate-90 origin-center font-display font-semibold" fontSize="34" fill="var(--foreground)" transform={`rotate(90 ${size / 2} ${size / 2})`}>{score}</text>
@@ -197,7 +197,7 @@ function SchoolCard({ school }: { school: School }) {
     Safety: "bg-[oklch(var(--safety)/0.1)] text-[oklch(var(--safety))] border-[oklch(var(--safety)/0.3)]",
   };
   return (
-    <Card className="p-5">
+    <Card className="card-lift p-5">
       <div className="flex items-start justify-between mb-2">
         <h3 className="font-semibold text-lg">{school.school_name}</h3>
         <Badge variant="outline" className={tierColor[school.tier]}>{school.tier}</Badge>
