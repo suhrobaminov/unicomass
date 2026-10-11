@@ -12,6 +12,9 @@ import {
   ArrowRight,
   Heart,
   Menu,
+  MessageSquareText,
+  Send,
+  Lightbulb,
 } from "lucide-react";
 import { DonateDialog } from "@/components/donate-dialog";
 import { LoginDialog } from "@/components/login-dialog";
@@ -116,14 +119,10 @@ function Nav() {
         </nav>
         <div className="flex items-center gap-2">
           <Link to="/find-your-major" className="hidden sm:inline-flex">
-            <Button variant="ghost" size="sm">
-              Find Your Major
-            </Button>
+            <Button variant="ghost" size="sm">Find Your Major</Button>
           </Link>
           <LoginDialog>
-            <Button size="sm" className="rounded-lg px-4">
-              Get Started
-            </Button>
+            <Button size="sm" className="rounded-lg px-4">Get Started</Button>
           </LoginDialog>
           <button
             type="button"
@@ -155,11 +154,7 @@ function Nav() {
   );
 }
 
-const heroPoints = [
-  "Personalized Recommendations",
-  "Major Assessment",
-  "Scholarship Finder",
-];
+const heroPoints = ["Personalized Recommendations", "Major Assessment", "Scholarship Finder"];
 
 function Hero() {
   return (
@@ -183,16 +178,11 @@ function Hero() {
           <div className="mt-9 flex flex-wrap items-center gap-3">
             <LoginDialog>
               <Button size="lg" className="h-12 rounded-xl px-7 text-base shadow-soft">
-                Analyze My Profile
-                <ArrowRight className="ml-2 h-4 w-4" />
+                Analyze My Profile <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </LoginDialog>
             <a href="#how-it-works">
-              <Button
-                size="lg"
-                variant="outline"
-                className="h-12 rounded-xl border-border px-7 text-base"
-              >
+              <Button size="lg" variant="outline" className="h-12 rounded-xl border-border px-7 text-base">
                 How It Works
               </Button>
             </a>
@@ -208,7 +198,6 @@ function Hero() {
             ))}
           </ul>
         </div>
-
         <div className="relative">
           <div className="overflow-hidden rounded-3xl border border-border bg-secondary shadow-elegant">
             <img
@@ -313,10 +302,7 @@ function Features() {
         </div>
         <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {features.map((f) => (
-            <article
-              key={f.title}
-              className="flex flex-col rounded-2xl border border-border bg-card p-6 shadow-soft transition-shadow duration-200 hover:shadow-elegant"
-            >
+            <article key={f.title} className="flex flex-col rounded-2xl border border-border bg-card p-6 shadow-soft transition-shadow duration-200 hover:shadow-elegant">
               <span className="grid h-10 w-10 place-items-center rounded-xl bg-accent text-accent-foreground">
                 <f.icon className="h-5 w-5" />
               </span>
@@ -326,15 +312,13 @@ function Features() {
                 {f.to ? (
                   <Link to={f.to}>
                     <Button variant="outline" size="sm" className="rounded-lg border-border">
-                      {f.cta}
-                      <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
+                      {f.cta} <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
                     </Button>
                   </Link>
                 ) : (
                   <Link to="/dashboard">
                     <Button variant="outline" size="sm" className="rounded-lg border-border">
-                      {f.cta}
-                      <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
+                      {f.cta} <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
                     </Button>
                   </Link>
                 )}
@@ -369,9 +353,7 @@ function HowItWorks() {
   return (
     <section id="how-it-works" className="mx-auto max-w-6xl px-6 py-20 md:py-28">
       <div className="max-w-2xl">
-        <h2 className="font-display text-3xl font-semibold tracking-tight md:text-4xl">
-          How it works
-        </h2>
+        <h2 className="font-display text-3xl font-semibold tracking-tight md:text-4xl">How it works</h2>
         <p className="mt-4 text-muted-foreground">
           Three steps, one profile. No forms to repeat and no guesswork about what to do next.
         </p>
@@ -405,26 +387,74 @@ const resources = [
 ];
 
 function Resources() {
+  const [category, setCategory] = useState("Product suggestion");
+  const [suggestion, setSuggestion] = useState("");
+  const [email, setEmail] = useState("");
+  const [submitted, setSubmitted] = useState(false);
+
+  function submitSuggestion(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const subject = encodeURIComponent(`UniCompass feedback: ${category}`);
+    const body = encodeURIComponent(
+      `Category: ${category}\nReply email: ${email.trim() || "Not provided"}\n\nSuggestion:\n${suggestion.trim()}`
+    );
+    window.location.href = `mailto:suhrobaminov067@gmail.com?subject=${subject}&body=${body}`;
+    setSubmitted(true);
+  }
+
   return (
     <section id="resources" className="border-y border-border bg-secondary/60">
       <div className="mx-auto max-w-6xl px-6 py-20 md:py-28">
         <div className="grid gap-12 lg:grid-cols-[minmax(0,22rem)_1fr] lg:gap-20">
           <div>
-            <h2 className="font-display text-3xl font-semibold tracking-tight md:text-4xl">
-              Resources
-            </h2>
+            <span className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-3 py-1 text-xs font-medium text-muted-foreground">
+              <Lightbulb className="h-3.5 w-3.5" /> Built with student feedback
+            </span>
+            <h2 className="mt-4 font-display text-3xl font-semibold tracking-tight md:text-4xl">Resources & feedback</h2>
             <p className="mt-4 text-muted-foreground">
-              Plain-language explanations of how the process works, so every recommendation
-              you receive makes sense.
+              Explore practical guidance and help us improve UniCompass. Tell us what is missing, confusing, or worth building next.
             </p>
-          </div>
-          <div className="divide-y divide-border rounded-2xl border border-border bg-card shadow-soft">
-            {resources.map((r) => (
-              <div key={r.t} className="p-6">
-                <h3 className="text-base font-semibold">{r.t}</h3>
-                <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{r.d}</p>
+            <div className="mt-6 flex items-start gap-3 rounded-xl border border-border bg-card p-4">
+              <MessageSquareText className="mt-0.5 h-5 w-5 text-primary" />
+              <div>
+                <p className="font-medium">Your input shapes the roadmap</p>
+                <p className="mt-1 text-sm text-muted-foreground">Suggestions are reviewed by the UniCompass team and may inform future improvements. Please do not include passwords or sensitive personal information.</p>
               </div>
-            ))}
+            </div>
+            <p className="mt-4 text-xs text-muted-foreground">Submitting opens your email app with your feedback prepared. Nothing is sent until you review and send the email.</p>
+          </div>
+          <div className="space-y-6">
+            <div className="divide-y divide-border rounded-2xl border border-border bg-card shadow-soft">
+              {resources.map((r) => (
+                <div key={r.t} className="p-6">
+                  <h3 className="text-base font-semibold">{r.t}</h3>
+                  <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{r.d}</p>
+                </div>
+              ))}
+            </div>
+            <form onSubmit={submitSuggestion} className="rounded-2xl border border-border bg-card p-6 shadow-soft">
+              <div className="flex items-center gap-3">
+                <span className="grid h-10 w-10 place-items-center rounded-xl bg-accent text-accent-foreground"><Send className="h-5 w-5" /></span>
+                <div>
+                  <h3 className="text-lg font-semibold">Share a suggestion</h3>
+                  <p className="text-sm text-muted-foreground">A feature idea, correction, or general feedback.</p>
+                </div>
+              </div>
+              <label htmlFor="feedback-category" className="mt-5 block text-sm font-medium">What is this about?</label>
+              <select id="feedback-category" value={category} onChange={(event) => setCategory(event.target.value)} className="mt-2 flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
+                <option>Product suggestion</option>
+                <option>Bug or technical issue</option>
+                <option>University or scholarship data</option>
+                <option>Design and usability</option>
+                <option>Other feedback</option>
+              </select>
+              <label htmlFor="feedback-message" className="mt-4 block text-sm font-medium">Your suggestion</label>
+              <textarea id="feedback-message" value={suggestion} onChange={(event) => { setSuggestion(event.target.value); setSubmitted(false); }} required minLength={10} maxLength={3000} rows={5} placeholder="Tell us what would make UniCompass more useful..." className="mt-2 w-full resize-y rounded-md border border-input bg-background px-3 py-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring" />
+              <label htmlFor="feedback-email" className="mt-4 block text-sm font-medium">Email for a reply <span className="font-normal text-muted-foreground">(optional)</span></label>
+              <input id="feedback-email" type="email" value={email} onChange={(event) => setEmail(event.target.value)} maxLength={254} placeholder="you@example.com" className="mt-2 flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" />
+              <Button type="submit" className="mt-5 w-full rounded-lg"><Send className="mr-2 h-4 w-4" /> Prepare feedback email</Button>
+              {submitted && <p role="status" className="mt-3 text-sm text-muted-foreground">Your email app should open with the draft. Review it and press Send to submit your suggestion.</p>}
+            </form>
           </div>
         </div>
       </div>
@@ -436,23 +466,16 @@ function CTA() {
   return (
     <section id="contact" className="mx-auto max-w-6xl px-6 py-20 md:py-28">
       <div className="rounded-3xl border border-border bg-card px-8 py-14 text-center shadow-soft md:px-16">
-        <h2 className="font-display text-3xl font-semibold tracking-tight md:text-4xl">
-          Start with your profile
-        </h2>
+        <h2 className="font-display text-3xl font-semibold tracking-tight md:text-4xl">Start with your profile</h2>
         <p className="mx-auto mt-4 max-w-xl text-muted-foreground">
-          Complete your profile once and see where you stand. No account needed — your
-          progress is saved right here on your device.
+          Complete your profile once and see where you stand. No account needed — your progress is saved right here on your device.
         </p>
         <div className="mt-8 flex flex-wrap justify-center gap-3">
           <LoginDialog>
-            <Button size="lg" className="h-12 rounded-xl px-7 text-base">
-              Analyze My Profile
-            </Button>
+            <Button size="lg" className="h-12 rounded-xl px-7 text-base">Analyze My Profile</Button>
           </LoginDialog>
           <a href="#how-it-works">
-            <Button size="lg" variant="outline" className="h-12 rounded-xl border-border px-7 text-base">
-              How It Works
-            </Button>
+            <Button size="lg" variant="outline" className="h-12 rounded-xl border-border px-7 text-base">How It Works</Button>
           </a>
         </div>
       </div>
@@ -468,31 +491,20 @@ function Footer() {
           <div className="max-w-xs">
             <Logo />
             <p className="mt-3 text-sm text-muted-foreground">
-              Personalized university, major and scholarship guidance for students planning
-              their applications.
+              Personalized university, major and scholarship guidance for students planning their applications.
             </p>
           </div>
           <div className="flex flex-wrap gap-12">
             <nav className="flex flex-col gap-2 text-sm">
               <span className="font-medium">Platform</span>
-              <a href="#features" className="text-muted-foreground hover:text-foreground">
-                Find Universities
-              </a>
-              <Link to="/find-your-major" className="text-muted-foreground hover:text-foreground">
-                Find Your Major
-              </Link>
-              <a href="#features" className="text-muted-foreground hover:text-foreground">
-                Scholarships
-              </a>
+              <a href="#features" className="text-muted-foreground hover:text-foreground">Find Universities</a>
+              <Link to="/find-your-major" className="text-muted-foreground hover:text-foreground">Find Your Major</Link>
+              <a href="#features" className="text-muted-foreground hover:text-foreground">Scholarships</a>
             </nav>
             <nav className="flex flex-col gap-2 text-sm">
               <span className="font-medium">Company</span>
-              <a href="#resources" className="text-muted-foreground hover:text-foreground">
-                Resources
-              </a>
-              <a href="#contact" className="text-muted-foreground hover:text-foreground">
-                Contact
-              </a>
+              <a href="#resources" className="text-muted-foreground hover:text-foreground">Resources</a>
+              <a href="#contact" className="text-muted-foreground hover:text-foreground">Contact</a>
               <DonateDialog>
                 <button className="inline-flex items-center gap-1.5 text-muted-foreground hover:text-foreground">
                   <Heart className="h-3.5 w-3.5" /> Support us
@@ -501,9 +513,7 @@ function Footer() {
             </nav>
           </div>
         </div>
-        <div className="mt-10 border-t border-border pt-6 text-sm text-muted-foreground">
-          © {new Date().getFullYear()} UniCompass
-        </div>
+        <div className="mt-10 border-t border-border pt-6 text-sm text-muted-foreground">© {new Date().getFullYear()} UniCompass</div>
       </div>
     </footer>
   );
