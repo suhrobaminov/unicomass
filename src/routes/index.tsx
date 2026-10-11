@@ -548,8 +548,8 @@ function Resources() {
                 <option>Other feedback</option>
               </select>
               <label htmlFor="feedback-message" className="mt-4 block text-sm font-medium">Your suggestion</label>
-              <textarea id="feedback-message" value={suggestion} onChange={(event) => { setSuggestion(event.target.value); if (status !== "sending") setStatus("idle"); }} required minLength={10} maxLength={3000} rows={5} placeholder="Tell us what would make UniCompass more useful..." className="mt-2 w-full resize-y rounded-md border border-[#454438] bg-[#11120f] px-3 py-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring" />
-              <Button type="submit" disabled={status === "sending"} className="mt-5 w-full rounded-lg">
+              <textarea id="feedback-message" value={suggestion} onChange={(event) => { setSuggestion(event.target.value); if (status !== "sending") setStatus("idle"); }} required minLength={10} maxLength={3000} rows={5} placeholder="Tell us what would make UniCompass more useful..." className="mt-2 w-full resize-y rounded-md border border-[#454438] bg-[#11120f] px-3 py-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-[#c3a977]" />
+              <Button type="submit" disabled={status === "sending"} className="uc-primary-button mt-5 w-full rounded-lg border border-[#8b7549] bg-[#28271f] text-[#f2e7c9] shadow-[0_0_16px_rgba(195,169,119,.08)] hover:border-[#d2b779] hover:bg-[#393326] hover:text-[#fff2d0]">
                 <Send className="mr-2 h-4 w-4" /> {status === "sending" ? "Submitting..." : "Submit suggestion"}
               </Button>
               {status === "success" && <p role="status" className="mt-3 text-sm text-[#8cb89a]">Thanks — your suggestion was submitted successfully.</p>}
@@ -574,7 +574,7 @@ function CTA() {
           <p className="mt-7 text-xs uppercase tracking-[.16em] text-[#858477]">Created by Suhrob Aminov · UniCompass</p>
         </div>
         <div className="flex flex-wrap gap-3 md:max-w-[210px] md:flex-col">
-          <a href="mailto:suhrobaminov067@gmail.com" className="inline-flex min-h-12 items-center justify-center gap-2 border border-[#c3a977] bg-[#c3a977] px-5 text-sm font-semibold text-[#171813] transition-colors hover:bg-[#d6c394]"><MessageSquareText className="h-4 w-4"/> Email me <ArrowRight className="h-4 w-4"/></a>
+          <a href="mailto:suhrobaminov067@gmail.com" className="inline-flex min-h-12 items-center justify-center gap-2 border border-[#8b7549] bg-[#28271f] px-5 text-sm font-semibold text-[#f2e7c9] transition-colors hover:border-[#d2b779] hover:bg-[#393326] hover:text-[#fff2d0]"><MessageSquareText className="h-4 w-4"/> Email me <ArrowRight className="h-4 w-4"/></a>
           <a href="https://t.me/Uzbek_npc" target="_blank" rel="noopener noreferrer" className="inline-flex min-h-12 items-center justify-center gap-2 border border-[#48473c] px-5 text-sm font-medium text-[#f2efe5] transition-colors hover:border-[#c3a977] hover:text-[#d6c394]"><Send className="h-4 w-4"/> Telegram</a>
           <a href="https://www.instagram.com/Uzbek.npc/" target="_blank" rel="noopener noreferrer" className="inline-flex min-h-12 items-center justify-center gap-2 border border-[#48473c] px-5 text-sm font-medium text-[#f2efe5] transition-colors hover:border-[#c3a977] hover:text-[#d6c394]">Instagram <ArrowRight className="h-4 w-4"/></a>
         </div>
