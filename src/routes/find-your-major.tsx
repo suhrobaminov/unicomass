@@ -7,7 +7,6 @@ import {
   ListChecks, Loader2, RotateCcw, Target, Wallet,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { AppHeader } from "@/components/app-header";
 import { loadStore, saveAssessment } from "@/lib/local-store";
 import {
   QUESTIONS, computeTraitScores, rankMajors, deriveProfileLabel,
@@ -147,8 +146,8 @@ function FindYourMajorPage() {
 
   return (
     <>
-    <AppHeader />
-    <div className="mx-auto w-full max-w-3xl px-6 py-14 md:py-20">
+    <main className="site-width py-8 sm:py-10">
+    <div className="mx-auto w-full max-w-3xl py-6 md:py-10">
       {stage === "welcome" && (
         <Welcome onStart={startFresh} canResume={canResume} onResume={() => setStage("quiz")} answered={answeredCount} />
       )}
@@ -178,6 +177,7 @@ function FindYourMajorPage() {
         />
       )}
     </div>
+    </main>
     </>
   );
 }
@@ -188,7 +188,7 @@ function Welcome({
   onStart, canResume, onResume, answered,
 }: { onStart: () => void; canResume: boolean; onResume: () => void; answered: number }) {
   return (
-    <div className="animate-in fade-in duration-300">
+    <section className="tool-panel page-enter">
       <p className="text-sm text-muted-foreground">Assessment</p>
       <h1 className="mt-2 text-3xl md:text-4xl font-semibold text-foreground">Find your major</h1>
       <p className="mt-4 max-w-xl text-[15px] leading-relaxed text-muted-foreground">
@@ -220,7 +220,7 @@ function Welcome({
         )}
       </div>
       <p className="mt-4 text-xs text-muted-foreground">Progress saves automatically. You can retake it any time.</p>
-    </div>
+    </section>
   );
 }
 
@@ -249,9 +249,9 @@ function QuizStep({
         <span>Question {index + 1} of {total}</span>
         <span>{Math.round(progress)}%</span>
       </div>
-      <div className="mt-3 h-[3px] w-full rounded-full bg-muted">
+      <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-muted" role="progressbar" aria-label="Assessment progress" aria-valuemin={0} aria-valuemax={total} aria-valuenow={index + 1}>
         <div
-          className="h-full rounded-full bg-primary transition-[width] duration-300 ease-out"
+          className="h-full rounded-full bg-brand transition-[width] duration-500 ease-out"
           style={{ width: `${progress}%` }}
         />
       </div>
@@ -314,7 +314,7 @@ function Analyzing() {
     return () => clearInterval(t);
   }, [steps.length]);
   return (
-    <div className="py-24">
+    <div role="status" aria-live="polite" className="tool-panel page-enter py-16 sm:py-24">
       <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
       <h2 className="mt-6 text-xl font-medium text-foreground">Preparing your report</h2>
       <p className="mt-2 text-sm text-muted-foreground">{steps[i]}…</p>
@@ -345,7 +345,7 @@ function Results({ data, onRetake }: { data: ResultsPayload; onRetake: () => voi
   };
 
   return (
-    <div className="animate-in fade-in duration-300">
+    <div className="page-enter">
       {/* Report header */}
       <div className="flex flex-wrap items-start justify-between gap-4 border-b border-border pb-8">
         <div>
@@ -385,7 +385,7 @@ function Results({ data, onRetake }: { data: ResultsPayload; onRetake: () => voi
 
       {/* Ranking */}
       <Section title="Recommended majors" hint="Select a major to see the detail below.">
-        <div className="divide-y divide-border rounded-lg border border-border bg-card">
+        <div className="stagger divide-y divide-border rounded-lg border border-border bg-card">
           {top5.map((r, idx) => {
             const pct = Math.round(r.score * 100);
             const isActive = r.major.slug === selected;
