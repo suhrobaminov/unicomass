@@ -20,6 +20,7 @@ import { DonateDialog } from "@/components/donate-dialog";
 import { LoginDialog } from "@/components/login-dialog";
 import heroStudents from "@/assets/hero-students.jpg";
 import { absoluteUrl } from "@/lib/site";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -389,17 +390,23 @@ const resources = [
 function Resources() {
   const [category, setCategory] = useState("Product suggestion");
   const [suggestion, setSuggestion] = useState("");
-  const [email, setEmail] = useState("");
-  const [submitted, setSubmitted] = useState(false);
+  const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
 
-  function submitSuggestion(event: React.FormEvent<HTMLFormElement>) {
+  async function submitSuggestion(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const subject = encodeURIComponent(`UniCompass feedback: ${category}`);
-    const body = encodeURIComponent(
-      `Category: ${category}\nReply email: ${email.trim() || "Not provided"}\n\nSuggestion:\n${suggestion.trim()}`
-    );
-    window.location.href = `mailto:suhrobaminov067@gmail.com?subject=${subject}&body=${body}`;
-    setSubmitted(true);
+    setStatus("sending");
+    const { error } = await supabase.from("site_feedback").insert({
+      category,
+      message: suggestion.trim(),
+    });
+    if (error) {
+      console.error("Could not submit feedback:", error.message);
+      setStatus("error");
+      return;
+    }
+    setSuggestion("");
+    setCategory("Product suggestion");
+    setStatus("success");
   }
 
   return (
@@ -418,10 +425,9 @@ function Resources() {
               <MessageSquareText className="mt-0.5 h-5 w-5 text-primary" />
               <div>
                 <p className="font-medium">Your input shapes the roadmap</p>
-                <p className="mt-1 text-sm text-muted-foreground">Suggestions are reviewed by the UniCompass team and may inform future improvements. Please do not include passwords or sensitive personal information.</p>
+                <p className="mt-1 text-sm text-muted-foreground">Suggestions are reviewed by the UniCompass team and may inform future improvements. No email address or account is required. Please do not include sensitive personal information.</p>
               </div>
             </div>
-            <p className="mt-4 text-xs text-muted-foreground">Submitting opens your email app with your feedback prepared. Nothing is sent until you review and send the email.</p>
           </div>
           <div className="space-y-6">
             <div className="divide-y divide-border rounded-2xl border border-border bg-card shadow-soft">
@@ -437,10 +443,10 @@ function Resources() {
                 <span className="grid h-10 w-10 place-items-center rounded-xl bg-accent text-accent-foreground"><Send className="h-5 w-5" /></span>
                 <div>
                   <h3 className="text-lg font-semibold">Share a suggestion</h3>
-                  <p className="text-sm text-muted-foreground">A feature idea, correction, or general feedback.</p>
+                  <p className="text-sm text-muted-foreground">No email or sign-in required.</p>
                 </div>
               </div>
-              <label htmlFor="feedback-category" className="mt-5 block text-sm font-medium">What is this about?</label>
+              <label htmlFor="feedback-category" className="mt-5 block text-sm font-medium">Feedback category</label>
               <select id="feedback-category" value={category} onChange={(event) => setCategory(event.target.value)} className="mt-2 flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
                 <option>Product suggestion</option>
                 <option>Bug or technical issue</option>
@@ -449,11 +455,12 @@ function Resources() {
                 <option>Other feedback</option>
               </select>
               <label htmlFor="feedback-message" className="mt-4 block text-sm font-medium">Your suggestion</label>
-              <textarea id="feedback-message" value={suggestion} onChange={(event) => { setSuggestion(event.target.value); setSubmitted(false); }} required minLength={10} maxLength={3000} rows={5} placeholder="Tell us what would make UniCompass more useful..." className="mt-2 w-full resize-y rounded-md border border-input bg-background px-3 py-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring" />
-              <label htmlFor="feedback-email" className="mt-4 block text-sm font-medium">Email for a reply <span className="font-normal text-muted-foreground">(optional)</span></label>
-              <input id="feedback-email" type="email" value={email} onChange={(event) => setEmail(event.target.value)} maxLength={254} placeholder="you@example.com" className="mt-2 flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" />
-              <Button type="submit" className="mt-5 w-full rounded-lg"><Send className="mr-2 h-4 w-4" /> Prepare feedback email</Button>
-              {submitted && <p role="status" className="mt-3 text-sm text-muted-foreground">Your email app should open with the draft. Review it and press Send to submit your suggestion.</p>}
+              <textarea id="feedback-message" value={suggestion} onChange={(event) => { setSuggestion(event.target.value); if (status !== "sending") setStatus("idle"); }} required minLength={10} maxLength={3000} rows={5} placeholder="Tell us what would make UniCompass more useful..." className="mt-2 w-full resize-y rounded-md border border-input bg-background px-3 py-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring" />
+              <Button type="submit" disabled={status === "sending"} className="mt-5 w-full rounded-lg">
+                <Send className="mr-2 h-4 w-4" /> {status === "sending" ? "Submitting..." : "Submit suggestion"}
+              </Button>
+              {status === "success" && <p role="status" className="mt-3 text-sm text-green-700">Thanks — your suggestion was submitted successfully.</p>}
+              {status === "error" && <p role="alert" className="mt-3 text-sm text-destructive">We couldn't submit your suggestion. Please try again later.</p>}
             </form>
           </div>
         </div>
