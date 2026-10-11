@@ -111,12 +111,12 @@ export function EmailOtpForm({ onSignedIn }: { onSignedIn: () => void }) {
         {busy && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}Verify and sign in
       </Button>
       <div className="flex items-center justify-between text-sm">
-        <button type="button" className="text-muted-foreground underline" onClick={() => { setStep("email"); setError(null); }}>
+        <Button variant="link" type="button" className="px-0 text-muted-foreground" onClick={() => { setStep("email"); setError(null); }}>
           Change email
-        </button>
-        <button type="button" className="text-muted-foreground underline disabled:no-underline disabled:opacity-60" disabled={busy || cooldown > 0} onClick={() => sendCode()}>
+        </Button>
+        <Button variant="link" type="button" className="px-0 text-muted-foreground disabled:no-underline disabled:opacity-60" disabled={busy || cooldown > 0} onClick={() => sendCode()}>
           {cooldown > 0 ? `Resend in ${cooldown}s` : "Resend code"}
-        </button>
+        </Button>
       </div>
     </form>
   );
