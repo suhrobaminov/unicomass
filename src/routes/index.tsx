@@ -64,7 +64,7 @@ export const Route = createFileRoute("/")({
 
 function Landing() {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-[#11120f] text-[#f2efe5]">
       <Nav />
       <main>
         <Hero />
@@ -104,7 +104,7 @@ function Nav() {
   return (
     <header
       id="top"
-      className="sticky top-0 z-40 border-b border-border bg-background/85 backdrop-blur"
+      className="sticky top-0 z-40 border-b border-[#34342e] bg-[#11120f]/95 text-[#f2efe5] backdrop-blur-xl"
     >
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-6 px-6 py-4">
         <Logo />
@@ -160,7 +160,7 @@ const heroPoints = ["Personalized Recommendations", "Major Assessment", "Scholar
 
 function Hero() {
   return (
-    <section className="mx-auto max-w-6xl px-6 pt-16 pb-20 md:pt-24 md:pb-28">
+    <section className="mx-auto max-w-6xl px-6 pt-14 pb-20 md:pt-20 md:pb-24">
       <div className="grid items-center gap-14 lg:grid-cols-2 lg:gap-20">
         <div>
           <span className="inline-flex items-center gap-2 rounded-full border border-border bg-secondary px-3 py-1 text-xs font-medium text-muted-foreground">
@@ -221,64 +221,68 @@ function Hero() {
 
 function StudyExperience() {
   return (
-    <section className="overflow-hidden border-y border-border bg-[#f6f8f4] text-slate-900">
+    <section className="journal-section relative overflow-hidden border-y border-[#34342e] bg-[#11120f] text-[#f2efe5]">
       <style>{`
-        @keyframes book-float { 0%,100% { transform: translateY(0) rotate(-1deg); } 50% { transform: translateY(-9px) rotate(1deg); } }
-        @keyframes page-turn { 0%,18% { transform: rotateY(0deg); } 42%,62% { transform: rotateY(-155deg); } 82%,100% { transform: rotateY(-180deg); } }
-        @keyframes finger-tap { 0%,10%,100% { transform: translate(0,0) rotate(-16deg); } 28% { transform: translate(-12px,-7px) rotate(-25deg); } 40% { transform: translate(-5px,3px) rotate(-8deg); } 54% { transform: translate(-12px,-7px) rotate(-25deg); } 66% { transform: translate(0,0) rotate(-16deg); } }
-        @keyframes line-glow { 0%,100% { opacity:.45; } 50% { opacity:1; } }
-        .study-book { animation: book-float 5s ease-in-out infinite; transform-style:preserve-3d; }
-        .study-page { transform-origin:left center; transform-style:preserve-3d; animation:page-turn 5.5s cubic-bezier(.65,0,.35,1) infinite; }
-        .study-finger { animation:finger-tap 5.5s ease-in-out infinite; transform-origin:bottom center; }
-        .study-line { animation:line-glow 2.4s ease-in-out infinite; }
-        @media (prefers-reduced-motion: reduce) { .study-book,.study-page,.study-finger,.study-line { animation:none !important; } }
+        @keyframes journal-rise { from { opacity:0; transform:translateY(24px); } to { opacity:1; transform:translateY(0); } }
+        @keyframes journal-page-turn { 0%, 15% { transform: rotateY(0deg); } 45%, 60% { transform: rotateY(-150deg); } 88%, 100% { transform: rotateY(-180deg); } }
+        @keyframes journal-lamp { 0%,100% { opacity:.55; } 50% { opacity:.85; } }
+        @keyframes journal-float { 0%,100% { transform:translateY(0) rotate(-1deg); } 50% { transform:translateY(-7px) rotate(.5deg); } }
+        @keyframes journal-rule { from { transform:scaleX(0); } to { transform:scaleX(1); } }
+        .journal-reveal { animation:journal-rise .9s cubic-bezier(.2,.75,.25,1) both; }
+        .journal-book { animation:journal-float 7s ease-in-out infinite; transform-style:preserve-3d; }
+        .journal-page { transform-origin:left center; transform-style:preserve-3d; animation:journal-page-turn 8s cubic-bezier(.65,0,.35,1) infinite; backface-visibility:hidden; }
+        .journal-lamp { animation:journal-lamp 6s ease-in-out infinite; }
+        .journal-rule { transform-origin:left; animation:journal-rule 1.2s .35s ease-out both; }
+        @media (prefers-reduced-motion: reduce) { .journal-reveal,.journal-book,.journal-page,.journal-lamp,.journal-rule { animation:none !important; } }
       `}</style>
-      <div className="mx-auto grid max-w-6xl items-center gap-12 px-6 py-16 md:py-20 lg:grid-cols-[1fr_1.05fr]">
-        <div className="max-w-xl">
-          <span className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-white/80 px-3 py-1 text-xs font-semibold text-emerald-800">
-            <span className="h-2 w-2 rounded-full bg-emerald-500" /> A smarter way to prepare
-          </span>
-          <h2 className="mt-5 font-display text-3xl font-semibold tracking-tight sm:text-4xl md:text-5xl">
-            Turn big ambitions into <span className="text-emerald-700">your next chapter.</span>
+      <div className="mx-auto grid max-w-6xl items-center gap-12 px-6 py-20 md:py-28 lg:grid-cols-[.9fr_1.1fr]">
+        <div className="journal-reveal relative z-10">
+          <p className="flex items-center gap-3 text-[11px] font-semibold uppercase tracking-[.24em] text-[#c3a977]"><span className="h-px w-8 bg-[#c3a977]"/> The UniCompass journal / 01</p>
+          <h2 className="mt-7 max-w-xl font-serif text-4xl font-medium leading-[1.04] tracking-[-.04em] sm:text-5xl md:text-6xl">
+            Every future<br/>starts with a<br/><em className="font-normal text-[#c3a977]">first page.</em>
           </h2>
-          <p className="mt-5 max-w-lg text-base leading-relaxed text-slate-600">
-            Explore your options, learn what matters, and move through your university journey one page at a time.
+          <div className="journal-rule mt-7 h-px w-28 bg-[#c3a977]"/>
+          <p className="mt-6 max-w-md text-base leading-7 text-[#b9b7ac]">
+            The path to university isn't a template. It's a story shaped by your ambition, your choices, and the work you put in next.
           </p>
-          <div className="mt-7 flex flex-wrap gap-3 text-sm text-slate-700">
-            <span className="rounded-full border border-slate-200 bg-white px-4 py-2">Personalized guidance</span>
-            <span className="rounded-full border border-slate-200 bg-white px-4 py-2">Clear next steps</span>
+          <div className="mt-8 flex items-center gap-4 text-xs uppercase tracking-[.16em] text-[#c3c0b4]">
+            <span className="grid h-9 w-9 place-items-center rounded-full border border-[#555348] font-serif text-sm text-[#d5bd8d]">01</span>
+            <span>Discover your direction</span>
           </div>
         </div>
-        <div className="relative mx-auto flex min-h-[330px] w-full max-w-[520px] items-center justify-center">
-          <div className="absolute h-64 w-64 rounded-full bg-emerald-200/60 blur-3xl" />
-          <div className="absolute right-4 top-7 rounded-2xl border border-white bg-white/90 px-4 py-3 shadow-lg shadow-emerald-900/5">
-            <p className="text-xs font-medium text-slate-500">YOUR NEXT CHAPTER</p>
-            <p className="mt-1 text-sm font-semibold text-emerald-800">Discover. Plan. Apply.</p>
+        <div className="journal-reveal relative mx-auto w-full max-w-[510px]" style={{animationDelay:".15s"}}>
+          <div className="journal-lamp absolute -inset-8 rounded-full bg-[#c3a977]/10 blur-3xl"/>
+          <div className="absolute -right-1 top-0 z-20 border border-[#4a493e] bg-[#191a16] px-4 py-3 shadow-xl">
+            <p className="text-[9px] uppercase tracking-[.22em] text-[#b9a16f]">Field notes / 2026</p>
+            <p className="mt-1 font-serif text-sm italic text-[#f2efe5]">Make room for possibility.</p>
           </div>
-          <div className="study-book relative mt-10 h-[230px] w-[min(100%,360px)] [perspective:1200px]">
-            <div className="absolute inset-y-2 left-1 right-1 rounded-r-2xl bg-emerald-950 shadow-2xl shadow-emerald-950/20" />
-            <div className="absolute inset-y-0 left-0 right-1 grid grid-cols-2 overflow-hidden rounded-xl border border-emerald-950/10 bg-[#fffdf6] shadow-xl">
-              <div className="border-r border-slate-200/80 px-5 py-5">
-                <p className="text-[10px] font-bold uppercase tracking-[.2em] text-emerald-800">Chapter 01</p>
-                <p className="mt-3 font-serif text-lg font-semibold leading-tight text-slate-800">Find your direction</p>
-                <div className="mt-4 space-y-2.5">{[92,78,86,62,80].map((w,i)=><div key={i} className="study-line h-1.5 rounded-full bg-slate-200" style={{width:w+"%",animationDelay:(i*.16)+"s"}} />)}</div>
-                <div className="mt-5 h-12 rounded-lg bg-emerald-50 p-2"><div className="h-2 w-2/3 rounded-full bg-emerald-200"/><div className="mt-2 h-2 w-1/2 rounded-full bg-emerald-100"/></div>
+          <div className="journal-book relative mx-auto mt-8 h-[285px] w-[min(100%,430px)] [perspective:1600px] sm:h-[330px]">
+            <div className="absolute inset-y-3 left-2 right-0 rounded-r-md bg-[#403728] shadow-2xl shadow-black/50"/>
+            <div className="absolute inset-y-0 left-0 right-1 grid grid-cols-2 overflow-hidden border border-[#c9c0a8]/25 bg-[#e9e1cf] text-[#25241f] shadow-2xl">
+              <div className="border-r border-[#c5bba6] px-5 py-6 sm:px-7 sm:py-8">
+                <p className="text-[9px] uppercase tracking-[.2em] text-[#7b6b4e]">Chapter one</p>
+                <h3 className="mt-4 font-serif text-2xl leading-tight sm:text-3xl">Find your<br/><em>north.</em></h3>
+                <p className="mt-4 text-[10px] leading-5 text-[#696456]">Start with what matters to you. Let curiosity do the rest.</p>
+                <div className="mt-5 space-y-2">{[88,72,82,54].map((w,i)=><div key={i} className="h-px bg-[#aaa18f]" style={{width:w+"%"}}/>)}</div>
+                <p className="mt-6 font-serif text-xs italic text-[#786a50]">A map is only the beginning.</p>
               </div>
-              <div className="px-5 py-5">
-                <p className="text-[10px] font-bold uppercase tracking-[.2em] text-emerald-800">Your roadmap</p>
-                <div className="mt-4 space-y-4">{["Know your strengths","Compare universities","Build your application"].map((s,i)=><div key={s} className="flex items-start gap-2"><span className="mt-0.5 grid h-4 w-4 shrink-0 place-items-center rounded-full bg-emerald-100 text-[9px] font-bold text-emerald-800">{i+1}</span><div><p className="text-[10px] font-semibold text-slate-700">{s}</p><div className="mt-1 h-1 w-16 rounded-full bg-slate-200"/></div></div>)}</div>
+              <div className="px-5 py-6 sm:px-7 sm:py-8">
+                <p className="text-[9px] uppercase tracking-[.2em] text-[#7b6b4e]">Your next steps</p>
+                <div className="mt-5 space-y-5">{["Know your strengths","Explore your options","Build your plan"].map((s,i)=><div key={s} className="flex gap-3"><span className="font-serif text-xs italic text-[#9b8050]">0{i+1}</span><div><p className="font-serif text-sm">{s}</p><div className="mt-2 h-px w-16 bg-[#b9ae98]"/></div></div>)}</div>
+                <div className="mt-7 border-t border-[#c5bba6] pt-4"><p className="text-[9px] uppercase tracking-[.18em] text-[#7b6b4e]">A note to self</p><p className="mt-2 font-serif text-sm italic">Keep going, even when the way isn't clear.</p></div>
               </div>
             </div>
-            <div className="study-page absolute inset-y-0 left-0 right-1 overflow-hidden rounded-xl border border-slate-200 bg-[#fffef9] px-6 py-5 shadow-lg">
-              <p className="text-[10px] font-bold uppercase tracking-[.2em] text-emerald-800">Chapter 02</p>
-              <p className="mt-4 font-serif text-2xl font-semibold text-slate-800">Make your plan</p>
-              <p className="mt-2 text-xs leading-relaxed text-slate-500">Small, thoughtful steps can make a big goal feel possible.</p>
-              <div className="mt-5 space-y-3">{[95,82,90,64,86,72].map((w,i)=><div key={i} className="h-1.5 rounded-full bg-slate-200" style={{width:w+"%"}} />)}</div>
-              <div className="mt-5 rounded-lg border border-emerald-100 bg-emerald-50 p-3"><p className="text-xs font-semibold text-emerald-900">One step at a time.</p><p className="mt-1 text-[10px] text-emerald-800">Your future is built by what you do next.</p></div>
+            <div className="journal-page absolute inset-y-0 left-0 right-1 overflow-hidden border border-[#c9c0a8] bg-[#f3ecdc] px-5 py-6 text-[#25241f] shadow-lg sm:px-7 sm:py-8">
+              <p className="text-[9px] uppercase tracking-[.2em] text-[#7b6b4e]">A letter to your future self</p>
+              <h3 className="mt-5 font-serif text-2xl leading-tight sm:text-3xl">The next chapter<br/><em>is yours to write.</em></h3>
+              <p className="mt-4 max-w-[260px] font-serif text-sm leading-6 text-[#696456]">A little clarity today can change the choices you make tomorrow.</p>
+              <div className="mt-5 space-y-3">{[94,82,89,65,78].map((w,i)=><div key={i} className="h-px bg-[#b9ae98]" style={{width:w+"%"}}/>)}</div>
+              <p className="mt-7 font-serif text-xs italic text-[#8a744f]">UniCompass — notes for the road ahead</p>
             </div>
           </div>
-          <div className="study-finger absolute bottom-8 right-[18%] z-10 text-5xl drop-shadow-md" aria-hidden="true">☝️</div>
-          <div className="absolute bottom-1 left-1/2 -translate-x-1/2 whitespace-nowrap text-xs font-medium text-slate-500">A little progress, every day.</div>
+          <div className="mt-3 flex items-center justify-between border-t border-[#3b3b32] pt-4 text-[10px] uppercase tracking-[.18em] text-[#858477]">
+            <span>Personal direction, not a preset path</span><span>01 — 03</span>
+          </div>
         </div>
       </div>
     </section>
@@ -357,8 +361,8 @@ const features = [
 
 function Features() {
   return (
-    <section id="features" className="border-y border-border bg-secondary/60">
-      <div className="mx-auto max-w-6xl px-6 py-20 md:py-28">
+    <section id="features" className="border-y border-[#34342e] bg-[#171813] text-[#f2efe5]">
+      <div className="mx-auto max-w-6xl px-6 py-16 md:py-24">
         <div className="max-w-2xl">
           <h2 className="font-display text-3xl font-semibold tracking-tight md:text-4xl">
             Everything you need to apply with confidence
@@ -419,7 +423,7 @@ const steps = [
 
 function HowItWorks() {
   return (
-    <section id="how-it-works" className="mx-auto max-w-6xl px-6 py-20 md:py-28">
+    <section id="how-it-works" className="mx-auto max-w-6xl px-6 py-16 md:py-24">
       <div className="max-w-2xl">
         <h2 className="font-display text-3xl font-semibold tracking-tight md:text-4xl">How it works</h2>
         <p className="mt-4 text-muted-foreground">
@@ -477,8 +481,8 @@ function Resources() {
   }
 
   return (
-    <section id="resources" className="border-y border-border bg-secondary/60">
-      <div className="mx-auto max-w-6xl px-6 py-20 md:py-28">
+    <section id="resources" className="border-y border-[#34342e] bg-[#171813] text-[#f2efe5]">
+      <div className="mx-auto max-w-6xl px-6 py-16 md:py-24">
         <div className="grid gap-12 lg:grid-cols-[minmax(0,22rem)_1fr] lg:gap-20">
           <div>
             <span className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-3 py-1 text-xs font-medium text-muted-foreground">
@@ -538,7 +542,7 @@ function Resources() {
 
 function CTA() {
   return (
-    <section id="contact" className="mx-auto max-w-6xl px-6 py-20 md:py-28">
+    <section id="contact" className="mx-auto max-w-6xl px-6 py-16 md:py-24">
       <div className="rounded-3xl border border-border bg-card px-8 py-14 text-center shadow-soft md:px-16">
         <h2 className="font-display text-3xl font-semibold tracking-tight md:text-4xl">Questions or feedback?</h2>
         <p className="mx-auto mt-4 max-w-xl text-muted-foreground">
