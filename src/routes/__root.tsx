@@ -7,10 +7,14 @@ import {
   useRouter,
   HeadContent,
   Scripts,
+  useRouterState,
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
+import { AppHeader } from "@/components/app-header";
+import { AppFooter } from "@/components/app-footer";
+import { Button } from "@/components/ui/button";
 import { Toaster } from "@/components/ui/sonner";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -75,10 +79,10 @@ function ErrorComponent({ error, reset }: ErrorComponentProps) {
       <div className="max-w-md text-center">
         <h1 className="text-xl font-semibold">Something went wrong</h1>
         <p className="mt-2 text-sm text-muted-foreground">{error instanceof Error ? error.message : String(error)}</p>
-        <button
+        <Button
           onClick={() => { router.invalidate(); reset(); }}
           className="mt-6 rounded-md bg-primary px-4 py-2 text-sm text-primary-foreground"
-        >Try again</button>
+        >Try again</Button>
       </div>
     </div>
   );
@@ -97,14 +101,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: "UniCompass — AI College Admissions Strategy" },
       { name: "twitter:description", content: "Get a personalized college admissions strategy from a veteran AI admissions officer. Reach, Target, and Safety schools tailored to your profile." },
-      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/d2c28d07-1fc7-4895-8a3a-a8014e4f9201" },
-      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/d2c28d07-1fc7-4895-8a3a-a8014e4f9201" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com" },
-      { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" },
+      { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" },
     ],
   }),
   shellComponent: RootShell,
@@ -127,20 +129,23 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthReturnHandler />
-      <Outlet />
-      <footer className="border-t bg-background px-6 py-8">
-        <div className="mx-auto flex max-w-6xl flex-col gap-3 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <div className="font-medium text-foreground">UniCompass</div>
-            <div>Created by Suhrob Aminov</div>
-          </div>
-          <div className="flex gap-4">
-            <a href="https://t.me/Uzbek_npc" target="_blank" rel="noreferrer" className="hover:text-foreground transition-colors">Telegram: @Uzbek_npc</a>
-            <a href="https://instagram.com/Uzbek.npc" target="_blank" rel="noreferrer" className="hover:text-foreground transition-colors">Instagram: @Uzbek.npc</a>
-          </div>
-        </div>
-      </footer>
+      <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:bg-card focus:p-3">Skip to content</a>
+      <AppHeader />
+      <RouteContent />
+      <AppFooter />
       <Toaster richColors position="top-right" />
     </QueryClientProvider>
   );
+}
+
+function RouteContent() {
+  const path = useRouterState({ select: (s) => s.location.pathname });
+  useEffect(() => {
+    const observer = new IntersectionObserver((entries) => {
+      for (const entry of entries) if (entry.isIntersecting) { entry.target.classList.add("reveal-visible"); entry.target.classList.remove("reveal-pending"); observer.unobserve(entry.target); }
+    }, { threshold: 0.08 });
+    document.querySelectorAll(".reveal").forEach((node) => { node.classList.add("reveal-pending"); observer.observe(node); });
+    return () => observer.disconnect();
+  }, [path]);
+  return <div id="main-content" key={path} className="page-enter min-h-[65vh]"><Outlet /></div>;
 }
