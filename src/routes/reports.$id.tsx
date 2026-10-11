@@ -192,9 +192,9 @@ function ScoreRing({ score }: { score: number }) {
 
 function SchoolCard({ school }: { school: School }) {
   const tierColor: Record<Tier, string> = {
-    Reach: "bg-[oklch(var(--reach)/0.1)] text-[oklch(var(--reach))] border-[oklch(var(--reach)/0.3)]",
-    Target: "bg-[oklch(var(--target)/0.1)] text-[oklch(var(--target))] border-[oklch(var(--target)/0.3)]",
-    Safety: "bg-[oklch(var(--safety)/0.1)] text-[oklch(var(--safety))] border-[oklch(var(--safety)/0.3)]",
+    Reach: "tier-reach",
+    Target: "tier-target",
+    Safety: "tier-safety",
   };
   return (
     <Card className="card-lift p-5">
