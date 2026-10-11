@@ -473,18 +473,28 @@ function CTA() {
   return (
     <section id="contact" className="mx-auto max-w-6xl px-6 py-20 md:py-28">
       <div className="rounded-3xl border border-border bg-card px-8 py-14 text-center shadow-soft md:px-16">
-        <h2 className="font-display text-3xl font-semibold tracking-tight md:text-4xl">Start with your profile</h2>
+        <h2 className="font-display text-3xl font-semibold tracking-tight md:text-4xl">Questions or feedback?</h2>
         <p className="mx-auto mt-4 max-w-xl text-muted-foreground">
-          Complete your profile once and see where you stand. No account needed — your progress is saved right here on your device.
+          Need help with UniCompass or have an idea to share? Contact the creator directly through any of these channels.
         </p>
         <div className="mt-8 flex flex-wrap justify-center gap-3">
-          <LoginDialog>
-            <Button size="lg" className="h-12 rounded-xl px-7 text-base">Analyze My Profile</Button>
-          </LoginDialog>
-          <a href="#how-it-works">
-            <Button size="lg" variant="outline" className="h-12 rounded-xl border-border px-7 text-base">How It Works</Button>
+          <a href="mailto:suhrobaminov067@gmail.com" className="inline-flex">
+            <Button size="lg" className="h-12 rounded-xl px-5 text-base">
+              <MessageSquareText className="mr-2 h-4 w-4" /> Email
+            </Button>
+          </a>
+          <a href="https://t.me/Uzbek_npc" target="_blank" rel="noopener noreferrer" className="inline-flex">
+            <Button size="lg" variant="outline" className="h-12 rounded-xl border-border px-5 text-base">
+              <Send className="mr-2 h-4 w-4" /> Telegram
+            </Button>
+          </a>
+          <a href="https://www.instagram.com/Uzbek.npc/" target="_blank" rel="noopener noreferrer" className="inline-flex">
+            <Button size="lg" variant="outline" className="h-12 rounded-xl border-border px-5 text-base">
+              Instagram <ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
           </a>
         </div>
+        <p className="mt-5 text-sm text-muted-foreground">Created by Suhrob Aminov · UniCompass</p>
       </div>
     </section>
   );
