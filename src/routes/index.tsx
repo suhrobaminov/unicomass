@@ -64,7 +64,18 @@ export const Route = createFileRoute("/")({
 
 function Landing() {
   return (
-    <div className="min-h-screen bg-[#11120f] text-[#f2efe5]">
+    <div className="uc-site min-h-screen bg-[#11120f] text-[#f2efe5]">
+      <style>{`
+        @keyframes uc-button-breathe { 0%,100% { box-shadow:0 0 0 rgba(195,169,119,0), 0 0 0 1px rgba(195,169,119,.2); } 50% { box-shadow:0 0 18px rgba(195,169,119,.12), 0 0 0 1px rgba(195,169,119,.42); } }
+        @keyframes uc-sparkle { 0% { opacity:0; transform:translate(0,8px) scale(.35) rotate(0deg); } 35% { opacity:1; } 100% { opacity:0; transform:translate(var(--spark-x),-22px) scale(1.1) rotate(70deg); } }
+        .uc-site button, .uc-site a[role="button"], .uc-site [data-slot="button"] { position:relative; isolation:isolate; overflow:hidden; transition:color .25s ease,background-color .25s ease,border-color .25s ease,box-shadow .25s ease,transform .25s ease; }
+        .uc-site button:not(:disabled):hover, .uc-site a[role="button"]:hover, .uc-site [data-slot="button"]:hover { box-shadow:0 0 22px rgba(195,169,119,.22),0 0 48px rgba(195,169,119,.08); border-color:rgba(215,190,133,.9); transform:translateY(-1px); }
+        .uc-site button:not(:disabled):hover::after, .uc-site a[role="button"]:hover::after, .uc-site [data-slot="button"]:hover::after { content:"✦"; position:absolute; z-index:3; pointer-events:none; top:4px; right:9px; color:#f6e7b9; font-size:12px; text-shadow:0 0 8px #c3a977,0 0 18px #c3a977; animation:uc-sparkle .75s ease-out both; --spark-x:8px; }
+        .uc-site button:not(:disabled):active, .uc-site a[role="button"]:active, .uc-site [data-slot="button"]:active { transform:translateY(0) scale(.985); }
+        .uc-site a, .uc-site button { cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cpath d='M16 1.5 19.7 11l9.8 5-9.8 4-3.7 10-3.8-10-9.7-4 9.7-5z' fill='%23c3a977' stroke='%23f2efe5' stroke-width='1.4'/%3E%3C/svg%3E") 16 16,pointer; }
+        .uc-site :focus-visible { outline:2px solid #d6bd80 !important; outline-offset:4px; }
+        @media (prefers-reduced-motion:reduce) { .uc-site button,.uc-site a,.uc-site button::after,.uc-site a::after { animation:none !important; transition:none !important; } }
+      `}</style>
       <Nav />
       <main>
         <Hero />
@@ -179,12 +190,12 @@ function Hero() {
           </p>
           <div className="mt-9 flex flex-wrap items-center gap-3">
             <LoginDialog>
-              <Button size="lg" className="h-12 rounded-xl px-7 text-base shadow-soft">
+              <Button size="lg" className="uc-primary-button h-12 rounded-xl border border-[#32d583] bg-[#22b96a] px-7 text-base text-[#07180f] shadow-[0_0_22px_rgba(34,185,106,.18)] hover:bg-[#45e08c] hover:text-[#07180f]">
                 Analyze My Profile <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </LoginDialog>
             <a href="#how-it-works">
-              <Button size="lg" variant="outline" className="h-12 rounded-xl border-[#5c594b] bg-transparent px-7 text-base text-[#e9e1cf] hover:bg-[#292a23] hover:text-[#f2efe5]">
+              <Button size="lg" variant="outline" className="h-12 rounded-xl border-[#756744] bg-[#1c1d18] px-7 text-base text-[#f2efe5] hover:bg-[#292a23] hover:text-[#f2efe5]">
                 How It Works
               </Button>
             </a>
@@ -256,66 +267,39 @@ function StudyExperience() {
   return (
     <section className="journal-section relative overflow-hidden border-y border-[#34342e] bg-[#11120f] text-[#f2efe5]">
       <style>{`
-        @keyframes journal-rise { from { opacity:0; transform:translateY(24px); } to { opacity:1; transform:translateY(0); } }
-        @keyframes journal-page-turn { 0%, 15% { transform: rotateY(0deg); } 45%, 60% { transform: rotateY(-150deg); } 88%, 100% { transform: rotateY(-180deg); } }
-        @keyframes journal-lamp { 0%,100% { opacity:.55; } 50% { opacity:.85; } }
-        @keyframes journal-float { 0%,100% { transform:translateY(0) rotate(-1deg); } 50% { transform:translateY(-7px) rotate(.5deg); } }
-        @keyframes journal-rule { from { transform:scaleX(0); } to { transform:scaleX(1); } }
-        .journal-reveal { animation:journal-rise .9s cubic-bezier(.2,.75,.25,1) both; }
-        .journal-book { animation:journal-float 7s ease-in-out infinite; transform-style:preserve-3d; }
-        .journal-page { transform-origin:left center; transform-style:preserve-3d; animation:journal-page-turn 8s cubic-bezier(.65,0,.35,1) infinite; backface-visibility:hidden; }
+        @keyframes journal-rise { from { opacity:0; transform:translateY(18px); } to { opacity:1; transform:translateY(0); } }
+        @keyframes journal-page-turn { 0%,18% { transform:rotateY(0deg); } 38%,58% { transform:rotateY(-24deg); } 78%,100% { transform:rotateY(0deg); } }
+        @keyframes journal-page-glint { 0%,20% { opacity:0; transform:translateX(-130%); } 55% { opacity:.8; } 80%,100% { opacity:0; transform:translateX(130%); } }
+        @keyframes journal-lamp { 0%,100% { opacity:.35; } 50% { opacity:.7; } }
+        @keyframes journal-float { 0%,100% { transform:translateY(0) rotate(-.5deg); } 50% { transform:translateY(-5px) rotate(.3deg); } }
+        .journal-reveal { animation:journal-rise .8s cubic-bezier(.2,.75,.25,1) both; }
+        .journal-book { animation:journal-float 8s ease-in-out infinite; transform-style:preserve-3d; }
+        .journal-page { transform-origin:left center; transform-style:preserve-3d; animation:journal-page-turn 9s cubic-bezier(.65,0,.35,1) infinite; backface-visibility:hidden; }
+        .journal-glint { animation:journal-page-glint 9s ease-in-out infinite; }
         .journal-lamp { animation:journal-lamp 6s ease-in-out infinite; }
-        .journal-rule { transform-origin:left; animation:journal-rule 1.2s .35s ease-out both; }
-        @media (prefers-reduced-motion: reduce) { .journal-reveal,.journal-book,.journal-page,.journal-lamp,.journal-rule { animation:none !important; } }
+        .journal-rule { transform-origin:left; animation:journal-rise 1s .2s ease-out both; }
+        @media (prefers-reduced-motion:reduce) { .journal-reveal,.journal-book,.journal-page,.journal-glint,.journal-lamp,.journal-rule { animation:none !important; } }
       `}</style>
       <div className="mx-auto grid max-w-6xl items-center gap-12 px-6 py-20 md:py-28 lg:grid-cols-[.9fr_1.1fr]">
         <div className="journal-reveal relative z-10">
           <p className="flex items-center gap-3 text-[11px] font-semibold uppercase tracking-[.24em] text-[#c3a977]"><span className="h-px w-8 bg-[#c3a977]"/> The UniCompass journal / 01</p>
-          <h2 className="mt-7 max-w-xl font-serif text-4xl font-medium leading-[1.04] tracking-[-.04em] sm:text-5xl md:text-6xl">
-            Every future<br/>starts with a<br/><em className="font-normal text-[#c3a977]">first page.</em>
-          </h2>
+          <h2 className="mt-7 max-w-xl font-serif text-4xl font-medium leading-[1.04] tracking-[-.04em] sm:text-5xl md:text-6xl">Every future<br/>starts with a<br/><em className="font-normal text-[#c3a977]">first page.</em></h2>
           <div className="journal-rule mt-7 h-px w-28 bg-[#c3a977]"/>
-          <p className="mt-6 max-w-md text-base leading-7 text-[#b9b7ac]">
-            The path to university isn't a template. It's a story shaped by your ambition, your choices, and the work you put in next.
-          </p>
-          <div className="mt-8 flex items-center gap-4 text-xs uppercase tracking-[.16em] text-[#c3c0b4]">
-            <span className="grid h-9 w-9 place-items-center rounded-full border border-[#555348] font-serif text-sm text-[#d5bd8d]">01</span>
-            <span>Discover your direction</span>
-          </div>
+          <p className="mt-6 max-w-md text-base leading-7 text-[#b9b7ac]">The path to university isn't a template. It's a story shaped by your ambition, your choices, and the work you put in next.</p>
+          <div className="mt-8 flex items-center gap-4 text-xs uppercase tracking-[.16em] text-[#c3c0b4]"><span className="grid h-9 w-9 place-items-center rounded-full border border-[#555348] font-serif text-sm text-[#d5bd8d]">01</span><span>Discover your direction</span></div>
         </div>
         <div className="journal-reveal relative mx-auto w-full max-w-[510px]" style={{animationDelay:".15s"}}>
           <div className="journal-lamp absolute -inset-8 rounded-full bg-[#c3a977]/10 blur-3xl"/>
-          <div className="absolute -right-1 top-0 z-20 border border-[#4a493e] bg-[#191a16] px-4 py-3 shadow-xl">
-            <p className="text-[9px] uppercase tracking-[.22em] text-[#b9a16f]">Field notes / 2026</p>
-            <p className="mt-1 font-serif text-sm italic text-[#f2efe5]">Make room for possibility.</p>
-          </div>
+          <div className="absolute -right-1 top-0 z-20 border border-[#4a493e] bg-[#191a16] px-4 py-3 shadow-xl"><p className="text-[9px] uppercase tracking-[.22em] text-[#b9a16f]">Field notes / 2026</p><p className="mt-1 font-serif text-sm italic text-[#f2efe5]">Make room for possibility.</p></div>
           <div className="journal-book relative mx-auto mt-8 h-[285px] w-[min(100%,430px)] [perspective:1600px] sm:h-[330px]">
             <div className="absolute inset-y-3 left-2 right-0 rounded-r-md bg-[#403728] shadow-2xl shadow-black/50"/>
             <div className="absolute inset-y-0 left-0 right-1 grid grid-cols-2 overflow-hidden border border-[#c9c0a8]/25 bg-[#e9e1cf] text-[#25241f] shadow-2xl">
-              <div className="border-r border-[#c5bba6] px-5 py-6 sm:px-7 sm:py-8">
-                <p className="text-[9px] uppercase tracking-[.2em] text-[#7b6b4e]">Chapter one</p>
-                <h3 className="mt-4 font-serif text-2xl leading-tight sm:text-3xl">Find your<br/><em>north.</em></h3>
-                <p className="mt-4 text-[10px] leading-5 text-[#696456]">Start with what matters to you. Let curiosity do the rest.</p>
-                <div className="mt-5 space-y-2">{[88,72,82,54].map((w,i)=><div key={i} className="h-px bg-[#aaa18f]" style={{width:w+"%"}}/>)}</div>
-                <p className="mt-6 font-serif text-xs italic text-[#786a50]">A map is only the beginning.</p>
-              </div>
-              <div className="px-5 py-6 sm:px-7 sm:py-8">
-                <p className="text-[9px] uppercase tracking-[.2em] text-[#7b6b4e]">Your next steps</p>
-                <div className="mt-5 space-y-5">{["Know your strengths","Explore your options","Build your plan"].map((s,i)=><div key={s} className="flex gap-3"><span className="font-serif text-xs italic text-[#9b8050]">0{i+1}</span><div><p className="font-serif text-sm">{s}</p><div className="mt-2 h-px w-16 bg-[#b9ae98]"/></div></div>)}</div>
-                <div className="mt-7 border-t border-[#c5bba6] pt-4"><p className="text-[9px] uppercase tracking-[.18em] text-[#7b6b4e]">A note to self</p><p className="mt-2 font-serif text-sm italic">Keep going, even when the way isn't clear.</p></div>
-              </div>
+              <div className="border-r border-[#c5bba6] px-5 py-6 sm:px-7 sm:py-8"><p className="text-[9px] uppercase tracking-[.2em] text-[#7b6b4e]">Chapter one</p><h3 className="mt-4 font-serif text-2xl leading-tight sm:text-3xl">Find your<br/><em>north.</em></h3><p className="mt-4 text-[10px] leading-5 text-[#696456]">Start with what matters to you. Let curiosity do the rest.</p><div className="mt-5 space-y-2">{[88,72,82,54].map((w,i)=><div key={i} className="h-px bg-[#aaa18f]" style={{width:w+"%"}}/>)}</div><p className="mt-6 font-serif text-xs italic text-[#786a50]">A map is only the beginning.</p></div>
+              <div className="px-5 py-6 sm:px-7 sm:py-8"><p className="text-[9px] uppercase tracking-[.2em] text-[#7b6b4e]">Your next steps</p><div className="mt-5 space-y-5">{["Know your strengths","Explore your options","Build your plan"].map((s,i)=><div key={s} className="flex gap-3"><span className="font-serif text-xs italic text-[#9b8050]">0{i+1}</span><div><p className="font-serif text-sm">{s}</p><div className="mt-2 h-px w-16 bg-[#b9ae98]"/></div></div>)}</div><div className="mt-7 border-t border-[#c5bba6] pt-4"><p className="text-[9px] uppercase tracking-[.18em] text-[#7b6b4e]">A note to self</p><p className="mt-2 font-serif text-sm italic">Keep going, even when the way isn't clear.</p></div></div>
             </div>
-            <div className="journal-page absolute inset-y-0 left-0 right-1 overflow-hidden border border-[#c9c0a8] bg-[#f3ecdc] px-5 py-6 text-[#25241f] shadow-lg sm:px-7 sm:py-8">
-              <p className="text-[9px] uppercase tracking-[.2em] text-[#7b6b4e]">A letter to your future self</p>
-              <h3 className="mt-5 font-serif text-2xl leading-tight sm:text-3xl">The next chapter<br/><em>is yours to write.</em></h3>
-              <p className="mt-4 max-w-[260px] font-serif text-sm leading-6 text-[#696456]">A little clarity today can change the choices you make tomorrow.</p>
-              <div className="mt-5 space-y-3">{[94,82,89,65,78].map((w,i)=><div key={i} className="h-px bg-[#b9ae98]" style={{width:w+"%"}}/>)}</div>
-              <p className="mt-7 font-serif text-xs italic text-[#8a744f]">UniCompass — notes for the road ahead</p>
-            </div>
+            <div className="journal-page absolute inset-y-0 left-0 right-1 overflow-hidden border border-[#c9c0a8] bg-[#f3ecdc] px-5 py-6 text-[#25241f] shadow-lg sm:px-7 sm:py-8"><p className="text-[9px] uppercase tracking-[.2em] text-[#7b6b4e]">A letter to your future self</p><h3 className="mt-5 font-serif text-2xl leading-tight sm:text-3xl">The next chapter<br/><em>is yours to write.</em></h3><p className="mt-4 max-w-[260px] font-serif text-sm leading-6 text-[#696456]">A little clarity today can change the choices you make tomorrow.</p><div className="mt-5 space-y-3">{[94,82,89,65,78].map((w,i)=><div key={i} className="h-px bg-[#b9ae98]" style={{width:w+"%"}}/>)}</div><p className="mt-7 font-serif text-xs italic text-[#8a744f]">UniCompass — notes for the road ahead</p><div className="journal-glint pointer-events-none absolute inset-y-0 left-0 w-1/3 bg-gradient-to-r from-transparent via-white/40 to-transparent"/></div>
           </div>
-          <div className="mt-3 flex items-center justify-between border-t border-[#3b3b32] pt-4 text-[10px] uppercase tracking-[.18em] text-[#858477]">
-            <span>Personal direction, not a preset path</span><span>01 — 03</span>
-          </div>
+          <div className="mt-3 flex items-center justify-between border-t border-[#3b3b32] pt-4 text-[10px] uppercase tracking-[.18em] text-[#858477]"><span>Personal direction, not a preset path</span><span>01 — 03</span></div>
         </div>
       </div>
     </section>
@@ -416,7 +400,7 @@ function Features() {
               <div className="mt-6">
                 {f.to ? (
                   <Link to={f.to}>
-                    <Button variant="outline" size="sm" className="rounded-lg border-[#5c594b] bg-transparent text-[#e9e1cf] hover:bg-[#292a23] hover:text-[#f2efe5]">
+                    <Button variant="outline" size="sm" className="rounded-lg border-[#756744] bg-[#1c1d18] text-[#f2efe5] hover:bg-[#292a23] hover:text-[#f2efe5]">
                       {f.cta} <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
                     </Button>
                   </Link>
