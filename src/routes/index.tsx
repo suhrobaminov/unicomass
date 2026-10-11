@@ -68,6 +68,7 @@ function Landing() {
       <Nav />
       <main>
         <Hero />
+        <StudyExperience />
         <Features />
         <HowItWorks />
         <Resources />
@@ -212,6 +213,72 @@ function Hero() {
             />
           </div>
           <DashboardCard />
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function StudyExperience() {
+  return (
+    <section className="overflow-hidden border-y border-border bg-[#f6f8f4] text-slate-900">
+      <style>{`
+        @keyframes book-float { 0%,100% { transform: translateY(0) rotate(-1deg); } 50% { transform: translateY(-9px) rotate(1deg); } }
+        @keyframes page-turn { 0%,18% { transform: rotateY(0deg); } 42%,62% { transform: rotateY(-155deg); } 82%,100% { transform: rotateY(-180deg); } }
+        @keyframes finger-tap { 0%,10%,100% { transform: translate(0,0) rotate(-16deg); } 28% { transform: translate(-12px,-7px) rotate(-25deg); } 40% { transform: translate(-5px,3px) rotate(-8deg); } 54% { transform: translate(-12px,-7px) rotate(-25deg); } 66% { transform: translate(0,0) rotate(-16deg); } }
+        @keyframes line-glow { 0%,100% { opacity:.45; } 50% { opacity:1; } }
+        .study-book { animation: book-float 5s ease-in-out infinite; transform-style:preserve-3d; }
+        .study-page { transform-origin:left center; transform-style:preserve-3d; animation:page-turn 5.5s cubic-bezier(.65,0,.35,1) infinite; }
+        .study-finger { animation:finger-tap 5.5s ease-in-out infinite; transform-origin:bottom center; }
+        .study-line { animation:line-glow 2.4s ease-in-out infinite; }
+        @media (prefers-reduced-motion: reduce) { .study-book,.study-page,.study-finger,.study-line { animation:none !important; } }
+      `}</style>
+      <div className="mx-auto grid max-w-6xl items-center gap-12 px-6 py-16 md:py-20 lg:grid-cols-[1fr_1.05fr]">
+        <div className="max-w-xl">
+          <span className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-white/80 px-3 py-1 text-xs font-semibold text-emerald-800">
+            <span className="h-2 w-2 rounded-full bg-emerald-500" /> A smarter way to prepare
+          </span>
+          <h2 className="mt-5 font-display text-3xl font-semibold tracking-tight sm:text-4xl md:text-5xl">
+            Turn big ambitions into <span className="text-emerald-700">your next chapter.</span>
+          </h2>
+          <p className="mt-5 max-w-lg text-base leading-relaxed text-slate-600">
+            Explore your options, learn what matters, and move through your university journey one page at a time.
+          </p>
+          <div className="mt-7 flex flex-wrap gap-3 text-sm text-slate-700">
+            <span className="rounded-full border border-slate-200 bg-white px-4 py-2">Personalized guidance</span>
+            <span className="rounded-full border border-slate-200 bg-white px-4 py-2">Clear next steps</span>
+          </div>
+        </div>
+        <div className="relative mx-auto flex min-h-[330px] w-full max-w-[520px] items-center justify-center">
+          <div className="absolute h-64 w-64 rounded-full bg-emerald-200/60 blur-3xl" />
+          <div className="absolute right-4 top-7 rounded-2xl border border-white bg-white/90 px-4 py-3 shadow-lg shadow-emerald-900/5">
+            <p className="text-xs font-medium text-slate-500">YOUR NEXT CHAPTER</p>
+            <p className="mt-1 text-sm font-semibold text-emerald-800">Discover. Plan. Apply.</p>
+          </div>
+          <div className="study-book relative mt-10 h-[230px] w-[min(100%,360px)] [perspective:1200px]">
+            <div className="absolute inset-y-2 left-1 right-1 rounded-r-2xl bg-emerald-950 shadow-2xl shadow-emerald-950/20" />
+            <div className="absolute inset-y-0 left-0 right-1 grid grid-cols-2 overflow-hidden rounded-xl border border-emerald-950/10 bg-[#fffdf6] shadow-xl">
+              <div className="border-r border-slate-200/80 px-5 py-5">
+                <p className="text-[10px] font-bold uppercase tracking-[.2em] text-emerald-800">Chapter 01</p>
+                <p className="mt-3 font-serif text-lg font-semibold leading-tight text-slate-800">Find your direction</p>
+                <div className="mt-4 space-y-2.5">{[92,78,86,62,80].map((w,i)=><div key={i} className="study-line h-1.5 rounded-full bg-slate-200" style={{width:w+"%",animationDelay:(i*.16)+"s"}} />)}</div>
+                <div className="mt-5 h-12 rounded-lg bg-emerald-50 p-2"><div className="h-2 w-2/3 rounded-full bg-emerald-200"/><div className="mt-2 h-2 w-1/2 rounded-full bg-emerald-100"/></div>
+              </div>
+              <div className="px-5 py-5">
+                <p className="text-[10px] font-bold uppercase tracking-[.2em] text-emerald-800">Your roadmap</p>
+                <div className="mt-4 space-y-4">{["Know your strengths","Compare universities","Build your application"].map((s,i)=><div key={s} className="flex items-start gap-2"><span className="mt-0.5 grid h-4 w-4 shrink-0 place-items-center rounded-full bg-emerald-100 text-[9px] font-bold text-emerald-800">{i+1}</span><div><p className="text-[10px] font-semibold text-slate-700">{s}</p><div className="mt-1 h-1 w-16 rounded-full bg-slate-200"/></div></div>)}</div>
+              </div>
+            </div>
+            <div className="study-page absolute inset-y-0 left-0 right-1 overflow-hidden rounded-xl border border-slate-200 bg-[#fffef9] px-6 py-5 shadow-lg">
+              <p className="text-[10px] font-bold uppercase tracking-[.2em] text-emerald-800">Chapter 02</p>
+              <p className="mt-4 font-serif text-2xl font-semibold text-slate-800">Make your plan</p>
+              <p className="mt-2 text-xs leading-relaxed text-slate-500">Small, thoughtful steps can make a big goal feel possible.</p>
+              <div className="mt-5 space-y-3">{[95,82,90,64,86,72].map((w,i)=><div key={i} className="h-1.5 rounded-full bg-slate-200" style={{width:w+"%"}} />)}</div>
+              <div className="mt-5 rounded-lg border border-emerald-100 bg-emerald-50 p-3"><p className="text-xs font-semibold text-emerald-900">One step at a time.</p><p className="mt-1 text-[10px] text-emerald-800">Your future is built by what you do next.</p></div>
+            </div>
+          </div>
+          <div className="study-finger absolute bottom-8 right-[18%] z-10 text-5xl drop-shadow-md" aria-hidden="true">☝️</div>
+          <div className="absolute bottom-1 left-1/2 -translate-x-1/2 whitespace-nowrap text-xs font-medium text-slate-500">A little progress, every day.</div>
         </div>
       </div>
     </section>
