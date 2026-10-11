@@ -44,11 +44,11 @@ export function LoginDialog({ children, next = "/dashboard" }: { children: React
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="max-w-md sm:rounded-xl">
+      <DialogContent className="max-w-md sm:rounded-lg">
         <DialogHeader className="text-center">
           <DialogTitle className="font-display text-2xl">Welcome to UniCompass</DialogTitle>
           <DialogDescription>
-            Sign in to sync your profile across devices, or continue without an account.
+            Sign in with Google or an email code. Your progress is saved on this device.
           </DialogDescription>
         </DialogHeader>
 

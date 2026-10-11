@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useId, isValidElement, cloneElement } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
-import { Plus, Trash2, Sparkles, Loader2 } from "lucide-react";
+import { Plus, Trash2, GraduationCap, Check, ArrowRight, ArrowLeft, Loader2 } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { generateReport } from "@/lib/ai.functions";
@@ -16,7 +16,7 @@ import {
   type Profile, type EC, type Award,
 } from "@/lib/local-store";
 
-const STEPS = ["Demographics", "Academics", "Activities", "Awards"];
+const STEPS = ["About you", "Academics", "Activities", "Awards"];
 
 export function ProfileWizard() {
   const [step, setStep] = useState(0);
@@ -26,6 +26,7 @@ export function ProfileWizard() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [generating, setGenerating] = useState(false);
+  const [generationError, setGenerationError] = useState("");
   const navigate = useNavigate();
   const generate = useServerFn(generateReport);
 
@@ -85,6 +86,7 @@ export function ProfileWizard() {
   };
 
   const handleGenerate = async () => {
+    setGenerationError("");
     setGenerating(true);
     try {
       saveProfile();
@@ -95,25 +97,29 @@ export function ProfileWizard() {
       toast.success("Report generated");
       navigate({ to: "/reports/$id", params: { id: report.id } });
     } catch (e) {
-      toast.error((e as Error).message);
+      const message = e instanceof Error ? e.message : "Your analysis could not be generated. Please try again.";
+      setGenerationError(message);
+      toast.error(message);
     } finally { setGenerating(false); }
   };
 
-  if (loading) return <div className="grid place-items-center py-20"><Loader2 className="animate-spin" /></div>;
+  if (loading) return <div role="status" aria-label="Loading profile" className="space-y-4 py-10"><div className="loading-sheen h-8 w-48" /><div className="loading-sheen h-64 w-full" /></div>;
 
   const num = (v: string) => v === "" ? null : Number(v);
 
   return (
     <div className="space-y-6">
-      <Card className="p-6">
-        <div className="flex items-center justify-between mb-4">
+      <ol className="grid grid-cols-4 gap-2 mb-8" aria-label="Profile steps">{STEPS.map((name, i) => <li key={name}><Button variant="ghost" onClick={() => setStep(i)} disabled={generating} aria-current={step === i ? "step" : undefined} className={"h-auto w-full flex-col sm:flex-row justify-start px-2 py-3 " + (step === i ? "bg-accent text-accent-foreground" : "text-muted-foreground")}><span className={"grid size-7 shrink-0 place-items-center rounded-full border text-xs " + (i <= step ? "bg-primary text-primary-foreground border-primary" : "border-border")}>{i < step ? <Check className="size-3" /> : i + 1}</span><span className="text-xs sm:text-sm">{name}</span></Button></li>)}</ol>
+      <div className="tool-panel wizard-fields">
+        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 mb-4">
           <div>
             <div className="text-xs uppercase tracking-wide text-muted-foreground">Step {step + 1} of 4</div>
             <h2 className="font-display text-2xl mt-1">{STEPS[step]}</h2>
           </div>
-          <div className="text-sm text-muted-foreground">{saving ? "Saving…" : "Autosaved"}</div>
+          <div className="text-xs text-muted-foreground">{saving ? "Saving…" : "Saved on this device"}</div>
         </div>
-        <Progress value={((step + 1) / 4) * 100} className="mb-6" />
+        <Progress aria-label="Profile progress" value={((step + 1) / 4) * 100} className="mb-6 h-1" />
+        <p className="mb-6 text-sm leading-6 text-muted-foreground">{["Start with your background and the fields you want to explore.", "Add the academic details you have. Leave unavailable scores blank.", "Show what you do beyond the classroom: leadership, work, service, and projects.", "Add recognition that reflects your achievements, then generate your university shortlist."][step]}</p>
 
         {step === 0 && (
           <div className="grid md:grid-cols-2 gap-4">
@@ -142,7 +148,7 @@ export function ProfileWizard() {
           <div className="space-y-4">
             {ecs.length === 0 && <p className="text-sm text-muted-foreground">No activities yet. Add your first one.</p>}
             {ecs.map((e, i) => (
-              <Card key={i} className="p-4 bg-secondary/40">
+              <Card key={e.id} className="p-5 bg-secondary/40">
                 <div className="grid md:grid-cols-2 gap-3">
                   <Field label="Activity name"><Input value={e.name} onChange={(v) => updateEc(i, { name: v.target.value })} /></Field>
                   <Field label="Category">
@@ -157,11 +163,11 @@ export function ProfileWizard() {
                   <Field label="Hours / week"><Input type="number" value={e.hours_per_week ?? ""} onChange={(v) => updateEc(i, { hours_per_week: num(v.target.value) })} /></Field>
                 </div>
                 <div className="mt-3">
-                  <Label className="text-xs">Description / impact</Label>
-                  <Textarea rows={3} value={e.description} onChange={(v) => updateEc(i, { description: v.target.value })} />
+                  <Label htmlFor={`ec-description-${e.id}`} className="text-xs">Description / impact</Label>
+                  <Textarea id={`ec-description-${e.id}`} rows={3} value={e.description} onChange={(v) => updateEc(i, { description: v.target.value })} />
                 </div>
                 <div className="mt-3 flex gap-2 justify-end">
-                  <Button variant="ghost" size="sm" onClick={() => removeEc(i)}><Trash2 className="h-4 w-4" /></Button>
+                  <Button variant="ghost" size="sm" aria-label="Delete activity" title="Delete activity" onClick={() => removeEc(i)}><Trash2 className="h-4 w-4" /></Button>
                   <Button size="sm" onClick={() => saveEc(i)}>Save activity</Button>
                 </div>
               </Card>
@@ -174,7 +180,7 @@ export function ProfileWizard() {
           <div className="space-y-4">
             {awards.length === 0 && <p className="text-sm text-muted-foreground">No awards yet.</p>}
             {awards.map((a, i) => (
-              <Card key={i} className="p-4 bg-secondary/40">
+              <Card key={a.id} className="p-5 bg-secondary/40">
                 <div className="grid md:grid-cols-2 gap-3">
                   <Field label="Award title"><Input value={a.title} onChange={(v) => updateAward(i, { title: v.target.value })} /></Field>
                   <Field label="Selection level">
@@ -187,11 +193,11 @@ export function ProfileWizard() {
                   </Field>
                 </div>
                 <div className="mt-3">
-                  <Label className="text-xs">Brief description</Label>
-                  <Textarea rows={2} value={a.description} onChange={(v) => updateAward(i, { description: v.target.value })} />
+                  <Label htmlFor={`award-description-${a.id}`} className="text-xs">Brief description</Label>
+                  <Textarea id={`award-description-${a.id}`} rows={2} value={a.description} onChange={(v) => updateAward(i, { description: v.target.value })} />
                 </div>
                 <div className="mt-3 flex gap-2 justify-end">
-                  <Button variant="ghost" size="sm" onClick={() => removeAward(i)}><Trash2 className="h-4 w-4" /></Button>
+                  <Button variant="ghost" size="sm" aria-label="Delete award" title="Delete award" onClick={() => removeAward(i)}><Trash2 className="h-4 w-4" /></Button>
                   <Button size="sm" onClick={() => saveAward(i)}>Save award</Button>
                 </div>
               </Card>
@@ -200,26 +206,29 @@ export function ProfileWizard() {
           </div>
         )}
 
-        <div className="mt-8 flex items-center justify-between">
-          <Button variant="ghost" disabled={step === 0} onClick={() => setStep(step - 1)}>Back</Button>
+        {generationError && <div role="alert" className="mt-6 rounded-lg border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">{generationError}</div>}
+        {generating && <div role="status" aria-live="polite" className="mt-6 border-t pt-6"><div className="flex items-center gap-3"><Loader2 className="size-5 animate-spin text-primary" /><div><p className="font-medium">Preparing your university shortlist</p><p className="mt-1 text-xs text-muted-foreground">Reviewing your profile, university fit, and next steps. This may take a little time.</p></div></div><div className="loading-sheen mt-4 h-2 w-full" /></div>}
+        <div className="mt-8 grid grid-cols-[auto_minmax(0,1fr)] gap-3 border-t pt-6">
+          <Button variant="ghost" disabled={step === 0 || generating} onClick={() => setStep(step - 1)}><ArrowLeft />Back</Button>
           {step < 3 ? (
-            <Button onClick={() => setStep(step + 1)}>Continue</Button>
+            <Button onClick={() => setStep(step + 1)} className="justify-self-end">Continue<ArrowRight /></Button>
           ) : (
-            <Button size="lg" className="shadow-elegant" disabled={generating} onClick={handleGenerate}>
-              {generating ? <><Loader2 className="animate-spin h-4 w-4 mr-2" />Analyzing…</> : <><Sparkles className="h-4 w-4 mr-2" />Generate Admissions Analysis</>}
+            <Button size="lg" className="shadow-elegant justify-self-end" disabled={generating} onClick={handleGenerate}>
+              {generating ? <><Loader2 className="animate-spin h-4 w-4 mr-2" />Analyzing…</> : <><GraduationCap className="h-4 w-4 mr-2" />Generate Admissions Analysis</>}
             </Button>
           )}
         </div>
-      </Card>
+      </div>
     </div>
   );
 }
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
+  const id = useId();
   return (
     <div className="space-y-1.5">
-      <Label className="text-xs uppercase tracking-wide text-muted-foreground">{label}</Label>
-      {children}
+      <Label htmlFor={id} className="text-xs font-medium text-muted-foreground">{label}</Label>
+      <div id={id + "-field"}>{isValidElement(children) ? cloneElement(children as React.ReactElement<{ id?: string; "aria-label"?: string }>, { id, "aria-label": label }) : children}</div>
     </div>
   );
 }

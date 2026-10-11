@@ -4,7 +4,7 @@ import { ProfileWizard } from "@/components/profile-wizard";
 import { ReportsList } from "@/components/reports-list";
 import { Button } from "@/components/ui/button";
 import { Compass, ArrowRight } from "lucide-react";
-import { AppHeader } from "@/components/app-header";
+import { PageHeading } from "@/components/page-heading";
 
 export const Route = createFileRoute("/dashboard")({
   head: () => ({
@@ -24,23 +24,12 @@ export const Route = createFileRoute("/dashboard")({
 function Dashboard() {
   return (
     <>
-    <AppHeader />
-    <main className="mx-auto max-w-6xl px-6 py-10">
-      <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="font-display text-4xl font-semibold">Your workspace</h1>
-          <p className="mt-2 text-muted-foreground">Build your profile, then generate strategy reports on demand.</p>
-        </div>
-        <Link to="/find-your-major">
-          <Button className="bg-brand text-white shadow-elegant hover:opacity-95">
-            <Compass className="mr-2 h-4 w-4" /> Find Your Major <ArrowRight className="ml-2 h-4 w-4" />
-          </Button>
-        </Link>
-      </div>
+    <PageHeading eyebrow="Your admissions workspace" title="Find your universities" description="Build your profile, explore your fit, and make a plan for what comes next."><Button asChild variant="outline" className="shell-outline"><Link to="/find-your-major"><Compass />Find Your Major<ArrowRight /></Link></Button></PageHeading>
+    <main className="site-width py-8 sm:py-10">
       <Tabs defaultValue="profile">
-        <TabsList>
-          <TabsTrigger value="profile">My Profile</TabsTrigger>
-          <TabsTrigger value="reports">My Strategy Reports</TabsTrigger>
+        <TabsList className="h-auto w-full justify-start gap-1 rounded-lg border bg-card p-1 sm:w-auto">
+          <TabsTrigger value="profile">Build my profile</TabsTrigger>
+          <TabsTrigger value="reports">Saved reports</TabsTrigger>
         </TabsList>
         <TabsContent value="profile" className="mt-6"><ProfileWizard /></TabsContent>
         <TabsContent value="reports" className="mt-6"><ReportsList /></TabsContent>

@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { EmailOtpForm } from "@/components/email-otp-form";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
+import { ArrowLeft, ShieldCheck, Loader2 } from "lucide-react";
 
 type Search = { next?: string };
 const POST_AUTH_PATH_KEY = "unicompass:post-auth-path";
@@ -21,9 +21,9 @@ export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
       { title: "Sign in — UniCompass" },
-      { name: "description", content: "Sign in to UniCompass to sync your admissions profile and strategy reports across devices." },
+      { name: "description", content: "Sign in with Google or a passwordless email code." },
       { property: "og:title", content: "Sign in — UniCompass" },
-      { property: "og:description", content: "Sign in to UniCompass to sync your admissions profile and strategy reports." },
+      { property: "og:description", content: "Sign in with Google or a passwordless email code." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex, nofollow" },
@@ -62,15 +62,16 @@ function AuthPage() {
   }
 
   return (
-    <main className="mx-auto flex max-w-md flex-col px-6 py-16">
-      <div className="mb-8 text-center">
+    <main className="mx-auto flex max-w-md flex-col px-5 py-10 sm:py-16">
+      <Button asChild variant="ghost" className="mb-8 self-start -ml-3"><Link to="/"><ArrowLeft />Back to home</Link></Button>
+      <div className="mb-8 text-center"><ShieldCheck className="mx-auto mb-5 size-8 text-primary" /><p className="eyebrow text-primary mb-3">Your next chapter</p>
         <h1 className="font-display text-3xl font-semibold">Welcome to UniCompass</h1>
         <p className="mt-2 text-sm text-muted-foreground">
           Signing in is optional — your work is saved on this device either way.
         </p>
       </div>
 
-      <Card className="p-6">
+      <Card className="p-6 sm:p-8 shadow-elegant">
         <Button variant="outline" className="w-full" onClick={handleGoogle} disabled={busy}>
           {busy ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
           Continue with Google
