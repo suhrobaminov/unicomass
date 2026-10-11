@@ -72,7 +72,12 @@ function Landing() {
         .uc-site button:not(:disabled):hover, .uc-site a[role="button"]:hover, .uc-site [data-slot="button"]:hover { box-shadow:0 0 22px rgba(195,169,119,.22),0 0 48px rgba(195,169,119,.08); border-color:rgba(215,190,133,.9); transform:translateY(-1px); }
         .uc-site button:not(:disabled):hover::after, .uc-site a[role="button"]:hover::after, .uc-site [data-slot="button"]:hover::after { content:"✦"; position:absolute; z-index:3; pointer-events:none; top:4px; right:9px; color:#f6e7b9; font-size:12px; text-shadow:0 0 8px #c3a977,0 0 18px #c3a977; animation:uc-sparkle .75s ease-out both; --spark-x:8px; }
         .uc-site button:not(:disabled):active, .uc-site a[role="button"]:active, .uc-site [data-slot="button"]:active { transform:translateY(0) scale(.985); }
-        .uc-site a, .uc-site button { cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cpath d='M16 1.5 19.7 11l9.8 5-9.8 4-3.7 10-3.8-10-9.7-4 9.7-5z' fill='%23c3a977' stroke='%23f2efe5' stroke-width='1.4'/%3E%3C/svg%3E") 16 16,pointer; }
+        .uc-site, .uc-site * { cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Cpath d='M10 4 Q10 2 12 4 L17 16 L17 8 Q17 5 20 7 L23 16 L23 10 Q23 7 26 9 L29 19 Q31 26 26 31 L21 35 L13 33 L8 25 L5 19 Q4 16 7 15 Q9 15 12 20 Z' fill='%23e7d4a4' stroke='%2311120f' stroke-width='2' stroke-linejoin='round'/%3E%3Cpath d='M13 7 L17 16 M20 10 L23 17 M26 12 L28 19' stroke='%23fff4d7' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E") 8 4,auto !important; }
+        .uc-site button:disabled { cursor:not-allowed !important; }
+        .uc-site .uc-primary-button { background:#28271f !important; color:#f2e7c9 !important; border-color:#8b7549 !important; box-shadow:inset 0 0 0 1px rgba(195,169,119,.1),0 0 16px rgba(195,169,119,.08) !important; }
+        .uc-site .uc-primary-button:hover { background:#393326 !important; color:#fff2d0 !important; border-color:#d2b779 !important; box-shadow:0 0 18px rgba(195,169,119,.22),0 0 42px rgba(195,169,119,.1),inset 0 0 18px rgba(195,169,119,.05) !important; }
+        .uc-site button[data-slot="button"]:not(.uc-primary-button), .uc-site a[data-slot="button"]:not(.uc-primary-button) { background:#1b1c17; color:#e9e1cf; border-color:#4a493e; }
+        .uc-site button[data-slot="button"]:not(.uc-primary-button):hover, .uc-site a[data-slot="button"]:not(.uc-primary-button):hover { background:#282820; color:#fff2d0; border-color:#9b8555; }
         .uc-site :focus-visible { outline:2px solid #d6bd80 !important; outline-offset:4px; }
         @media (prefers-reduced-motion:reduce) { .uc-site button,.uc-site a,.uc-site button::after,.uc-site a::after { animation:none !important; transition:none !important; } }
       `}</style>
@@ -190,7 +195,7 @@ function Hero() {
           </p>
           <div className="mt-9 flex flex-wrap items-center gap-3">
             <LoginDialog>
-              <Button size="lg" className="uc-primary-button h-12 rounded-xl border border-[#32d583] bg-[#22b96a] px-7 text-base text-[#07180f] shadow-[0_0_22px_rgba(34,185,106,.18)] hover:bg-[#45e08c] hover:text-[#07180f]">
+              <Button size="lg" className="uc-primary-button h-12 rounded-xl border px-7 text-base">
                 Analyze My Profile <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </LoginDialog>
