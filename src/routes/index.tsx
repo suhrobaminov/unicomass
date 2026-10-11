@@ -91,7 +91,7 @@ const navLinks = [
 function Logo() {
   return (
     <Link to="/" className="flex items-center gap-2.5">
-      <span className="grid h-9 w-9 place-items-center rounded-xl bg-primary text-primary-foreground">
+      <span className="grid h-9 w-9 place-items-center rounded-xl bg-primary text-[#c3a977]-foreground">
         <Compass className="h-5 w-5" />
       </span>
       <span className="font-display text-lg font-semibold tracking-tight">UniCompass</span>
@@ -113,7 +113,7 @@ function Nav() {
             <a
               key={l.label}
               href={l.href}
-              className="rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+              className="rounded-lg px-3 py-2 text-sm font-medium text-[#b9b7ac] transition-colors hover:bg-[#171813] hover:text-[#f2efe5]"
             >
               {l.label}
             </a>
@@ -129,7 +129,7 @@ function Nav() {
           <button
             type="button"
             onClick={() => setMobileOpen((open) => !open)}
-            className="grid h-9 w-9 place-items-center rounded-lg border border-border text-muted-foreground lg:hidden"
+            className="grid h-9 w-9 place-items-center rounded-lg border border-[#39382f] text-[#b9b7ac] lg:hidden"
             aria-label={mobileOpen ? "Close navigation menu" : "Open navigation menu"}
             aria-expanded={mobileOpen}
             aria-controls="mobile-navigation"
@@ -139,13 +139,13 @@ function Nav() {
         </div>
       </div>
       {mobileOpen && (
-        <nav id="mobile-navigation" className="border-t border-border bg-background px-6 py-3 lg:hidden">
+        <nav id="mobile-navigation" className="border-t border-[#39382f] bg-[#11120f] px-6 py-3 lg:hidden">
           {navLinks.map((link) => (
             <a
               key={link.label}
               href={link.href}
               onClick={() => setMobileOpen(false)}
-              className="block rounded-lg px-3 py-3 text-sm font-medium text-muted-foreground hover:bg-secondary hover:text-foreground"
+              className="block rounded-lg px-3 py-3 text-sm font-medium text-[#b9b7ac] hover:bg-[#171813] hover:text-[#f2efe5]"
             >
               {link.label}
             </a>
@@ -163,16 +163,16 @@ function Hero() {
     <section className="mx-auto max-w-6xl px-6 pt-14 pb-20 md:pt-20 md:pb-24">
       <div className="grid items-center gap-14 lg:grid-cols-2 lg:gap-20">
         <div>
-          <span className="inline-flex items-center gap-2 rounded-full border border-border bg-secondary px-3 py-1 text-xs font-medium text-muted-foreground">
+          <span className="inline-flex items-center gap-2 rounded-full border border-[#39382f] bg-[#171813] px-3 py-1 text-xs font-medium text-[#b9b7ac]">
             <span className="h-1.5 w-1.5 rounded-full bg-primary" />
             University admissions guidance
           </span>
           <h1 className="mt-6 font-display text-4xl font-semibold leading-[1.08] tracking-tight sm:text-5xl md:text-6xl">
             Find Your Perfect University.
             <br />
-            <span className="text-primary">One Profile. Smarter Decisions.</span>
+            <span className="text-[#c3a977]">One Profile. Smarter Decisions.</span>
           </h1>
-          <p className="mt-6 max-w-xl text-base leading-relaxed text-muted-foreground md:text-lg">
+          <p className="mt-6 max-w-xl text-base leading-relaxed text-[#b9b7ac] md:text-lg">
             Build your academic profile once and receive personalized university
             recommendations, scholarship matches, major suggestions, and a clear
             application roadmap.
@@ -184,7 +184,7 @@ function Hero() {
               </Button>
             </LoginDialog>
             <a href="#how-it-works">
-              <Button size="lg" variant="outline" className="h-12 rounded-xl border-border px-7 text-base">
+              <Button size="lg" variant="outline" className="h-12 rounded-xl border-[#5c594b] bg-transparent px-7 text-base text-[#e9e1cf] hover:bg-[#292a23] hover:text-[#f2efe5]">
                 How It Works
               </Button>
             </a>
@@ -192,7 +192,7 @@ function Hero() {
           <ul className="mt-10 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:gap-x-8">
             {heroPoints.map((p) => (
               <li key={p} className="flex items-center gap-2.5 text-sm font-medium">
-                <span className="grid h-5 w-5 place-items-center rounded-full bg-accent text-accent-foreground">
+                <span className="grid h-5 w-5 place-items-center rounded-full bg-[#2a2b22] text-[#d8c394]">
                   <Check className="h-3 w-3" />
                 </span>
                 {p}
@@ -200,19 +200,52 @@ function Hero() {
             ))}
           </ul>
         </div>
-        <div className="relative">
-          <div className="overflow-hidden rounded-3xl border border-border bg-secondary shadow-elegant">
-            <img
-              src={heroStudents}
-              alt="University students on campus reviewing their study plans"
-              fetchPriority="high"
-              decoding="async"
-              width={1200}
-              height={1408}
-              className="h-[380px] w-full object-cover md:h-[520px]"
-            />
+        <div className="relative mx-auto flex min-h-[400px] w-full max-w-[540px] items-center justify-center overflow-hidden rounded-[2rem] border border-[#39382f] bg-[#171813] p-8 md:min-h-[500px]">
+          <style>{`
+            @keyframes compass-orbit { from { transform:rotate(0deg); } to { transform:rotate(360deg); } }
+            @keyframes compass-counter { from { transform:rotate(0deg); } to { transform:rotate(-360deg); } }
+            @keyframes compass-pulse { 0%,100% { transform:scale(.96); opacity:.45; } 50% { transform:scale(1.04); opacity:.85; } }
+            @keyframes compass-drift { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-10px); } }
+            @keyframes compass-sweep { from { transform:rotate(0deg); } to { transform:rotate(360deg); } }
+            .compass-orbit { animation:compass-orbit 28s linear infinite; transform-origin:center; }
+            .compass-counter { animation:compass-counter 36s linear infinite; transform-origin:center; }
+            .compass-pulse { animation:compass-pulse 5s ease-in-out infinite; }
+            .compass-drift { animation:compass-drift 6s ease-in-out infinite; }
+            .compass-sweep { transform-origin:center; animation:compass-sweep 12s linear infinite; }
+            @media (prefers-reduced-motion:reduce) { .compass-orbit,.compass-counter,.compass-pulse,.compass-drift,.compass-sweep { animation:none !important; } }
+          `}</style>
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(195,169,119,.13),transparent_58%)]"/>
+          <div className="pointer-events-none absolute inset-0 opacity-[.12]" style={{backgroundImage:"linear-gradient(rgba(195,169,119,.22) 1px, transparent 1px), linear-gradient(90deg, rgba(195,169,119,.22) 1px, transparent 1px)",backgroundSize:"42px 42px"}}/>
+          <div className="absolute left-6 top-6 text-[10px] uppercase tracking-[.22em] text-[#a9a797]">Your journey / mapped</div>
+          <div className="absolute right-6 top-6 flex items-center gap-2 text-[10px] uppercase tracking-[.16em] text-[#c3a977]"><span className="h-1.5 w-1.5 rounded-full bg-[#c3a977] shadow-[0_0_12px_#c3a977]"/> In progress</div>
+          <div className="relative aspect-square w-full max-w-[360px]">
+            <div className="compass-pulse absolute inset-[14%] rounded-full border border-[#c3a977]/25 shadow-[0_0_65px_rgba(195,169,119,.08)]"/>
+            <div className="absolute inset-[4%] rounded-full border border-dashed border-[#77715b]/60"/>
+            <div className="compass-orbit absolute inset-[8%] rounded-full border border-[#c3a977]/45">
+              <span className="absolute -top-1.5 left-1/2 h-3 w-3 -translate-x-1/2 rounded-full bg-[#d9c28f] shadow-[0_0_18px_#c3a977]"/>
+              <span className="absolute bottom-[14%] left-[4%] h-2 w-2 rounded-full bg-[#6f9f83] shadow-[0_0_14px_#6f9f83]"/>
+            </div>
+            <div className="compass-counter absolute inset-[24%] rounded-full border border-[#657d68]/50">
+              <span className="absolute right-[8%] top-[15%] h-2.5 w-2.5 rounded-full bg-[#8cb89a] shadow-[0_0_16px_#8cb89a]"/>
+            </div>
+            <svg viewBox="0 0 320 320" className="absolute inset-0 h-full w-full" aria-hidden="true">
+              <defs><linearGradient id="compassGold" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="#f0dfb2"/><stop offset="100%" stopColor="#9a7e48"/></linearGradient></defs>
+              <circle cx="160" cy="160" r="90" fill="none" stroke="#c3a977" strokeOpacity=".18"/>
+              <circle cx="160" cy="160" r="68" fill="none" stroke="#c3a977" strokeOpacity=".24" strokeDasharray="2 7"/>
+              <g className="compass-sweep"><path d="M160 160 L160 35 A125 125 0 0 1 249 72 Z" fill="#c3a977" fillOpacity=".055"/><line x1="160" y1="160" x2="160" y2="30" stroke="#c3a977" strokeOpacity=".42"/></g>
+              <path d="M160 82 L183 151 L160 139 L137 151 Z" fill="url(#compassGold)"/>
+              <path d="M160 238 L137 169 L160 181 L183 169 Z" fill="#668d72"/>
+              <circle cx="160" cy="160" r="7" fill="#f2efe5"/><circle cx="160" cy="160" r="13" fill="none" stroke="#c3a977" strokeOpacity=".8"/>
+              <g fill="#c9c1ac" fontSize="9" letterSpacing="3"><text x="160" y="20" textAnchor="middle">N</text><text x="301" y="163" textAnchor="middle">E</text><text x="160" y="311" textAnchor="middle">S</text><text x="19" y="163" textAnchor="middle">W</text></g>
+            </svg>
+            <div className="compass-drift absolute -left-4 top-[24%] border border-[#39382f] bg-[#20211b]/95 px-4 py-3 shadow-xl backdrop-blur">
+              <p className="text-[9px] uppercase tracking-[.18em] text-[#a9a797]">Your direction</p><p className="mt-1 font-serif text-sm text-[#f2efe5]">Computer science</p>
+            </div>
+            <div className="compass-drift absolute -right-5 bottom-[18%] border border-[#39382f] bg-[#20211b]/95 px-4 py-3 shadow-xl backdrop-blur" style={{animationDelay:"-3s"}}>
+              <p className="text-[9px] uppercase tracking-[.18em] text-[#a9a797]">Next milestone</p><p className="mt-1 font-serif text-sm text-[#c3a977]">Build your shortlist ↗</p>
+            </div>
           </div>
-          <DashboardCard />
+          <div className="absolute bottom-6 left-6 right-6 flex items-center justify-between border-t border-[#39382f] pt-4 text-[9px] uppercase tracking-[.18em] text-[#858477]"><span>Ambition into direction</span><span>41° 18' N / 69° 16' E</span></div>
         </div>
       </div>
     </section>
@@ -298,23 +331,23 @@ const dashboardRows = [
 
 function DashboardCard() {
   return (
-    <div className="mx-auto -mt-16 w-[min(100%,22rem)] rounded-2xl border border-border bg-card p-5 shadow-elegant sm:mx-0 lg:absolute lg:-bottom-10 lg:-left-10 lg:mt-0">
+    <div className="mx-auto -mt-16 w-[min(100%,22rem)] rounded-2xl border border-[#39382f] bg-[#1c1d18] p-5 shadow-elegant sm:mx-0 lg:absolute lg:-bottom-10 lg:-left-10 lg:mt-0">
       <div className="flex items-center justify-between">
-        <span className="text-sm font-medium text-muted-foreground">Profile Strength</span>
-        <span className="text-sm font-semibold tabular-nums text-primary">86%</span>
+        <span className="text-sm font-medium text-[#b9b7ac]">Profile Strength</span>
+        <span className="text-sm font-semibold tabular-nums text-[#c3a977]">86%</span>
       </div>
-      <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-secondary">
+      <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-[#171813]">
         <div className="h-full w-[86%] rounded-full bg-primary" />
       </div>
-      <dl className="mt-5 space-y-3 border-t border-border pt-4">
+      <dl className="mt-5 space-y-3 border-t border-[#39382f] pt-4">
         {dashboardRows.map((r) => (
           <div key={r.label} className="flex items-center justify-between gap-4">
-            <dt className="text-sm text-muted-foreground">{r.label}</dt>
+            <dt className="text-sm text-[#b9b7ac]">{r.label}</dt>
             <dd className="text-sm font-medium tabular-nums">{r.value}</dd>
           </div>
         ))}
       </dl>
-      <p className="mt-4 text-xs text-muted-foreground">Illustrative preview of your dashboard.</p>
+      <p className="mt-4 text-xs text-[#b9b7ac]">Illustrative preview of your dashboard.</p>
     </div>
   );
 }
@@ -367,29 +400,29 @@ function Features() {
           <h2 className="font-display text-3xl font-semibold tracking-tight md:text-4xl">
             Everything you need to apply with confidence
           </h2>
-          <p className="mt-4 text-muted-foreground">
+          <p className="mt-4 text-[#b9b7ac]">
             Each tool works from the same profile, so your recommendations stay consistent
             across universities, majors, scholarships and deadlines.
           </p>
         </div>
         <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {features.map((f) => (
-            <article key={f.title} className="flex flex-col rounded-2xl border border-border bg-card p-6 shadow-soft transition-shadow duration-200 hover:shadow-elegant">
-              <span className="grid h-10 w-10 place-items-center rounded-xl bg-accent text-accent-foreground">
+            <article key={f.title} className="flex flex-col rounded-2xl border border-[#39382f] bg-[#1c1d18] p-6 shadow-[0_12px_40px_rgba(0,0,0,.18)] transition-all duration-300 hover:-translate-y-1 hover:border-[#756744] hover:shadow-[0_18px_55px_rgba(0,0,0,.32)]">
+              <span className="grid h-10 w-10 place-items-center rounded-xl bg-[#2a2b22] text-[#d8c394]">
                 <f.icon className="h-5 w-5" />
               </span>
               <h3 className="mt-5 text-lg font-semibold">{f.title}</h3>
-              <p className="mt-2 flex-1 text-sm leading-relaxed text-muted-foreground">{f.desc}</p>
+              <p className="mt-2 flex-1 text-sm leading-relaxed text-[#b9b7ac]">{f.desc}</p>
               <div className="mt-6">
                 {f.to ? (
                   <Link to={f.to}>
-                    <Button variant="outline" size="sm" className="rounded-lg border-border">
+                    <Button variant="outline" size="sm" className="rounded-lg border-[#5c594b] bg-transparent text-[#e9e1cf] hover:bg-[#292a23] hover:text-[#f2efe5]">
                       {f.cta} <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
                     </Button>
                   </Link>
                 ) : (
                   <Link to="/dashboard">
-                    <Button variant="outline" size="sm" className="rounded-lg border-border">
+                    <Button variant="outline" size="sm" className="rounded-lg border-[#5c594b] bg-transparent text-[#e9e1cf] hover:bg-[#292a23] hover:text-[#f2efe5]">
                       {f.cta} <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
                     </Button>
                   </Link>
@@ -426,16 +459,16 @@ function HowItWorks() {
     <section id="how-it-works" className="mx-auto max-w-6xl px-6 py-16 text-[#f2efe5] md:py-24">
       <div className="max-w-2xl">
         <h2 className="font-display text-3xl font-semibold tracking-tight md:text-4xl">How it works</h2>
-        <p className="mt-4 text-muted-foreground">
+        <p className="mt-4 text-[#b9b7ac]">
           Three steps, one profile. No forms to repeat and no guesswork about what to do next.
         </p>
       </div>
       <div className="mt-12 grid gap-10 md:grid-cols-3 md:gap-8">
         {steps.map((s) => (
-          <div key={s.n} className="border-t border-border pt-6">
-            <span className="text-sm font-semibold tabular-nums text-primary">{s.n}</span>
+          <div key={s.n} className="border-t border-[#39382f] pt-6">
+            <span className="text-sm font-semibold tabular-nums text-[#c3a977]">{s.n}</span>
             <h3 className="mt-3 text-lg font-semibold">{s.t}</h3>
-            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{s.d}</p>
+            <p className="mt-2 text-sm leading-relaxed text-[#b9b7ac]">{s.d}</p>
           </div>
         ))}
       </div>
@@ -485,40 +518,40 @@ function Resources() {
       <div className="mx-auto max-w-6xl px-6 py-16 md:py-24">
         <div className="grid gap-12 lg:grid-cols-[minmax(0,22rem)_1fr] lg:gap-20">
           <div>
-            <span className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-3 py-1 text-xs font-medium text-muted-foreground">
+            <span className="inline-flex items-center gap-2 rounded-full border border-[#39382f] bg-[#11120f] px-3 py-1 text-xs font-medium text-[#b9b7ac]">
               <Lightbulb className="h-3.5 w-3.5" /> Built with student feedback
             </span>
             <h2 className="mt-4 font-display text-3xl font-semibold tracking-tight md:text-4xl">Resources & feedback</h2>
-            <p className="mt-4 text-muted-foreground">
+            <p className="mt-4 text-[#b9b7ac]">
               Explore practical guidance and help us improve UniCompass. Tell us what is missing, confusing, or worth building next.
             </p>
-            <div className="mt-6 flex items-start gap-3 rounded-xl border border-border bg-card p-4">
-              <MessageSquareText className="mt-0.5 h-5 w-5 text-primary" />
+            <div className="mt-6 flex items-start gap-3 rounded-xl border border-[#39382f] bg-[#1c1d18] p-4">
+              <MessageSquareText className="mt-0.5 h-5 w-5 text-[#c3a977]" />
               <div>
                 <p className="font-medium">Your input shapes the roadmap</p>
-                <p className="mt-1 text-sm text-muted-foreground">Suggestions are reviewed by the UniCompass team and may inform future improvements. No email address or account is required. Please do not include sensitive personal information.</p>
+                <p className="mt-1 text-sm text-[#b9b7ac]">Suggestions are reviewed by the UniCompass team and may inform future improvements. No email address or account is required. Please do not include sensitive personal information.</p>
               </div>
             </div>
           </div>
           <div className="space-y-6">
-            <div className="divide-y divide-border rounded-2xl border border-border bg-card shadow-soft">
+            <div className="divide-y divide-[#39382f] rounded-2xl border border-[#39382f] bg-[#1c1d18] shadow-soft">
               {resources.map((r) => (
                 <div key={r.t} className="p-6">
                   <h3 className="text-base font-semibold">{r.t}</h3>
-                  <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{r.d}</p>
+                  <p className="mt-1.5 text-sm leading-relaxed text-[#b9b7ac]">{r.d}</p>
                 </div>
               ))}
             </div>
-            <form onSubmit={submitSuggestion} className="rounded-2xl border border-border bg-card p-6 shadow-soft">
+            <form onSubmit={submitSuggestion} className="rounded-2xl border border-[#39382f] bg-[#1c1d18] p-6 shadow-soft">
               <div className="flex items-center gap-3">
-                <span className="grid h-10 w-10 place-items-center rounded-xl bg-accent text-accent-foreground"><Send className="h-5 w-5" /></span>
+                <span className="grid h-10 w-10 place-items-center rounded-xl bg-[#2a2b22] text-[#d8c394]"><Send className="h-5 w-5" /></span>
                 <div>
                   <h3 className="text-lg font-semibold">Share a suggestion</h3>
-                  <p className="text-sm text-muted-foreground">No email or sign-in required.</p>
+                  <p className="text-sm text-[#b9b7ac]">No email or sign-in required.</p>
                 </div>
               </div>
               <label htmlFor="feedback-category" className="mt-5 block text-sm font-medium">Feedback category</label>
-              <select id="feedback-category" value={category} onChange={(event) => setCategory(event.target.value)} className="mt-2 flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
+              <select id="feedback-category" value={category} onChange={(event) => setCategory(event.target.value)} className="mt-2 flex h-10 w-full rounded-md border border-[#454438] bg-[#11120f] px-3 py-2 text-sm">
                 <option>Product suggestion</option>
                 <option>Bug or technical issue</option>
                 <option>University or scholarship data</option>
@@ -526,11 +559,11 @@ function Resources() {
                 <option>Other feedback</option>
               </select>
               <label htmlFor="feedback-message" className="mt-4 block text-sm font-medium">Your suggestion</label>
-              <textarea id="feedback-message" value={suggestion} onChange={(event) => { setSuggestion(event.target.value); if (status !== "sending") setStatus("idle"); }} required minLength={10} maxLength={3000} rows={5} placeholder="Tell us what would make UniCompass more useful..." className="mt-2 w-full resize-y rounded-md border border-input bg-background px-3 py-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring" />
+              <textarea id="feedback-message" value={suggestion} onChange={(event) => { setSuggestion(event.target.value); if (status !== "sending") setStatus("idle"); }} required minLength={10} maxLength={3000} rows={5} placeholder="Tell us what would make UniCompass more useful..." className="mt-2 w-full resize-y rounded-md border border-[#454438] bg-[#11120f] px-3 py-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring" />
               <Button type="submit" disabled={status === "sending"} className="mt-5 w-full rounded-lg">
                 <Send className="mr-2 h-4 w-4" /> {status === "sending" ? "Submitting..." : "Submit suggestion"}
               </Button>
-              {status === "success" && <p role="status" className="mt-3 text-sm text-green-700">Thanks — your suggestion was submitted successfully.</p>}
+              {status === "success" && <p role="status" className="mt-3 text-sm text-[#8cb89a]">Thanks — your suggestion was submitted successfully.</p>}
               {status === "error" && <p role="alert" className="mt-3 text-sm text-destructive">We couldn't submit your suggestion. Please try again later.</p>}
             </form>
           </div>
@@ -568,30 +601,30 @@ function Footer() {
         <div className="flex flex-col gap-8 md:flex-row md:items-start md:justify-between">
           <div className="max-w-xs">
             <Logo />
-            <p className="mt-3 text-sm text-muted-foreground">
+            <p className="mt-3 text-sm text-[#b9b7ac]">
               Personalized university, major and scholarship guidance for students planning their applications.
             </p>
           </div>
           <div className="flex flex-wrap gap-12">
             <nav className="flex flex-col gap-2 text-sm">
               <span className="font-medium">Platform</span>
-              <a href="#features" className="text-muted-foreground hover:text-foreground">Find Universities</a>
-              <Link to="/find-your-major" className="text-muted-foreground hover:text-foreground">Find Your Major</Link>
-              <a href="#features" className="text-muted-foreground hover:text-foreground">Scholarships</a>
+              <a href="#features" className="text-[#b9b7ac] hover:text-[#f2efe5]">Find Universities</a>
+              <Link to="/find-your-major" className="text-[#b9b7ac] hover:text-[#f2efe5]">Find Your Major</Link>
+              <a href="#features" className="text-[#b9b7ac] hover:text-[#f2efe5]">Scholarships</a>
             </nav>
             <nav className="flex flex-col gap-2 text-sm">
               <span className="font-medium">Company</span>
-              <a href="#resources" className="text-muted-foreground hover:text-foreground">Resources</a>
-              <a href="#contact" className="text-muted-foreground hover:text-foreground">Contact</a>
+              <a href="#resources" className="text-[#b9b7ac] hover:text-[#f2efe5]">Resources</a>
+              <a href="#contact" className="text-[#b9b7ac] hover:text-[#f2efe5]">Contact</a>
               <DonateDialog>
-                <button className="inline-flex items-center gap-1.5 text-muted-foreground hover:text-foreground">
+                <button className="inline-flex items-center gap-1.5 text-[#b9b7ac] hover:text-[#f2efe5]">
                   <Heart className="h-3.5 w-3.5" /> Support us
                 </button>
               </DonateDialog>
             </nav>
           </div>
         </div>
-        <div className="mt-10 border-t border-border pt-6 text-sm text-muted-foreground">© {new Date().getFullYear()} UniCompass</div>
+        <div className="mt-10 border-t border-[#39382f] pt-6 text-sm text-[#b9b7ac]">© {new Date().getFullYear()} UniCompass</div>
       </div>
     </footer>
   );
