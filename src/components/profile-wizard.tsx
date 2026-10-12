@@ -1,3 +1,4 @@
+import { syncProfileToAccount } from "@/lib/profile-sync";
 import { useEffect, useState, useCallback, useId, isValidElement, cloneElement } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -41,7 +42,7 @@ export function ProfileWizard() {
   const saveProfile = useCallback(() => {
     setSaving(true);
     saveStore({ profile });
-    setSaving(false);
+    void syncProfileToAccount(profile).finally(() => setSaving(false));
   }, [profile]);
 
   // autosave profile on change (debounced)
