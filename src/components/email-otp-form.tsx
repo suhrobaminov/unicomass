@@ -8,10 +8,11 @@ import { Loader2 } from "lucide-react";
 
 const RESEND_SECONDS = 60;
 
-function friendly(err: { message: string; status?: number; code?: string }) {
+function friendly(err: { message: string; status?: number; code?: string }, stage: "send" | "verify") {
   const m = err.message.toLowerCase();
   if (err.status === 429 || m.includes("rate limit") || m.includes("security purposes"))
     return "Too many attempts. Please wait a minute and try again.";
+  if (stage === "send") return err.message;
   if (m.includes("expired") || m.includes("invalid") || err.code === "otp_expired")
     return "That code is invalid or has expired. Check the latest email or request a new code.";
   return err.message;
@@ -42,7 +43,7 @@ export function EmailOtpForm({ onSignedIn }: { onSignedIn: () => void }) {
     });
     setBusy(false);
     if (error) {
-      const msg = friendly(error);
+      const msg = friendly(error, "send");
       setError(msg);
       return toast.error(msg);
     }
@@ -63,7 +64,7 @@ export function EmailOtpForm({ onSignedIn }: { onSignedIn: () => void }) {
     });
     setBusy(false);
     if (error || !data.session) {
-      const msg = error ? friendly(error) : "Could not start a session. Please try again.";
+      const msg = error ? friendly(error, "verify") : "Could not start a session. Please try again.";
       setError(msg);
       return toast.error(msg);
     }
@@ -90,7 +91,7 @@ export function EmailOtpForm({ onSignedIn }: { onSignedIn: () => void }) {
   return (
     <form className="mt-4 space-y-4" onSubmit={verify}>
       <p className="text-sm text-muted-foreground">
-        Enter the code sent to <span className="font-medium text-foreground">{email}</span>.
+        We emailed a numeric code to <span className="font-medium text-foreground">{email}</span>. Type it below — you don't need to click anything in the email.
       </p>
       <div className="space-y-1.5">
         <Label htmlFor="otp-code">Confirmation code</Label>
