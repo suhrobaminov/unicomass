@@ -37,12 +37,14 @@ function AuthPage() {
   const navigate = useNavigate();
   const [busy, setBusy] = useState(false);
 
+  // Do not redirect merely because a session already exists. The header's
+  // Sign in link must consistently open this page; redirect only after a
+  // fresh sign-in event or the explicit OTP success callback.
   useEffect(() => {
-    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
-      if (session) navigate({ to: next ?? "/dashboard", replace: true });
-    });
-    supabase.auth.getUser().then(({ data }) => {
-      if (data.user) navigate({ to: next ?? "/dashboard", replace: true });
+    const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "SIGNED_IN" && session) {
+        navigate({ to: safeNextPath(next), replace: true });
+      }
     });
     return () => sub.subscription.unsubscribe();
   }, [navigate, next]);
