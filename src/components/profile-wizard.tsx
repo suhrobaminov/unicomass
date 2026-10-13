@@ -1,5 +1,5 @@
 import { syncProfileToAccount } from "@/lib/profile-sync";
-import { useEffect, useState, useCallback, useId, isValidElement, cloneElement } from "react";
+import { useEffect, useRef, useState, useCallback, useId, isValidElement, cloneElement } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -39,16 +39,29 @@ export function ProfileWizard() {
     setLoading(false);
   }, []);
 
+  const [syncError, setSyncError] = useState("");
+  const lastSynced = useRef("");
   const saveProfile = useCallback(() => {
-    setSaving(true);
     saveStore({ profile });
-    void syncProfileToAccount(profile).finally(() => setSaving(false));
+    const snapshot = JSON.stringify(profile);
+    if (snapshot === lastSynced.current) return;
+    setSaving(true);
+    void syncProfileToAccount(profile).then((r) => {
+      if (r.status === "error") {
+        setSyncError(r.message);
+        toast.error(`Couldn't save to your account: ${r.message}`);
+      } else {
+        setSyncError("");
+        lastSynced.current = snapshot;
+      }
+    }).finally(() => setSaving(false));
   }, [profile]);
 
-  // autosave profile on change (debounced)
+  // save locally right away; sync to the account at most once per pause in typing
   useEffect(() => {
     if (loading) return;
-    const t = setTimeout(() => { saveProfile(); }, 800);
+    saveStore({ profile });
+    const t = setTimeout(() => { saveProfile(); }, 2000);
     return () => clearTimeout(t);
   }, [profile, loading, saveProfile]);
 
@@ -117,7 +130,7 @@ export function ProfileWizard() {
             <div className="text-xs uppercase tracking-wide text-muted-foreground">Step {step + 1} of 4</div>
             <h2 className="font-display text-2xl mt-1">{STEPS[step]}</h2>
           </div>
-          <div className="text-xs text-muted-foreground">{saving ? "Saving…" : "Saved on this device"}</div>
+          <div className={"text-xs " + (syncError ? "text-destructive" : "text-muted-foreground")}>{saving ? "Saving…" : syncError ? "Saved on this device · account sync failed" : "Saved"}</div>
         </div>
         <Progress aria-label="Profile progress" value={((step + 1) / 4) * 100} className="mb-6 h-1" />
         <p className="mb-6 text-sm leading-6 text-muted-foreground">{["Start with your background and the fields you want to explore.", "Add the academic details you have. Leave unavailable scores blank.", "Show what you do beyond the classroom: leadership, work, service, and projects.", "Add recognition that reflects your achievements, then generate your university shortlist."][step]}</p>

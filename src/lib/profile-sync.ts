@@ -1,34 +1,44 @@
 import { supabase } from "@/integrations/supabase/client";
 import type { Profile } from "@/lib/local-store";
 
-/**
- * Mirrors the locally saved academic profile into the signed-in user's
- * `profiles` row. Anonymous visitors stay local-only. Only academic fields
- * are written — never credentials.
- */
-export async function syncProfileToAccount(profile: Profile): Promise<void> {
-  const { data } = await supabase.auth.getUser();
-  const userId = data.user?.id;
-  if (!userId) return;
-  const row = {
+export type SyncResult =
+  | { status: "guest" }
+  | { status: "synced" }
+  | { status: "error"; message: string };
+
+/** Academic fields only — every key here is a real column on public.profiles. */
+export function buildProfileRow(userId: string, profile: Profile) {
+  return {
     user_id: userId,
-    full_name: profile.full_name || null,
-    region: profile.region || null,
-    intended_majors: profile.intended_majors || null,
+    full_name: profile.full_name.trim() || null,
+    region: profile.region.trim() || null,
+    intended_majors: profile.intended_majors.trim() || null,
     graduation_year: profile.graduation_year,
     gpa_unweighted: profile.gpa_unweighted,
     gpa_weighted: profile.gpa_weighted,
-    class_rank: profile.class_rank || null,
+    class_rank: profile.class_rank.trim() || null,
     sat_score: profile.sat_score,
     act_score: profile.act_score,
-    ap_count: profile.ap_count,
-    ib_count: profile.ib_count,
-    honors_count: profile.honors_count,
+    ap_count: profile.ap_count ?? 0,
+    ib_count: profile.ib_count ?? 0,
+    honors_count: profile.honors_count ?? 0,
   };
-  const existing = await supabase.from("profiles").select("id").eq("user_id", userId).limit(1).maybeSingle();
-  if (existing.error) { console.error("Profile sync read failed:", existing.error.message); return; }
-  const res = existing.data
-    ? await supabase.from("profiles").update(row).eq("id", existing.data.id)
-    : await supabase.from("profiles").insert(row);
-  if (res.error) console.error("Profile sync failed:", res.error.message);
+}
+
+/**
+ * Mirrors the locally saved academic profile into the signed-in user's
+ * `profiles` row (one row per user — user_id is UNIQUE). Guests stay local-only.
+ * Waits for the stored session so it never runs before auth is ready.
+ */
+export async function syncProfileToAccount(profile: Profile): Promise<SyncResult> {
+  const { data: sessionData } = await supabase.auth.getSession();
+  if (!sessionData.session) return { status: "guest" };
+  const { data, error: userError } = await supabase.auth.getUser();
+  const userId = data.user?.id;
+  if (userError || !userId) return { status: "guest" };
+  const { error } = await supabase
+    .from("profiles")
+    .upsert(buildProfileRow(userId, profile), { onConflict: "user_id" });
+  if (error) return { status: "error", message: error.message };
+  return { status: "synced" };
 }
