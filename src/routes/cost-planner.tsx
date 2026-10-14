@@ -73,7 +73,7 @@ function FinancialDecisionEngine() {
       });
       if (!profile.major && store.profile.intended_majors) {
         const match = MAJORS.find((m) => store.profile.intended_majors.toLowerCase().includes(m.name.toLowerCase()));
-        if (match) setProfile((p) => ({ ...p, major: match.slug }));
+        if (match) setProfile((p) => p.major ? p : ({ ...p, major: match.slug }));
       }
     } catch { /* Keep safe defaults if local data is malformed. */ }
     setLoaded(true);
