@@ -1,7 +1,7 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Compass, GraduationCap, Menu, X, ArrowUpRight, Home, Wallet, BriefcaseBusiness } from "lucide-react";
+import { Compass, GraduationCap, Menu, X, ArrowUpRight, Home, Wallet, BriefcaseBusiness, ClipboardCheck } from "lucide-react";
 
 export function AppHeader() {
   const [open, setOpen] = useState(false);
@@ -14,6 +14,7 @@ export function AppHeader() {
     <Link to="/find-your-major" className="nav-link"><Compass className="size-4" />Find Your Major</Link>
     <Link to="/career-explorer" className="nav-link"><BriefcaseBusiness className="size-4" />Career Explorer</Link>
     <Link to="/cost-planner" className="nav-link"><Wallet className="size-4" />Cost Planner</Link>
+    <Link to="/readiness-auditor" className="nav-link"><ClipboardCheck className="size-4" />Readiness Auditor</Link>
   </>;
   return <header className="site-header sticky top-0 z-40 no-print">
     <div className="site-width grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 py-4 lg:flex lg:justify-between">
