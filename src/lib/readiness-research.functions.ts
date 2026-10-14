@@ -41,7 +41,22 @@ export const researchUniversityRequirements = createServerFn({ method: "POST" })
     };
   })
   .handler(async ({ data }) => {
-    const query = [data.university, data.program, data.degree, "international student admission requirements English proficiency SAT deadline official"].filter(Boolean).join(" ");
+    const query = [
+      '"' + data.university + '"',
+      data.program,
+      data.degree,
+      data.intake,
+      data.citizenship ? data.citizenship + " international applicant" : "international applicant",
+      "admission requirements official university",
+    ].filter(Boolean).join(" ");
+    const universityTerms = data.university.toLowerCase().replace(/[^a-z0-9 ]/g, " ").split(/\\s+/)
+      .filter(word => word.length > 2 && !["the", "and", "university", "college", "institute", "of", "at"].includes(word));
+    const isRelevantResult = (item: { title: string; url: string; snippet: string }) => {
+      const haystack = (item.title + " " + item.url + " " + item.snippet).toLowerCase();
+      if (!universityTerms.length) return false;
+      const matched = universityTerms.filter(word => haystack.includes(word)).length;
+      return matched >= Math.min(2, universityTerms.length) && (data.program.trim() === "" || haystack.includes(data.program.toLowerCase().split(/\\s+/)[0]));
+    };
     const results: Array<{ title: string; url: string; snippet: string }> = [];
     const providers = [
       {
@@ -93,7 +108,7 @@ export const researchUniversityRequirements = createServerFn({ method: "POST" })
         }
         const parsed = provider.parse(await response.text());
         for (const item of parsed) {
-          if (!isOfficialish(item.url, data.university)) continue;
+          if (!isOfficialish(item.url, data.university) || !isRelevantResult(item)) continue;
           if (!results.some(existing => existing.url === item.url)) results.push(item);
           if (results.length >= 8) break;
         }
