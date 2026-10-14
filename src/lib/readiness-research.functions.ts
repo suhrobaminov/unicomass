@@ -51,14 +51,14 @@ export const researchUniversityRequirements = createServerFn({ method: "POST" })
           const found: Array<{ title: string; url: string; snippet: string }> = [];
           const blocks = html.match(/<div class="result[^"]*"[^]*?(?=<div class="result[^"]*"|$)/gi) ?? [];
           for (const block of blocks) {
-            const link = block.match(/<a[^>]+class="result__a"[^>]+href="([^"]+)"[^>]*>([^]*?)<\\/a>/i);
+            const link = block.match(/<a[^>]+class="result__a"[^>]+href="([^"]+)"[^>]*>([^]*?)<\/a>/i);
             if (!link) continue;
             let url = decode(link[1]);
             try {
               const parsed = new URL(url, "https://html.duckduckgo.com");
               if (parsed.hostname.includes("duckduckgo.com") && parsed.searchParams.has("uddg")) url = parsed.searchParams.get("uddg")!;
             } catch { continue; }
-            const snippet = block.match(/<(?:a|div)[^>]+class="result__snippet"[^>]*>([^]*?)<\\/(?:a|div)>/i);
+            const snippet = block.match(/<(?:a|div)[^>]+class="result__snippet"[^>]*>([^]*?)<\/(?:a|div)>/i);
             found.push({ title: stripHtml(link[2]).slice(0, 180), url, snippet: stripHtml(snippet?.[1] ?? "").slice(0, 500) });
           }
           return found;
@@ -69,11 +69,11 @@ export const researchUniversityRequirements = createServerFn({ method: "POST" })
         url: "https://www.bing.com/search?format=rss&q=" + encodeURIComponent(query),
         parse: (xml: string) => {
           const found: Array<{ title: string; url: string; snippet: string }> = [];
-          for (const item of xml.match(/<item>[\\s\\S]*?<\\/item>/gi) ?? []) {
-            const title = item.match(/<title>([\\s\\S]*?)<\\/title>/i)?.[1] ?? "";
-            const link = item.match(/<link>([\\s\\S]*?)<\\/link>/i)?.[1] ?? "";
-            const description = item.match(/<description>([\\s\\S]*?)<\\/description>/i)?.[1] ?? "";
-            const url = decode(link.replace(/<!\\[CDATA\\[|\\]\\]>/g, "").trim());
+          for (const item of xml.match(/<item>[\s\S]*?<\/item>/gi) ?? []) {
+            const title = item.match(/<title>([\s\S]*?)<\/title>/i)?.[1] ?? "";
+            const link = item.match(/<link>([\s\S]*?)<\/link>/i)?.[1] ?? "";
+            const description = item.match(/<description>([\s\S]*?)<\/description>/i)?.[1] ?? "";
+            const url = decode(link.replace(/<!\[CDATA\[|\]\]>/g, "").trim());
             if (url) found.push({ title: stripHtml(title).slice(0, 180), url, snippet: stripHtml(description).slice(0, 500) });
           }
           return found;
