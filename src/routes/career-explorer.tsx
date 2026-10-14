@@ -17,23 +17,19 @@ export const Route = createFileRoute("/career-explorer")({
 });
 
 function CareerExplorer() {
-  const [preferredMajor, setPreferredMajor] = useState("");
   const [selectedSlug, setSelectedSlug] = useState(MAJORS[0]?.slug ?? "");
   const [selectedCareer, setSelectedCareer] = useState("");
+  const [topMatches, setTopMatches] = useState<Array<{ major: Major; score: number }>>([]);
   useEffect(() => {
     try {
-      const saved = loadStore().assessment?.results as { ranked?: Array<{ slug?: string }> } | null;
-      const slug = saved?.ranked?.[0]?.slug;
-      if (slug && MAJORS.some((m) => m.slug === slug)) setSelectedSlug(slug);
-    } catch { /* Keep first major as a sensible default. */ }
+      const saved = loadStore().assessment?.results as { ranked?: Array<{ slug?: string; score?: number }> } | null;
+      const ranked = (saved?.ranked ?? []).map((r) => ({ major: MAJORS.find((m) => m.slug === r.slug), score: r.score ?? 0 })).filter((x): x is { major: Major; score: number } => Boolean(x.major)).slice(0, 5);
+      setTopMatches(ranked);
+      if (ranked[0]) setSelectedSlug(ranked[0].major.slug);
+    } catch { /* Keep the catalog defaults if local storage is unavailable. */ }
   }, []);
   const major = useMemo(() => MAJORS.find((m) => m.slug === selectedSlug) ?? MAJORS[0], [selectedSlug]);
   const career = major.careers.includes(selectedCareer) ? selectedCareer : (major.careers[0] ?? "Explore related roles");
-  const topMatches = useMemo(() => {
-    const store = loadStore();
-    const results = store.assessment?.results as { ranked?: Array<{ slug?: string; score?: number }> } | null;
-    return (results?.ranked ?? []).map((r) => ({ major: MAJORS.find((m) => m.slug === r.slug), score: r.score ?? 0 })).filter((x): x is { major: Major; score: number } => Boolean(x.major)).slice(0, 5);
-  }, []);
   const categoryCareers: Record<string, string[]> = {
     Technology: ["Software development", "Cybersecurity", "Data analysis", "IT systems"],
     Business: ["Business operations", "Market research", "Finance", "Entrepreneurship"],
@@ -51,12 +47,12 @@ function CareerExplorer() {
         <p className="eyebrow text-primary">Based on your saved assessment</p>
         <h2 className="mt-2 text-xl font-semibold">Your leading major matches</h2>
         <p className="mt-1 text-sm text-muted-foreground">Choose a match to explore its career directions. Match scores indicate assessment alignment, not job or admissions probabilities.</p>
-        <div className="mt-4 flex flex-wrap gap-2">{topMatches.map(({ major: m, score }) => <Button key={m.slug} variant={m.slug === selectedSlug ? "default" : "outline"} onClick={() => { setSelectedSlug(m.slug); setPreferredMajor(m.name); setSelectedCareer(""); }}>{m.name}<span className="ml-2 text-xs opacity-75">{Math.round(score * 100)}%</span></Button>)}</div>
+        <div className="mt-4 flex flex-wrap gap-2">{topMatches.map(({ major: m, score }) => <Button key={m.slug} variant={m.slug === selectedSlug ? "default" : "outline"} onClick={() => { setSelectedSlug(m.slug); setSelectedCareer(""); }}>{m.name}<span className="ml-2 text-xs opacity-75">{Math.round(score * 100)}%</span></Button>)}</div>
       </section>}
       <section className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_300px]">
         <div className="tool-panel">
           <div className="flex items-start gap-3"><span className="grid size-11 place-items-center rounded-lg bg-primary/10 text-primary"><Target className="size-5" /></span><div><p className="eyebrow text-primary">Explore a pathway</p><h2 className="mt-1 text-xl font-semibold">Choose a major</h2><p className="mt-1 text-sm text-muted-foreground">Start from your assessment match or explore any major in the UniCompass catalog.</p></div></div>
-          <div className="mt-5"><label className="mb-2 block text-sm font-medium">University major</label><Select value={selectedSlug} onValueChange={(v) => { setSelectedSlug(v); setPreferredMajor(""); setSelectedCareer(""); }}><SelectTrigger><SelectValue placeholder="Choose a major" /></SelectTrigger><SelectContent>{MAJORS.map((m) => <SelectItem key={m.slug} value={m.slug}>{m.name}</SelectItem>)}</SelectContent></Select></div>
+          <div className="mt-5"><label className="mb-2 block text-sm font-medium">University major</label><Select value={selectedSlug} onValueChange={(v) => { setSelectedSlug(v); setSelectedCareer(""); }}><SelectTrigger><SelectValue placeholder="Choose a major" /></SelectTrigger><SelectContent>{MAJORS.map((m) => <SelectItem key={m.slug} value={m.slug}>{m.name}</SelectItem>)}</SelectContent></Select></div>
           <div className="mt-6 border-t pt-6"><h3 className="text-2xl font-semibold">{major.name}</h3><p className="mt-1 text-sm text-muted-foreground">{major.category}</p><p className="mt-4 max-w-2xl leading-relaxed text-muted-foreground">{major.blurb}</p>
             <div className="mt-6 grid gap-5 sm:grid-cols-2"><div className="rounded-lg border p-4"><h4 className="flex items-center gap-2 font-medium"><Lightbulb className="size-4 text-primary" />Skills to build</h4><ul className="mt-3 space-y-2 text-sm text-muted-foreground">{major.requiredSkills.map((s) => <li key={s} className="flex gap-2"><span className="text-primary">•</span>{s}</li>)}</ul></div><div className="rounded-lg border p-4"><h4 className="flex items-center gap-2 font-medium"><GraduationCap className="size-4 text-primary" />Subjects to expect</h4><ul className="mt-3 space-y-2 text-sm text-muted-foreground">{major.focusSubjects.map((s) => <li key={s} className="flex gap-2"><span className="text-primary">•</span>{s}</li>)}</ul></div></div>
           </div>
