@@ -52,10 +52,15 @@ export const researchUniversityRequirements = createServerFn({ method: "POST" })
     const universityTerms = data.university.toLowerCase().replace(/[^a-z0-9 ]/g, " ").split(/\\s+/)
       .filter(word => word.length > 2 && !["the", "and", "university", "college", "institute", "of", "at"].includes(word));
     const isRelevantResult = (item: { title: string; url: string; snippet: string }) => {
-      const haystack = (item.title + " " + item.url + " " + item.snippet).toLowerCase();
-      if (!universityTerms.length) return false;
-      const matched = universityTerms.filter(word => haystack.includes(word)).length;
-      return matched >= Math.min(2, universityTerms.length) && (data.program.trim() === "" || haystack.includes(data.program.toLowerCase().split(/\\s+/)[0]));
+      try {
+        const parsed = new URL(item.url);
+        const titleAndHost = (item.title + " " + parsed.hostname).toLowerCase();
+        const allText = (titleAndHost + " " + item.snippet).toLowerCase();
+        if (!universityTerms.length) return false;
+        const strongMatches = universityTerms.filter(word => titleAndHost.includes(word)).length;
+        const anyMatches = universityTerms.filter(word => allText.includes(word)).length;
+        return strongMatches >= 1 && anyMatches >= Math.min(2, universityTerms.length);
+      } catch { return false; }
     };
     const results: Array<{ title: string; url: string; snippet: string }> = [];
     const providers = [
