@@ -4,6 +4,7 @@ import { AlertTriangle, CheckCircle2, CircleHelp, ExternalLink, Plus, Trash2 } f
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PageHeading } from "@/components/page-heading";
+import { ReadinessResearch } from "@/components/readiness-research";
 
 type Requirement = { id: string; name: string; required: string; studentValue: string; sourceUrl: string; deadline: string };
 type School = { id: string; name: string; program: string; intake: string; requirements: Requirement[] };
@@ -62,7 +63,8 @@ function ReadinessAuditor() {
   return <>
     <PageHeading eyebrow="Evidence-first admissions planning" title="Application Readiness Auditor" description="Compare your current profile with requirements for each university, identify gaps, and keep the official evidence in one place." />
     <main className="site-width space-y-6 py-8 sm:py-10">
-      <div className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-4 text-sm text-muted-foreground"><AlertTriangle className="mr-2 inline size-4" />This version does not scrape university websites or use AI. Enter requirements from official admissions pages; the auditor compares values you provide and flags anything it cannot reliably determine. Always confirm requirements with the university.</div>
+      <ReadinessResearch degree={student.degree} citizenship={student.citizenship} enrollment={student.enrollment} />
+      <div className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-4 text-sm text-muted-foreground"><AlertTriangle className="mr-2 inline size-4" />Automatic research now surfaces evidence from public university pages. The manual checklist below remains optional for tracking your own status; verify requirements against the official page before applying.</div>
       <section className="tool-panel space-y-4">
         <div><h2 className="text-xl font-semibold">Your profile</h2><p className="mt-1 text-sm text-muted-foreground">Use the same units and grading scale shown by each university.</p></div>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
