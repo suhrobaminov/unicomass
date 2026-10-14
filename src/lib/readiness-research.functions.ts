@@ -42,31 +42,70 @@ export const researchUniversityRequirements = createServerFn({ method: "POST" })
   })
   .handler(async ({ data }) => {
     const query = [data.university, data.program, data.degree, "international student admission requirements English proficiency SAT deadline official"].filter(Boolean).join(" ");
-    const endpoint = "https://html.duckduckgo.com/html/?q=" + encodeURIComponent(query);
-    const response = await fetch(endpoint, {
-      headers: { "user-agent": "Mozilla/5.0 (compatible; UniCompassAdmissionsResearch/1.0)", accept: "text/html" },
-      signal: AbortSignal.timeout(12000),
-    });
-    if (!response.ok) throw new Error("Search provider returned HTTP " + response.status + ". Try again later.");
-    const html = await response.text();
     const results: Array<{ title: string; url: string; snippet: string }> = [];
-    const blocks = html.match(/<div class="result[^"]*"[\s\S]*?(?=<div class="result[^"]*"|$)/gi) ?? [];
-    for (const block of blocks) {
-      const linkMatch = block.match(/<a[^>]+class="result__a"[^>]+href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/i);
-      if (!linkMatch) continue;
-      let url = decode(linkMatch[1]);
+    const providers = [
+      {
+        name: "DuckDuckGo",
+        url: "https://html.duckduckgo.com/html/?q=" + encodeURIComponent(query),
+        parse: (html: string) => {
+          const found: Array<{ title: string; url: string; snippet: string }> = [];
+          const blocks = html.match(/<div class="result[^"]*"[^]*?(?=<div class="result[^"]*"|$)/gi) ?? [];
+          for (const block of blocks) {
+            const link = block.match(/<a[^>]+class="result__a"[^>]+href="([^"]+)"[^>]*>([^]*?)<\\/a>/i);
+            if (!link) continue;
+            let url = decode(link[1]);
+            try {
+              const parsed = new URL(url, "https://html.duckduckgo.com");
+              if (parsed.hostname.includes("duckduckgo.com") && parsed.searchParams.has("uddg")) url = parsed.searchParams.get("uddg")!;
+            } catch { continue; }
+            const snippet = block.match(/<(?:a|div)[^>]+class="result__snippet"[^>]*>([^]*?)<\\/(?:a|div)>/i);
+            found.push({ title: stripHtml(link[2]).slice(0, 180), url, snippet: stripHtml(snippet?.[1] ?? "").slice(0, 500) });
+          }
+          return found;
+        },
+      },
+      {
+        name: "Bing RSS",
+        url: "https://www.bing.com/search?format=rss&q=" + encodeURIComponent(query),
+        parse: (xml: string) => {
+          const found: Array<{ title: string; url: string; snippet: string }> = [];
+          for (const item of xml.match(/<item>[\\s\\S]*?<\\/item>/gi) ?? []) {
+            const title = item.match(/<title>([\\s\\S]*?)<\\/title>/i)?.[1] ?? "";
+            const link = item.match(/<link>([\\s\\S]*?)<\\/link>/i)?.[1] ?? "";
+            const description = item.match(/<description>([\\s\\S]*?)<\\/description>/i)?.[1] ?? "";
+            const url = decode(link.replace(/<!\\[CDATA\\[|\\]\\]>/g, "").trim());
+            if (url) found.push({ title: stripHtml(title).slice(0, 180), url, snippet: stripHtml(description).slice(0, 500) });
+          }
+          return found;
+        },
+      },
+    ];
+    let providerErrors: string[] = [];
+    for (const provider of providers) {
       try {
-        const parsed = new URL(url, "https://html.duckduckgo.com");
-        if (parsed.hostname.includes("duckduckgo.com") && parsed.searchParams.has("uddg")) url = parsed.searchParams.get("uddg")!;
-      } catch { continue; }
-      if (!isOfficialish(url, data.university)) continue;
-      const snippetMatch = block.match(/<a[^>]+class="result__snippet"[^>]*>([\s\S]*?)<\/a>|<div[^>]+class="result__snippet"[^>]*>([\s\S]*?)<\/div>/i);
-      results.push({ title: stripHtml(linkMatch[2]).slice(0, 180), url, snippet: stripHtml(snippetMatch?.[1] ?? snippetMatch?.[2] ?? "").slice(0, 500) });
-      if (results.length >= 8) break;
+        const response = await fetch(provider.url, {
+          headers: { "user-agent": "Mozilla/5.0 (compatible; UniCompassAdmissionsResearch/1.0)", accept: provider.name === "Bing RSS" ? "application/rss+xml, application/xml, text/xml" : "text/html" },
+          signal: AbortSignal.timeout(10000),
+        });
+        if (!response.ok) {
+          providerErrors.push(provider.name + " HTTP " + response.status);
+          continue;
+        }
+        const parsed = provider.parse(await response.text());
+        for (const item of parsed) {
+          if (!isOfficialish(item.url, data.university)) continue;
+          if (!results.some(existing => existing.url === item.url)) results.push(item);
+          if (results.length >= 8) break;
+        }
+        if (results.length) break;
+        providerErrors.push(provider.name + " returned no matching official pages");
+      } catch (error) {
+        providerErrors.push(provider.name + ": " + (error instanceof Error ? error.message : "request failed"));
+      }
     }
     if (!results.length) return {
       query, researchedAt: new Date().toISOString(), status: "no-results",
-      message: "Search completed, but no likely official university pages were found. Search may be blocked or the university domain may not match; no requirements have been guessed.",
+      message: "No likely official pages were returned by the available public search providers (" + providerErrors.join("; ") + "). No requirements have been guessed. Try again later or search the university site directly.",
       sources: [], findings: [],
     };
     const sources = await Promise.all(results.slice(0, 5).map(async item => {
