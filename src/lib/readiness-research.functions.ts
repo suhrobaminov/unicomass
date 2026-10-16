@@ -49,7 +49,7 @@ export const researchUniversityRequirements = createServerFn({ method: "POST" })
       data.citizenship ? data.citizenship + " international applicant" : "international applicant",
       "admission requirements official university",
     ].filter(Boolean).join(" ");
-    const universityTerms = data.university.toLowerCase().replace(/[^a-z0-9 ]/g, " ").split(/\\s+/)
+    const universityTerms = data.university.toLowerCase().replace(/[^a-z0-9 ]/g, " ").split(/\s+/)
       .filter(word => word.length > 2 && !["the", "and", "university", "college", "institute", "of", "at"].includes(word));
     const isRelevantResult = (item: { title: string; url: string; snippet: string }) => {
       try {
