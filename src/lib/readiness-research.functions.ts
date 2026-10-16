@@ -123,11 +123,20 @@ export const researchUniversityRequirements = createServerFn({ method: "POST" })
         providerErrors.push(provider.name + ": " + (error instanceof Error ? error.message : "request failed"));
       }
     }
-    if (!results.length) return {
-      query, researchedAt: new Date().toISOString(), status: "no-results",
-      message: "No likely official pages were returned by the available public search providers (" + providerErrors.join("; ") + "). No requirements have been guessed. Try again later or search the university site directly.",
-      sources: [], findings: [],
-    };
+    if (!results.length) {
+      const searchQuery = [data.university, data.program, data.degree, data.intake, "admission requirements official site"].filter(Boolean).join(" ");
+      const encoded = encodeURIComponent(searchQuery);
+      return {
+        query, researchedAt: new Date().toISOString(), status: "no-results",
+        message: "Automatic retrieval is blocked or unavailable (" + providerErrors.join("; ") + "). These links open live search results so you can reach the university's official pages. No requirements have been guessed.",
+        sources: [
+          { title: "Search Google for official admissions pages", url: "https://www.google.com/search?q=" + encoded, snippet: "Search results for " + searchQuery, pageStatus: "search-link" },
+          { title: "Search Bing for official admissions pages", url: "https://www.bing.com/search?q=" + encoded, snippet: "Alternative search results for " + searchQuery, pageStatus: "search-link" },
+          { title: "Search the university domain for admissions", url: "https://www.google.com/search?q=" + encodeURIComponent("site:" + data.university.toLowerCase().replace(/[^a-z0-9]+/g, "") + " admissions " + data.program), snippet: "A domain-focused search; verify the domain is genuinely operated by the university.", pageStatus: "search-link" },
+        ],
+        findings: [],
+      };
+    }
     const sources = await Promise.all(results.slice(0, 5).map(async item => {
       try {
         const page = await fetch(item.url, { headers: { "user-agent": "Mozilla/5.0 (compatible; UniCompassAdmissionsResearch/1.0)", accept: "text/html" }, signal: AbortSignal.timeout(8000), redirect: "follow" });
