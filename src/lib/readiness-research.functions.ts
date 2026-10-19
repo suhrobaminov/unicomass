@@ -132,7 +132,7 @@ export const researchUniversityRequirements = createServerFn({ method: "POST" })
         sources: [
           { title: "Search Google for official admissions pages", url: "https://www.google.com/search?q=" + encoded, snippet: "Search results for " + searchQuery, pageStatus: "search-link" },
           { title: "Search Bing for official admissions pages", url: "https://www.bing.com/search?q=" + encoded, snippet: "Alternative search results for " + searchQuery, pageStatus: "search-link" },
-          { title: "Search the university domain for admissions", url: "https://www.google.com/search?q=" + encodeURIComponent("site:" + data.university.toLowerCase().replace(/[^a-z0-9]+/g, "") + " admissions " + data.program), snippet: "A domain-focused search; verify the domain is genuinely operated by the university.", pageStatus: "search-link" },
+          { title: "Search the university domain for admissions", url: "https://www.google.com/search?q=" + encodeURIComponent("\"" + data.university + "\" official admissions " + data.program), snippet: "Searches the exact university name and program. Confirm the result domain belongs to the university.", pageStatus: "search-link" },
         ],
         findings: [],
       };
