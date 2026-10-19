@@ -101,6 +101,42 @@ export const researchUniversityRequirements = createServerFn({ method: "POST" })
       },
     ];
     let providerErrors: string[] = [];
+    const tavilyKey = process.env.TAVILY_API_KEY;
+    if (tavilyKey) {
+      try {
+        const tavilyResponse = await fetch("https://api.tavily.com/search", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: "Bearer " + tavilyKey },
+          body: JSON.stringify({
+            query,
+            search_depth: "basic",
+            max_results: 10,
+            include_answer: false,
+            include_raw_content: false,
+          }),
+          signal: AbortSignal.timeout(15000),
+        });
+        if (!tavilyResponse.ok) {
+          providerErrors.push("Tavily Search API HTTP " + tavilyResponse.status);
+        } else {
+          const payload = await tavilyResponse.json() as {
+            results?: Array<{ title?: string; url?: string; content?: string }>;
+          };
+          for (const item of payload.results ?? []) {
+            if (!item.title || !item.url) continue;
+            const normalized = { title: item.title, url: item.url, snippet: item.content ?? "" };
+            if (!isOfficialish(normalized.url, data.university) || !isRelevantResult(normalized)) continue;
+            if (!results.some(existing => existing.url === normalized.url)) results.push(normalized);
+            if (results.length >= 8) break;
+          }
+          if (!results.length) providerErrors.push("Tavily returned no matching official pages");
+        }
+      } catch (error) {
+        providerErrors.push("Tavily Search API: " + (error instanceof Error ? error.message : "request failed"));
+      }
+    } else {
+      providerErrors.push("Tavily API key is not configured");
+    }
     const braveKey = process.env.BRAVE_SEARCH_API_KEY;
     if (braveKey) {
       try {
