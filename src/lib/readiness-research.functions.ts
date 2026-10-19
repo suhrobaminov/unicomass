@@ -101,7 +101,39 @@ export const researchUniversityRequirements = createServerFn({ method: "POST" })
       },
     ];
     let providerErrors: string[] = [];
-    for (const provider of providers) {
+    const braveKey = process.env.BRAVE_SEARCH_API_KEY;
+    if (braveKey) {
+      try {
+        const braveResponse = await fetch("https://api.search.brave.com/res/v1/web/search?" + new URLSearchParams({
+          q: query,
+          count: "20",
+          search_lang: "en",
+        }), {
+          headers: { Accept: "application/json", "X-Subscription-Token": braveKey },
+          signal: AbortSignal.timeout(12000),
+        });
+        if (!braveResponse.ok) {
+          providerErrors.push("Brave Search API HTTP " + braveResponse.status);
+        } else {
+          const payload = await braveResponse.json() as {
+            web?: { results?: Array<{ title?: string; url?: string; description?: string }> };
+          };
+          for (const item of payload.web?.results ?? []) {
+            if (!item.title || !item.url) continue;
+            const normalized = { title: item.title, url: item.url, snippet: item.description ?? "" };
+            if (!isOfficialish(normalized.url, data.university) || !isRelevantResult(normalized)) continue;
+            if (!results.some(existing => existing.url === normalized.url)) results.push(normalized);
+            if (results.length >= 8) break;
+          }
+          if (!results.length) providerErrors.push("Brave Search returned no matching official pages");
+        }
+      } catch (error) {
+        providerErrors.push("Brave Search API: " + (error instanceof Error ? error.message : "request failed"));
+      }
+    } else {
+      providerErrors.push("Brave Search API key is not configured");
+    }
+    if (!results.length) for (const provider of providers) {
       try {
         const response = await fetch(provider.url, {
           headers: { "user-agent": "Mozilla/5.0 (compatible; UniCompassAdmissionsResearch/1.0)", accept: provider.name === "Bing RSS" ? "application/rss+xml, application/xml, text/xml" : "text/html" },
