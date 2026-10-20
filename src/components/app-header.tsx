@@ -13,7 +13,6 @@ export function AppHeader() {
     <Link to="/dashboard" className="nav-link"><GraduationCap className="size-4" />Find Universities</Link>
     <Link to="/find-your-major" className="nav-link"><Compass className="size-4" />Find Your Major</Link>
     <Link to="/career-explorer" className="nav-link"><BriefcaseBusiness className="size-4" />Career Explorer</Link>
-    <Link to="/cost-planner" className="nav-link"><Wallet className="size-4" />Cost Planner</Link>
     <Link to="/readiness-auditor" className="nav-link"><ClipboardCheck className="size-4" />Readiness Auditor</Link>
   </>;
   return <header className="site-header sticky top-0 z-40 no-print">
