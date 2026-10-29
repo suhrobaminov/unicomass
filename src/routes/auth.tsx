@@ -9,6 +9,17 @@ import { ArrowLeft, ShieldCheck, Loader2 } from "lucide-react";
 
 type Search = { next?: string };
 const POST_AUTH_PATH_KEY = "unicompass:post-auth-path";
+const PRODUCTION_ORIGIN = "https://www.unicomass.online";
+
+function appOrigin() {
+  if (typeof window === "undefined") return PRODUCTION_ORIGIN;
+  const host = window.location.hostname.toLowerCase();
+  // Use the production domain even if a preview/editor frame accidentally hosts
+  // this route. Keep localhost origins usable for local development.
+  if (host === "localhost" || host === "127.0.0.1") return window.location.origin;
+  if (host === "unicomass.online" || host === "www.unicomass.online") return PRODUCTION_ORIGIN;
+  return window.location.origin;
+}
 
 function safeNextPath(next?: string) {
   return next?.startsWith("/") && !next.startsWith("//") ? next : "/dashboard";
@@ -37,9 +48,6 @@ function AuthPage() {
   const navigate = useNavigate();
   const [busy, setBusy] = useState(false);
 
-  // Do not redirect merely because a session already exists. The header's
-  // Sign in link must consistently open this page; redirect only after a
-  // fresh sign-in event or the explicit OTP success callback.
   useEffect(() => {
     const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === "SIGNED_IN" && session) {
@@ -54,7 +62,7 @@ function AuthPage() {
     sessionStorage.setItem(POST_AUTH_PATH_KEY, safeNextPath(next));
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo: window.location.origin },
+      options: { redirectTo: appOrigin() },
     });
     if (error) {
       sessionStorage.removeItem(POST_AUTH_PATH_KEY);
