@@ -70,7 +70,7 @@ export function generateAssessmentPdf(data: PdfReportData, meta: { name?: string
     y += 26;
     doc.setFont("helvetica", "bold").setFontSize(12);
     setInk(INK);
-    doc.text(text.toUpperCase(), M, y);
+    doc.text(clean(text).toUpperCase(), M, y);
     y += 8;
     doc.setDrawColor(RULE[0], RULE[1], RULE[2]).setLineWidth(0.5);
     doc.line(M, y, PAGE_W - M, y);
@@ -80,7 +80,7 @@ export function generateAssessmentPdf(data: PdfReportData, meta: { name?: string
   const body = (text: string, size = 10, color: readonly number[] = INK, indent = 0) => {
     doc.setFont("helvetica", "normal").setFontSize(size);
     setInk(color);
-    const lines = doc.splitTextToSize(text, CONTENT_W - indent) as string[];
+    const lines = doc.splitTextToSize(clean(text), CONTENT_W - indent) as string[];
     for (const line of lines) {
       room(size + 5);
       doc.text(line, M + indent, y);
@@ -120,7 +120,7 @@ export function generateAssessmentPdf(data: PdfReportData, meta: { name?: string
   y += 30;
   doc.setFont("helvetica", "bold").setFontSize(26);
   setInk(INK);
-  const titleLines = doc.splitTextToSize(data.profileLabel, CONTENT_W) as string[];
+  const titleLines = doc.splitTextToSize(clean(data.profileLabel), CONTENT_W) as string[];
   for (const line of titleLines) {
     doc.text(line, M, y);
     y += 31;
@@ -150,7 +150,7 @@ export function generateAssessmentPdf(data: PdfReportData, meta: { name?: string
     const cell = CONTENT_W / 3;
     const cells: Array<[string, string]> = [
       ["Top match", top.major.name],
-      ["Compatibility", `${Math.round(top.score * 100)}%`],
+      ["Trait alignment", `${Math.round(top.score * 100)}%`],
       ["Majors compared", String(data.ranked.length)],
     ];
     cells.forEach(([k, v], i) => {
@@ -160,7 +160,7 @@ export function generateAssessmentPdf(data: PdfReportData, meta: { name?: string
       doc.text(k.toUpperCase(), x, boxY + 21);
       doc.setFont("helvetica", "bold").setFontSize(11.5);
       setInk(INK);
-      doc.text(doc.splitTextToSize(v, cell - 26)[0] as string, x, boxY + 39);
+      doc.text(doc.splitTextToSize(clean(v), cell - 26)[0] as string, x, boxY + 39);
       if (i > 0) doc.line(M + cell * i, boxY, M + cell * i, boxY + 54);
     });
     y = boxY + 54 + 10;
