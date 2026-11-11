@@ -13,13 +13,13 @@ import { feedbackClient } from "@/lib/feedback-client";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "UniCompass — Personalized University & Major Guidance" },
+      { title: "UniCompass — Personalized University & Major Guidance | Built by Suhrob Aminov" },
       {
         name: "description",
         content:
           "Build your academic profile once and get personalized university recommendations, major matches, scholarship options and a clear application roadmap.",
       },
-      { property: "og:title", content: "UniCompass — Personalized University & Major Guidance" },
+      { property: "og:title", content: "UniCompass — Personalized University & Major Guidance | Built by Suhrob Aminov" },
       {
         property: "og:description",
         content:
