@@ -92,20 +92,109 @@ export function loadStore(): Store {
     if (!raw) return emptyStore();
     const parsed = JSON.parse(raw) as Partial<Store> | null;
     if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return emptyStore();
+
     const profile =
       parsed.profile && typeof parsed.profile === "object" && !Array.isArray(parsed.profile)
-        ? parsed.profile
+        ? parsed.profile as Record<string, unknown>
         : {};
+    const text = (value: unknown, max = 500) =>
+      typeof value === "string" ? value.slice(0, max) : "";
+    const number = (value: unknown, min: number, max: number): number | null => {
+      if (value === null || value === undefined || value === "") return null;
+      const parsedNumber = Number(value);
+      return Number.isFinite(parsedNumber) ? Math.max(min, Math.min(max, parsedNumber)) : null;
+    };
+    const count = (value: unknown) => Math.round(number(value, 0, 50) ?? 0);
+
+    const ecs: EC[] = Array.isArray(parsed.ecs)
+      ? parsed.ecs.flatMap((value) => {
+          if (!value || typeof value !== "object" || Array.isArray(value)) return [];
+          const item = value as Record<string, unknown>;
+          const name = text(item.name, 120);
+          if (!name.trim()) return [];
+          return [{
+            id: text(item.id, 80) || newId(),
+            name,
+            category: text(item.category, 80),
+            leadership_role: text(item.leadership_role, 120),
+            hours_per_week: number(item.hours_per_week, 0, 100),
+            description: text(item.description, 600),
+          }];
+        })
+      : [];
+
+    const awards: Award[] = Array.isArray(parsed.awards)
+      ? parsed.awards.flatMap((value) => {
+          if (!value || typeof value !== "object" || Array.isArray(value)) return [];
+          const item = value as Record<string, unknown>;
+          const title = text(item.title, 160);
+          if (!title.trim()) return [];
+          return [{
+            id: text(item.id, 80) || newId(),
+            title,
+            selection_level: text(item.selection_level, 100),
+            description: text(item.description, 600),
+          }];
+        })
+      : [];
+
+    const reports: SavedReport[] = Array.isArray(parsed.reports)
+      ? parsed.reports.flatMap((value) => {
+          if (!value || typeof value !== "object" || Array.isArray(value)) return [];
+          const item = value as Record<string, unknown>;
+          const payload = item.payload;
+          if (typeof item.id !== "string" || !payload || typeof payload !== "object" || Array.isArray(payload)) return [];
+          return [{
+            id: item.id.slice(0, 100),
+            created_at: text(item.created_at, 80),
+            payload: payload as Record<string, unknown>,
+          }];
+        })
+      : [];
+
+    let assessment: SavedAssessment | null = null;
+    if (parsed.assessment && typeof parsed.assessment === "object" && !Array.isArray(parsed.assessment)) {
+      const saved = parsed.assessment as Record<string, unknown>;
+      const answerRecord = saved.answers && typeof saved.answers === "object" && !Array.isArray(saved.answers)
+        ? saved.answers as Record<string, unknown>
+        : {};
+      const answers = Object.fromEntries(
+        Object.entries(answerRecord).filter(([, value]) =>
+          Number.isInteger(value) && Number(value) >= 1 && Number(value) <= 5,
+        ).map(([key, value]) => [key, Number(value)]),
+      );
+      const results =
+        saved.results && typeof saved.results === "object" && !Array.isArray(saved.results)
+          ? saved.results as Record<string, unknown>
+          : null;
+      assessment = {
+        answers,
+        completed: saved.completed === true && results !== null,
+        results,
+        updated_at: text(saved.updated_at, 80),
+      };
+    }
+
     return {
       ...emptyStore(),
-      profile: { ...EMPTY_PROFILE, ...profile },
-      ecs: Array.isArray(parsed.ecs) ? parsed.ecs : [],
-      awards: Array.isArray(parsed.awards) ? parsed.awards : [],
-      reports: Array.isArray(parsed.reports) ? parsed.reports : [],
-      assessment:
-        parsed.assessment && typeof parsed.assessment === "object" && !Array.isArray(parsed.assessment)
-          ? parsed.assessment
-          : null,
+      profile: {
+        full_name: text(profile.full_name, 100),
+        region: text(profile.region, 100),
+        intended_majors: text(profile.intended_majors, 200),
+        graduation_year: number(profile.graduation_year, 2020, 2040),
+        gpa_unweighted: number(profile.gpa_unweighted, 0, 5),
+        gpa_weighted: number(profile.gpa_weighted, 0, 6),
+        class_rank: text(profile.class_rank, 100),
+        sat_score: number(profile.sat_score, 400, 1600),
+        act_score: number(profile.act_score, 1, 36),
+        ap_count: count(profile.ap_count),
+        ib_count: count(profile.ib_count),
+        honors_count: count(profile.honors_count),
+      },
+      ecs,
+      awards,
+      reports,
+      assessment,
     };
   } catch {
     return emptyStore();
