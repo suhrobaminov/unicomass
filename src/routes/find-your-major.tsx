@@ -53,6 +53,7 @@ function FindYourMajorPage() {
   useEffect(() => {
     const saved = loadStore().assessment;
     if (saved) {
+      let restoredCompletedResults = false;
       const restored: AnswerMap = {};
       for (const [key, value] of Object.entries(saved.answers ?? {})) {
         const questionId = Number(key);
@@ -83,6 +84,7 @@ function FindYourMajorPage() {
           })
           .filter((item): item is { major: Major; score: number } => item !== null);
         if (ranked.length > 0) {
+          restoredCompletedResults = true;
           setResults({
             profileLabel: stored.profileLabel || "Your major profile",
             narrative: stored.narrative || "Your assessment results are ready.",
@@ -92,7 +94,8 @@ function FindYourMajorPage() {
           });
           setStage("results");
         }
-      } else {
+      }
+      if (!restoredCompletedResults) {
         const firstUnanswered = QUESTIONS.findIndex((question) => restored[question.id] === undefined);
         setCurrent(firstUnanswered === -1 ? QUESTIONS.length : firstUnanswered);
         if (firstUnanswered === -1 && Object.keys(restored).length === QUESTIONS.length) {
