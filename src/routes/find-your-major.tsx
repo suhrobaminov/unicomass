@@ -23,6 +23,7 @@ export const Route = createFileRoute("/find-your-major")({
       { property: "og:title", content: "Find Your Major — UniCompass | Built by Suhrob Aminov" },
       { property: "og:description", content: "Take a 30-question major assessment and explore ranked study paths. Built by Suhrob Aminov." },
       { property: "og:type", content: "website" },
+      { property: "og:url", content: absoluteUrl("/find-your-major") },
       { name: "twitter:card", content: "summary" },
     ],
     links: [{ rel: "canonical", href: absoluteUrl("/find-your-major") }],
