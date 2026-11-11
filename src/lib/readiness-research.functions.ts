@@ -100,7 +100,7 @@ export const researchUniversityRequirements = createServerFn({ method: "POST" })
         },
       },
     ];
-    let providerErrors: string[] = [];
+    const providerErrors: string[] = [];
     const tavilyKey = process.env.TAVILY_API_KEY?.trim();
     if (tavilyKey) {
       try {
