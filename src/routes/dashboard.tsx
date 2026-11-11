@@ -10,9 +10,9 @@ export const Route = createFileRoute("/dashboard")({
   head: () => ({
     meta: [
       { title: "Dashboard — UniCompass | Built by Suhrob Aminov" },
-      { name: "description", content: "Your admissions profile, saved strategy reports and next steps." },
+      { name: "description", content: "Build your admissions profile, explore university matches, and review your strategy reports. Built by Suhrob Aminov." },
       { property: "og:title", content: "Dashboard — UniCompass | Built by Suhrob Aminov" },
-      { property: "og:description", content: "Your admissions profile, saved strategy reports and next steps." },
+      { property: "og:description", content: "Build your admissions profile, explore university matches, and review your strategy reports. Built by Suhrob Aminov." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex, nofollow" },
