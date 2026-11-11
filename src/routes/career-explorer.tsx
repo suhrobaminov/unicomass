@@ -10,7 +10,7 @@ import { PageHeading } from "@/components/page-heading";
 export const Route = createFileRoute("/career-explorer")({
   head: () => ({ meta: [
     { title: "Major & Career Explorer — UniCompass | Built by Suhrob Aminov" },
-    { name: "description", content: "Explore career paths, skills, coursework, and university ideas connected to your interests." },
+    { name: "description", content: "Explore university majors, skills, and career pathways. Built by Suhrob Aminov." },
     { name: "robots", content: "noindex, nofollow" },
   ] }),
   component: CareerExplorer,
