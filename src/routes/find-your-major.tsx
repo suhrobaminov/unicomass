@@ -13,6 +13,7 @@ import {
   deriveStrengths, deriveImprovements, type AnswerMap, type Major,
 } from "@/lib/assessment-data";
 import { generateMajorInsight } from "@/lib/assessment.functions";
+import { absoluteUrl } from "@/lib/site";
 
 export const Route = createFileRoute("/find-your-major")({
   head: () => ({
@@ -23,8 +24,8 @@ export const Route = createFileRoute("/find-your-major")({
       { property: "og:description", content: "Take a 30-question major assessment and explore ranked study paths. Built by Suhrob Aminov." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
-      { name: "robots", content: "noindex, nofollow" },
     ],
+    links: [{ rel: "canonical", href: absoluteUrl("/find-your-major") }],
   }),
   component: FindYourMajorPage,
 });
