@@ -146,8 +146,18 @@ export function normalizeReport(input: unknown): NormalizedReport {
     try {
       value = JSON.parse(cleaned);
     } catch {
-      rawText = cleaned;
-      value = {};
+      // Some providers prepend a sentence despite JSON mode. Recover the
+      // outermost JSON object before treating the response as malformed.
+      const start = cleaned.indexOf("{");
+      const end = cleaned.lastIndexOf("}");
+      const candidate = start >= 0 && end > start ? cleaned.slice(start, end + 1) : "";
+      try {
+        value = candidate ? JSON.parse(candidate) : {};
+        if (!candidate) rawText = cleaned;
+      } catch {
+        rawText = cleaned;
+        value = {};
+      }
     }
   }
 
