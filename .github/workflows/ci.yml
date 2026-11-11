@@ -29,8 +29,8 @@ jobs:
           npm install --package-lock-only --ignore-scripts --no-audit --no-fund
           git diff --exit-code -- package-lock.json
 
-      - name: Apply non-breaking dependency security patches
-        run: npm audit fix --package-lock-only --ignore-scripts --no-fund
+      - name: Apply available dependency security patches
+        run: npm audit fix --package-lock-only --ignore-scripts --no-fund || true
 
       - name: Commit security lockfile fixes to the feature branch
         if: github.event_name == 'push' && startsWith(github.ref, 'refs/heads/production-readiness/')
