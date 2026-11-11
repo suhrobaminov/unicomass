@@ -9,9 +9,9 @@ import { PageHeading } from "@/components/page-heading";
 export const Route = createFileRoute("/dashboard")({
   head: () => ({
     meta: [
-      { title: "Dashboard — UniCompass" },
+      { title: "Dashboard — UniCompass | Built by Suhrob Aminov" },
       { name: "description", content: "Your admissions profile, saved strategy reports and next steps." },
-      { property: "og:title", content: "Dashboard — UniCompass" },
+      { property: "og:title", content: "Dashboard — UniCompass | Built by Suhrob Aminov" },
       { property: "og:description", content: "Your admissions profile, saved strategy reports and next steps." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
