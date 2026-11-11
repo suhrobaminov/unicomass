@@ -113,7 +113,7 @@ export function loadStore(): Store {
           const name = text(item.name, 120);
           if (!name.trim()) return [];
           return [{
-            id: text(item.id, 80) || newId(),
+            id: text(item.id, 80) || `legacy-${name.toLowerCase().replace(/\\s+/g, "-").slice(0, 60)}`,
             name,
             category: text(item.category, 80),
             leadership_role: text(item.leadership_role, 120),
@@ -130,7 +130,7 @@ export function loadStore(): Store {
           const title = text(item.title, 160);
           if (!title.trim()) return [];
           return [{
-            id: text(item.id, 80) || newId(),
+            id: text(item.id, 80) || `legacy-${title.toLowerCase().replace(/\\s+/g, "-").slice(0, 60)}`,
             title,
             selection_level: text(item.selection_level, 100),
             description: text(item.description, 600),
@@ -169,7 +169,7 @@ export function loadStore(): Store {
           : null;
       assessment = {
         answers,
-        completed: saved.completed === true && results !== null,
+        completed: saved.completed === true && results !== null && Array.isArray(results.ranked) && results.ranked.length > 0,
         results,
         updated_at: text(saved.updated_at, 80),
       };
