@@ -13,9 +13,9 @@ export const Route = createFileRoute("/reports/$id")({
   head: () => ({
     meta: [
       { title: "Strategy Report — UniCompass | Built by Suhrob Aminov" },
-      { name: "description", content: "Your personalized admissions strategy report: reach, target and safety schools with a roadmap." },
+      { name: "description", content: "Review your university fit, profile gaps, and application roadmap. Built by Suhrob Aminov." },
       { property: "og:title", content: "Strategy Report — UniCompass | Built by Suhrob Aminov" },
-      { property: "og:description", content: "Reach, target and safety schools with profile gaps and an actionable roadmap." },
+      { property: "og:description", content: "Review your university fit, profile gaps, and application roadmap. Built by Suhrob Aminov." },
       { property: "og:type", content: "article" },
       { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex, nofollow" },
