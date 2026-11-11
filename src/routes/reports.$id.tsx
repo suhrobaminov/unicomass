@@ -198,11 +198,11 @@ function SchoolCard({ school }: { school: School }) {
   };
   return (
     <Card className="card-lift p-5">
-      <div className="flex items-start justify-between mb-2">
-        <h3 className="font-semibold text-lg">{school.school_name}</h3>
-        <Badge variant="outline" className={tierColor[school.tier]}>{school.tier}</Badge>
+      <div className="mb-2 flex min-w-0 items-start justify-between gap-3">
+        <h3 className="min-w-0 break-words font-semibold text-lg">{school.school_name}</h3>
+        <Badge variant="outline" className={`shrink-0 ${tierColor[school.tier]}`}>{school.tier}</Badge>
       </div>
-      <div className="text-xs text-muted-foreground mb-3">Est. acceptance rate: {school.admission_rate_estimate}</div>
+      <div className="text-xs text-muted-foreground mb-3">Selectivity context (verify): {school.admission_rate_estimate}</div>
       {school.reason_for_tier && (
         <p className="text-sm text-muted-foreground leading-relaxed">{school.reason_for_tier}</p>
       )}
