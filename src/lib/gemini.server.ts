@@ -32,11 +32,12 @@ function friendlyError(err: unknown): Error {
   return new Error(`AI error: ${text.slice(0, 200)}`);
 }
 
-const GEMINI_FALLBACK_MODELS = ["gemini-3.7-flash", "gemini-3.6-flash", "gemini-3.5-flash"];
+const GEMINI_FALLBACK_MODELS = ["gemini-3.7-flash"];
 
 /** Bounded retry for transient provider errors before moving to the next model. */
-const MAX_ATTEMPTS_PER_MODEL = 3;
-const RETRY_BASE_DELAY_MS = 500;
+const MAX_ATTEMPTS_PER_MODEL = 2;
+const RETRY_BASE_DELAY_MS = 400;
+const AI_REQUEST_TIMEOUT_MS = 15_000;
 
 function isTransient(err: unknown): boolean {
   const t = err instanceof Error ? err.message : String(err);
@@ -49,7 +50,7 @@ const delay = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve,
 const GROQ_MODEL = "openai/gpt-oss-120b";
 
 async function callGemini(apiKey: string, model: string, opts: ChatOptions): Promise<string> {
-  const ai = new GoogleGenAI({ apiKey });
+  const ai = new GoogleGenAI({ apiKey, httpOptions: { timeout: AI_REQUEST_TIMEOUT_MS } });
   const systemInstruction = opts.messages
     .filter((m) => m.role === "system")
     .map((m) => m.content)
@@ -84,6 +85,7 @@ async function callGroq(apiKey: string, opts: ChatOptions): Promise<string> {
       ...(opts.jsonMode ? { response_format: { type: "json_object" } } : {}),
       ...(opts.temperature !== undefined ? { temperature: opts.temperature } : {}),
     }),
+    signal: AbortSignal.timeout(AI_REQUEST_TIMEOUT_MS),
   });
   const text = await res.text();
   if (!res.ok) throw new Error(`Groq ${res.status}: ${text.slice(0, 200)}`);
@@ -172,8 +174,6 @@ export async function geminiChat(opts: ChatOptions): Promise<string> {
   }
   throw new Error(`AI request failed — ${problems.join("; ")}.${advice}`);
 }
-void friendlyError;
-
 export const ADMISSIONS_SYSTEM_PROMPT = `You are a veteran Ivy League admissions officer with 20+ years of experience. You are highly critical, precise, and holistic. You evaluate how a student's course rigor aligns with their intended major, weigh leadership and impact over sheer activity count, and recommend a calibrated school list.
 
 Output rules (non-negotiable):
