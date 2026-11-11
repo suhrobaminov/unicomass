@@ -112,6 +112,7 @@ export function loadStore(): Store {
           const item = value as Record<string, unknown>;
           const name = text(item.name, 120);
           if (!name.trim()) return [];
+          // Stable fallback IDs keep legacy entries keyed consistently across reloads.
           return [{
             id: text(item.id, 80) || `legacy-${name.toLowerCase().replace(/\s+/g, "-").slice(0, 60)}`,
             name,
