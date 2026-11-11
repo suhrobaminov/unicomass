@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { AlertTriangle, CheckCircle2, CircleHelp, ExternalLink, GraduationCap, LoaderCircle, Search, ShieldAlert, ShieldCheck, UserRound } from "lucide-react";
+import { CircleHelp, GraduationCap, LoaderCircle, Search, ShieldAlert, ShieldCheck, UserRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PageHeading } from "@/components/page-heading";
