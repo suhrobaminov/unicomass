@@ -23,6 +23,12 @@ const CONTENT_W = PAGE_W - M * 2;
 
 export function generateAssessmentPdf(data: PdfReportData, meta: { name?: string; date: Date }) {
   const doc = new jsPDF({ unit: "pt", format: "a4" });
+  doc.setProperties({
+    title: "UniCompass Major Assessment Report",
+    subject: "Personalized major assessment results",
+    author: "Suhrob Aminov",
+    creator: "UniCompass",
+  });
   let y = 0;
   let page = 1;
 
@@ -34,7 +40,7 @@ export function generateAssessmentPdf(data: PdfReportData, meta: { name?: string
     doc.line(M, PAGE_H - 52, PAGE_W - M, PAGE_H - 52);
     doc.setFont("helvetica", "normal").setFontSize(8);
     setInk(MUTED);
-    doc.text("UniCompass — Major Assessment Report", M, PAGE_H - 38);
+    doc.text("UniCompass - Major Assessment Report | Created by Suhrob Aminov", M, PAGE_H - 38);
     doc.text(`Page ${page}`, PAGE_W - M, PAGE_H - 38, { align: "right" });
   };
 
@@ -112,8 +118,12 @@ export function generateAssessmentPdf(data: PdfReportData, meta: { name?: string
   if (meta.name) {
     doc.setFont("helvetica", "normal").setFontSize(10);
     setInk(MUTED);
-    doc.text(`Prepared for ${meta.name}`, M, y);
-    y += 18;
+    const nameLines = doc.splitTextToSize(clean(`Prepared for ${meta.name}`), CONTENT_W) as string[];
+    for (const line of nameLines) {
+      room(15);
+      doc.text(line, M, y);
+      y += 14;
+    }
   }
 
   y += 12;
