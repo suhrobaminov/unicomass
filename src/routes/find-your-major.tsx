@@ -18,9 +18,9 @@ export const Route = createFileRoute("/find-your-major")({
   head: () => ({
     meta: [
       { title: "Find Your Major — UniCompass | Built by Suhrob Aminov" },
-      { name: "description", content: "A 30-question assessment that recommends the university majors that fit you best." },
+      { name: "description", content: "Take a 30-question major assessment and explore ranked study paths. Built by Suhrob Aminov." },
       { property: "og:title", content: "Find Your Major — UniCompass | Built by Suhrob Aminov" },
-      { property: "og:description", content: "Answer 30 questions and get a ranked, evidence-based shortlist of university majors." },
+      { property: "og:description", content: "Take a 30-question major assessment and explore ranked study paths. Built by Suhrob Aminov." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex, nofollow" },
