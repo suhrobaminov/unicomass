@@ -159,7 +159,7 @@ function FindYourMajorPage() {
       narrative = r.narrative;
     } catch (e) {
       narrative = "Your answers point to a distinctive mix of curiosity, focus, and drive. The majors below are matched to how you actually think and work.";
-      if (e instanceof Error) console.warn(e.message);
+      // The deterministic trait ranking remains available when the AI narrative fails.
     }
     const payload: ResultsPayload = { profileLabel: label, narrative, strengths, improvements, ranked };
     try {
@@ -419,6 +419,7 @@ function Results({ data, onRetake }: { data: ResultsPayload; onRetake: () => voi
       {/* Summary */}
       <section className="py-8">
         <p className="max-w-2xl text-[15px] leading-relaxed text-foreground/90">{data.narrative}</p>
+        <p className="mt-3 max-w-2xl text-xs leading-relaxed text-muted-foreground">Trait alignment is a relative match between your answers and each major&apos;s weighted interests. It is not a measure of ability, a job-outcome prediction, or an admissions probability.</p>
         <dl className="mt-8 grid divide-y divide-border border-y border-border sm:grid-cols-3 sm:divide-x sm:divide-y-0">
           {[
             ["Top match", top5[0].major.name],
