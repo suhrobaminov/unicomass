@@ -14,7 +14,17 @@ const MUTED = [110, 116, 128] as const;
 const RULE = [222, 224, 230] as const;
 const ACCENT = [79, 70, 229] as const;
 
-const clean = (t: string) => t.replace(/[*_`#]/g, "").replace(/\s+/g, " ").trim();
+const clean = (t: string) =>
+  t
+    .replace(/[–—]/g, "-")
+    .replace(/[‘’]/g, "'")
+    .replace(/[“”]/g, '"')
+    .replace(/•/g, "-")
+    .replace(/\u00a0/g, " ")
+    .replace(/[^\x20-\x7E]/g, "?")
+    .replace(/[*_`#]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
 
 const PAGE_W = 595.28; // A4 pt
 const PAGE_H = 841.89;
