@@ -9,7 +9,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { loadStore, saveAssessment } from "@/lib/local-store";
 import {
-  QUESTIONS, computeTraitScores, rankMajors, deriveProfileLabel,
+  QUESTIONS, MAJORS, computeTraitScores, rankMajors, deriveProfileLabel,
   deriveStrengths, deriveImprovements, type AnswerMap, type Major,
 } from "@/lib/assessment-data";
 import { generateMajorInsight } from "@/lib/assessment.functions";
@@ -50,19 +50,59 @@ function FindYourMajorPage() {
 
   useEffect(() => {
     const saved = loadStore().assessment;
-    if (saved && !saved.completed) {
+    if (saved) {
       const restored: AnswerMap = {};
-      for (const [k, v] of Object.entries(saved.answers ?? {})) restored[Number(k)] = v as 1 | 2 | 3 | 4 | 5;
+      for (const [key, value] of Object.entries(saved.answers ?? {})) {
+        const questionId = Number(key);
+        if (
+          QUESTIONS.some((question) => question.id === questionId) &&
+          Number.isInteger(value) && value >= 1 && value <= 5
+        ) {
+          restored[questionId] = value as 1 | 2 | 3 | 4 | 5;
+        }
+      }
       setAnswers(restored);
-      const answeredCount = Object.keys(restored).length;
-      if (answeredCount > 0 && answeredCount < QUESTIONS.length) {
-        setCurrent(Math.min(answeredCount, QUESTIONS.length - 1));
+
+      if (saved.completed && saved.results) {
+        const stored = saved.results as {
+          profileLabel?: string;
+          narrative?: string;
+          strengths?: string[];
+          improvements?: string[];
+          ranked?: Array<{ slug?: string; score?: number }>;
+        };
+        const ranked = (stored.ranked ?? [])
+          .map((item) => {
+            const major = MAJORS.find((candidate) => candidate.slug === item.slug);
+            const score = Number(item.score);
+            return major && Number.isFinite(score)
+              ? { major, score: Math.max(0, Math.min(1, score)) }
+              : null;
+          })
+          .filter((item): item is { major: Major; score: number } => item !== null);
+        if (ranked.length > 0) {
+          setResults({
+            profileLabel: stored.profileLabel || "Your major profile",
+            narrative: stored.narrative || "Your assessment results are ready.",
+            strengths: Array.isArray(stored.strengths) ? stored.strengths : [],
+            improvements: Array.isArray(stored.improvements) ? stored.improvements : [],
+            ranked,
+          });
+          setStage("results");
+        }
+      } else {
+        const firstUnanswered = QUESTIONS.findIndex((question) => restored[question.id] === undefined);
+        setCurrent(firstUnanswered === -1 ? QUESTIONS.length : firstUnanswered);
+        if (firstUnanswered === -1 && Object.keys(restored).length === QUESTIONS.length) {
+          setStage("quiz");
+        }
       }
     }
     setLoadingResume(false);
   }, []);
 
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const finishStarted = useRef(false);
   useEffect(() => {
     if (stage !== "quiz") return;
     if (Object.keys(answers).length === 0) return;
@@ -76,6 +116,7 @@ function FindYourMajorPage() {
   }, [answers, stage]);
 
   const startFresh = () => {
+    finishStarted.current = false;
     setAnswers({});
     setCurrent(0);
     saveAssessment({ answers: {}, completed: false, results: null });
@@ -85,10 +126,18 @@ function FindYourMajorPage() {
   const answerCurrent = (value: 1 | 2 | 3 | 4 | 5) => {
     const q = QUESTIONS[current];
     setAnswers((prev) => ({ ...prev, [q.id]: value }));
-    setTimeout(() => setCurrent((c) => Math.min(c + 1, QUESTIONS.length)), 160);
+    setTimeout(() => setCurrent(Math.min(current + 1, QUESTIONS.length)), 160);
   };
 
   const finish = async () => {
+    if (finishStarted.current) return;
+    const firstUnanswered = QUESTIONS.findIndex((question) => answers[question.id] === undefined);
+    if (firstUnanswered !== -1) {
+      setCurrent(firstUnanswered);
+      setStage("quiz");
+      return;
+    }
+    finishStarted.current = true;
     setStage("analyzing");
     const traits = computeTraitScores(answers);
     const ranked = rankMajors(traits);
@@ -168,6 +217,7 @@ function FindYourMajorPage() {
         <Results
           data={results}
           onRetake={() => {
+            finishStarted.current = false;
             setResults(null);
             setAnswers({});
             saveAssessment({ answers: {}, completed: false, results: null });
