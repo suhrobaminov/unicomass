@@ -15,6 +15,7 @@ export const Route = createFileRoute("/career-explorer")({
     { property: "og:title", content: "Major & Career Explorer — UniCompass | Built by Suhrob Aminov" },
     { property: "og:description", content: "Explore university majors, skills, and career pathways. Built by Suhrob Aminov." },
     { property: "og:type", content: "website" },
+    { property: "og:url", content: absoluteUrl("/career-explorer") },
     { name: "twitter:card", content: "summary" },
   ], links: [{ rel: "canonical", href: absoluteUrl("/career-explorer") }] }),
   component: CareerExplorer,
