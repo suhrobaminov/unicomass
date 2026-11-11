@@ -26,7 +26,10 @@ export const Route = createFileRoute("/")({
       },
       { property: "og:type", content: "website" },
       { property: "og:url", content: absoluteUrl("/") },
+      { property: "og:image", content: absoluteUrl(heroStudents) },
+      { property: "og:image:alt", content: "Students exploring university pathways with UniCompass" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:image", content: absoluteUrl(heroStudents) },
     ],
     links: [
       { rel: "canonical", href: absoluteUrl("/") },
