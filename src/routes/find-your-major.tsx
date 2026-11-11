@@ -422,7 +422,7 @@ function Results({ data, onRetake }: { data: ResultsPayload; onRetake: () => voi
         <dl className="mt-8 grid divide-y divide-border border-y border-border sm:grid-cols-3 sm:divide-x sm:divide-y-0">
           {[
             ["Top match", top5[0].major.name],
-            ["Compatibility", `${Math.round(top5[0].score * 100)}%`],
+            ["Trait alignment", `${Math.round(top5[0].score * 100)}%`],
             ["Majors compared", String(data.ranked.length)],
           ].map(([k, v]) => (
             <div key={k} className="px-0 py-4 sm:px-5 first:sm:pl-0">
