@@ -11,7 +11,7 @@ type Feedback = { id: number; category: string; message: string; created_at: str
 type Profile = { user_id: string; full_name: string | null; region: string | null; sat_score: number | null; act_score: number | null; gpa_unweighted: number | null; gpa_weighted: number | null; graduation_year: number | null; intended_majors: string | null; created_at: string; updated_at: string };
 
 export const Route = createFileRoute("/admin")({
-  head: () => ({ meta: [{ title: "Administration — UniCompass | Built by Suhrob Aminov" }, { name: "description", content: "Private UniCompass administration and feedback inbox." }, { property: "og:title", content: "Administration — UniCompass | Built by Suhrob Aminov" }, { property: "og:description", content: "Private UniCompass administration." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }, { name: "robots", content: "noindex, nofollow" }] }),
+  head: () => ({ meta: [{ title: "Administration — UniCompass | Built by Suhrob Aminov" }, { name: "description", content: "Private UniCompass administration and feedback inbox. Built by Suhrob Aminov." }, { property: "og:title", content: "Administration — UniCompass | Built by Suhrob Aminov" }, { property: "og:description", content: "Private UniCompass administration and feedback inbox. Built by Suhrob Aminov." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }, { name: "robots", content: "noindex, nofollow" }] }),
   component: AdminPage,
 });
 
