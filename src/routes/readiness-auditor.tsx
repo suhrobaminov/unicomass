@@ -60,6 +60,3 @@ function ReadinessAuditor() {
 }
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) { return <label className="block space-y-1.5"><span className="text-sm font-medium">{label}</span>{children}</label>; }
-  const classes = kind === "meets" ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300" : kind === "gap" ? "border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-300" : "border-border bg-muted text-muted-foreground";
-  return <span className={`inline-flex items-center rounded-full border px-2 py-1 text-xs font-medium ${classes}`}>{label}</span>;
-}
