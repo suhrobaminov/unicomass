@@ -13,10 +13,12 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as CareerExplorerRouteImport } from './routes/career-explorer'
 import { Route as FindYourMajorRouteImport } from './routes/find-your-major'
 import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as ReportsIdRouteImport } from './routes/reports.$id'
+import { Route as ReadinessAuditorRouteImport } from './routes/readiness-auditor'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -36,6 +38,11 @@ const AuthRoute = AuthRouteImport.update({
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CareerExplorerRoute = CareerExplorerRouteImport.update({
+  id: '/career-explorer',
+  path: '/career-explorer',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FindYourMajorRoute = FindYourMajorRouteImport.update({
@@ -58,16 +65,23 @@ const ReportsIdRoute = ReportsIdRouteImport.update({
   path: '/reports/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ReadinessAuditorRoute = ReadinessAuditorRouteImport.update({
+  id: '/readiness-auditor',
+  path: '/readiness-auditor',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/auth': typeof AuthRoute
   '/dashboard': typeof DashboardRoute
+  '/career-explorer': typeof CareerExplorerRoute
   '/find-your-major': typeof FindYourMajorRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/reports/$id': typeof ReportsIdRoute
+  '/readiness-auditor': typeof ReadinessAuditorRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -97,6 +111,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/auth'
     | '/dashboard'
+    | '/career-explorer'
     | '/find-your-major'
     | '/robots.txt'
     | '/sitemap.xml'
@@ -121,6 +136,7 @@ export interface FileRouteTypes {
     | '/robots.txt'
     | '/sitemap.xml'
     | '/reports/$id'
+    | '/readiness-auditor'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -128,10 +144,12 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRoute
   AuthRoute: typeof AuthRoute
   DashboardRoute: typeof DashboardRoute
+  CareerExplorerRoute: typeof CareerExplorerRoute
   FindYourMajorRoute: typeof FindYourMajorRoute
   RobotsDottxtRoute: typeof RobotsDottxtRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   ReportsIdRoute: typeof ReportsIdRoute
+  ReadinessAuditorRoute: typeof ReadinessAuditorRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -164,6 +182,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/career-explorer': {
+      id: '/career-explorer'
+      path: '/career-explorer'
+      fullPath: '/career-explorer'
+      preLoaderRoute: typeof CareerExplorerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/find-your-major': {
       id: '/find-your-major'
       path: '/find-your-major'
@@ -192,6 +217,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ReportsIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/readiness-auditor': {
+      id: '/readiness-auditor'
+      path: '/readiness-auditor'
+      fullPath: '/readiness-auditor'
+      preLoaderRoute: typeof ReadinessAuditorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -200,10 +232,12 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRoute,
   AuthRoute: AuthRoute,
   DashboardRoute: DashboardRoute,
+  CareerExplorerRoute: CareerExplorerRoute,
   FindYourMajorRoute: FindYourMajorRoute,
   RobotsDottxtRoute: RobotsDottxtRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   ReportsIdRoute: ReportsIdRoute,
+  ReadinessAuditorRoute: ReadinessAuditorRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
