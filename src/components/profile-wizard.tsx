@@ -46,15 +46,22 @@ export function ProfileWizard() {
     const snapshot = JSON.stringify(profile);
     if (snapshot === lastSynced.current) return;
     setSaving(true);
-    void syncProfileToAccount(profile).then((r) => {
-      if (r.status === "error") {
-        setSyncError(r.message);
-        toast.error(`Couldn't save to your account: ${r.message}`);
-      } else {
-        setSyncError("");
-        lastSynced.current = snapshot;
-      }
-    }).finally(() => setSaving(false));
+    void syncProfileToAccount(profile)
+      .then((r) => {
+        if (r.status === "error") {
+          setSyncError(r.message);
+          toast.error(`Couldn't save to your account: ${r.message}`);
+        } else {
+          setSyncError("");
+          lastSynced.current = snapshot;
+        }
+      })
+      .catch((error: unknown) => {
+        const message = error instanceof Error ? error.message : "Account sync failed.";
+        setSyncError(message);
+        toast.error(`Couldn't save to your account: ${message}`);
+      })
+      .finally(() => setSaving(false));
   }, [profile]);
 
   // save locally right away; sync to the account at most once per pause in typing
