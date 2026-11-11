@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/button";
 import { Toaster } from "@/components/ui/sonner";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { SITE_URL } from "@/lib/site";
 
 const POST_AUTH_PATH_KEY = "unicompass:post-auth-path";
 
@@ -93,14 +94,16 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "UniCompass — AI College Admissions Strategy" },
-      { name: "description", content: "Get a personalized college admissions strategy from a veteran AI admissions officer. Reach, Target, and Safety schools tailored to your profile." },
-      { property: "og:title", content: "UniCompass — AI College Admissions Strategy" },
-      { property: "og:description", content: "Get a personalized college admissions strategy from a veteran AI admissions officer. Reach, Target, and Safety schools tailored to your profile." },
+      { title: "UniCompass — Built by Suhrob Aminov | University Admissions Strategy" },
+      { name: "description", content: "UniCompass helps students explore university fit, major pathways, and application strategy. Independently built by Suhrob Aminov." },
+      { property: "og:title", content: "UniCompass — Built by Suhrob Aminov" },
+      { property: "og:site_name", content: "UniCompass" },
+      { property: "og:url", content: SITE_URL },
+      { property: "og:description", content: "Explore university fit, major pathways, and application strategy with UniCompass, independently built by Suhrob Aminov." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: "UniCompass — AI College Admissions Strategy" },
-      { name: "twitter:description", content: "Get a personalized college admissions strategy from a veteran AI admissions officer. Reach, Target, and Safety schools tailored to your profile." },
+      { name: "twitter:title", content: "UniCompass — Built by Suhrob Aminov" },
+      { name: "twitter:description", content: "Explore university fit, major pathways, and application strategy with UniCompass." },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
@@ -108,6 +111,20 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "preconnect", href: "https://fonts.gstatic.com" },
       { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" },
     ],
+    scripts: [{
+      type: "application/ld+json",
+      children: JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        name: "UniCompass",
+        applicationCategory: "EducationalApplication",
+        operatingSystem: "Web",
+        url: SITE_URL,
+        description: "A student-facing platform for university exploration, major assessment, and admissions planning.",
+        creator: { "@type": "Person", name: "Suhrob Aminov", url: "https://github.com/suhrobaminov" },
+        author: { "@type": "Person", name: "Suhrob Aminov", url: "https://github.com/suhrobaminov" }
+      })
+    }],
   }),
   shellComponent: RootShell,
   component: RootComponent,
