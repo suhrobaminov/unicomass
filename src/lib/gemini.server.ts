@@ -18,20 +18,6 @@ export type ChatOptions = {
 /** Default model — fast and cost-effective. */
 export const DEFAULT_MODEL = "gemini-3.8-flash";
 
-function friendlyError(err: unknown): Error {
-  const text = err instanceof Error ? err.message : String(err);
-  if (/401|403|API key|PERMISSION_DENIED|UNAUTHENTICATED/i.test(text)) {
-    return new Error("AI service rejected the credentials.");
-  }
-  if (/429|RESOURCE_EXHAUSTED|quota/i.test(text)) {
-    return new Error("AI is busy right now. Please try again in a moment.");
-  }
-  if (/5\d\d|UNAVAILABLE|INTERNAL/i.test(text)) {
-    return new Error("The AI provider is temporarily unavailable.");
-  }
-  return new Error(`AI error: ${text.slice(0, 200)}`);
-}
-
 const GEMINI_FALLBACK_MODELS = ["gemini-3.7-flash"];
 
 /** Bounded retry for transient provider errors before moving to the next model. */
@@ -67,7 +53,6 @@ async function callGemini(apiKey: string, model: string, opts: ChatOptions): Pro
     config: {
       ...(systemInstruction ? { systemInstruction } : {}),
       ...(opts.jsonMode ? { responseMimeType: "application/json" } : {}),
-      ...(opts.temperature !== undefined ? { temperature: opts.temperature } : {}),
     },
   });
   const content = (res.text ?? "").trim();
