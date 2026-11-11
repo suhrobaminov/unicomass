@@ -88,10 +88,12 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminRoute
   '/auth': typeof AuthRoute
   '/dashboard': typeof DashboardRoute
+  '/career-explorer': typeof CareerExplorerRoute
   '/find-your-major': typeof FindYourMajorRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/reports/$id': typeof ReportsIdRoute
+  '/readiness-auditor': typeof ReadinessAuditorRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -99,10 +101,12 @@ export interface FileRoutesById {
   '/admin': typeof AdminRoute
   '/auth': typeof AuthRoute
   '/dashboard': typeof DashboardRoute
+  '/career-explorer': typeof CareerExplorerRoute
   '/find-your-major': typeof FindYourMajorRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/reports/$id': typeof ReportsIdRoute
+  '/readiness-auditor': typeof ReadinessAuditorRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -116,22 +120,26 @@ export interface FileRouteTypes {
     | '/robots.txt'
     | '/sitemap.xml'
     | '/reports/$id'
+    | '/readiness-auditor'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/admin'
     | '/auth'
     | '/dashboard'
+    | '/career-explorer'
     | '/find-your-major'
     | '/robots.txt'
     | '/sitemap.xml'
     | '/reports/$id'
+    | '/readiness-auditor'
   id:
     | '__root__'
     | '/'
     | '/admin'
     | '/auth'
     | '/dashboard'
+    | '/career-explorer'
     | '/find-your-major'
     | '/robots.txt'
     | '/sitemap.xml'
