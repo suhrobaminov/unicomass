@@ -45,10 +45,10 @@ export const generateReport = createServerFn({ method: "POST" })
       },
       { Reach: 0, Target: 0, Safety: 0 },
     );
-    const hasAllTiers = tierCounts.Reach > 0 && tierCounts.Target > 0 && tierCounts.Safety > 0;
-    if (report.categorized_schools.length >= 3 && hasAllTiers) return report;
+    const hasExpectedDistribution = tierCounts.Reach === 5 && tierCounts.Target === 5 && tierCounts.Safety === 4;
+    if (report.categorized_schools.length === 14 && hasExpectedDistribution) return report;
     console.error("[ai] report did not include usable recommendations in all tiers; attempt", attempt + 1);
     }
-    throw new Error("UniCompass could not produce a reliable shortlist across Reach, Target, and Safety. No universities were invented to fill missing categories. Please try again or review your profile inputs.");
+    throw new Error("UniCompass could not produce the complete 5 Reach, 5 Target, and 4 Safety shortlist. No duplicate or invented universities were inserted to fill missing categories. Please try again or review your profile inputs.");
   });
 
