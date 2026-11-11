@@ -1,7 +1,7 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Compass, GraduationCap, Menu, X, ArrowUpRight, Home, Wallet, BriefcaseBusiness, ClipboardCheck } from "lucide-react";
+import { Compass, GraduationCap, Menu, X, ArrowUpRight, Home, BriefcaseBusiness, ClipboardCheck } from "lucide-react";
 
 export function AppHeader() {
   const [open, setOpen] = useState(false);
