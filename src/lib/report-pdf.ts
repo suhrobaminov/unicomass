@@ -138,6 +138,8 @@ export function generateAssessmentPdf(data: PdfReportData, meta: { name?: string
 
   y += 12;
   body(clean(data.narrative), 10.5, INK);
+  y += 2;
+  body("Trait alignment is a relative match to your stated interests, not a measure of ability, a job-outcome prediction, or an admissions probability.", 8.5, MUTED);
   y += 6;
 
   // ---------- Summary strip ----------
