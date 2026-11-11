@@ -1,10 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
-import { Compass, GraduationCap, ArrowRight, ArrowUpRight, Check, FileText, Send, Loader2, Map, ShieldCheck } from "lucide-react";
+import { Compass, GraduationCap, ArrowRight, ArrowUpRight, Check, Send, Loader2, Map, ShieldCheck } from "lucide-react";
 import { LoginDialog } from "@/components/login-dialog";
 import heroStudents from "@/assets/hero-students.jpg";
 import { absoluteUrl } from "@/lib/site";
