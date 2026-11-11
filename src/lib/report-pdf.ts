@@ -22,7 +22,6 @@ const clean = (t: string) =>
     .replace(/•/g, "-")
     .replace(/\u00a0/g, " ")
     .replace(/[\u200B-\u200D\uFEFF]/g, "")
-    .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, " ")
     .replace(/[*_`#]/g, "")
     .replace(/\s+/g, " ")
     .trim();
