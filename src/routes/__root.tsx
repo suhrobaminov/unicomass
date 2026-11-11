@@ -18,7 +18,8 @@ import { Button } from "@/components/ui/button";
 import { Toaster } from "@/components/ui/sonner";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { SITE_URL } from "@/lib/site";
+import { SITE_URL, absoluteUrl } from "@/lib/site";
+import heroStudents from "@/assets/hero-students.jpg";
 
 const POST_AUTH_PATH_KEY = "unicompass:post-auth-path";
 
@@ -99,10 +100,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:title", content: "UniCompass — Built by Suhrob Aminov" },
       { property: "og:site_name", content: "UniCompass" },
       { property: "og:url", content: SITE_URL },
+      { property: "og:image", content: absoluteUrl(heroStudents) },
+      { property: "og:image:alt", content: "Students exploring university pathways with UniCompass" },
       { property: "og:description", content: "Explore university fit, major pathways, and application strategy with UniCompass, independently built by Suhrob Aminov." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: "UniCompass — Built by Suhrob Aminov" },
+      { name: "twitter:image", content: absoluteUrl(heroStudents) },
       { name: "twitter:description", content: "Explore university fit, major pathways, and application strategy with UniCompass." },
     ],
     links: [
