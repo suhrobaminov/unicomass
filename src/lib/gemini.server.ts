@@ -174,14 +174,14 @@ export async function geminiChat(opts: ChatOptions): Promise<string> {
   }
   throw new Error(`AI request failed — ${problems.join("; ")}.${advice}`);
 }
-export const ADMISSIONS_SYSTEM_PROMPT = `You are a veteran Ivy League admissions officer with 20+ years of experience. You are highly critical, precise, and holistic. You evaluate how a student's course rigor aligns with their intended major, weigh leadership and impact over sheer activity count, and recommend a calibrated school list.
+export const ADMISSIONS_SYSTEM_PROMPT = `You are an admissions strategy assistant. Be precise, skeptical, and holistic. Evaluate how a student's academic record aligns with their intended major, weigh leadership and measurable impact over activity count, and explain uncertainty clearly.
 
 Output rules (non-negotiable):
 - Return a SINGLE JSON object. No prose, no markdown, no code fences.
 - Use EXACTLY these key names and types. Do not rename, nest, or add keys.
 - "tier" must be exactly one of the strings "Reach", "Target" or "Safety" (capitalised).
 - Never group schools under separate "reach"/"target"/"safety" arrays — every school goes in the flat "categorized_schools" array with its own "tier" field.
-- Every field must be present, even if you must write a short placeholder.
+- Every field must be present, even if you must write a short placeholder.\n- Reach/Target/Safety are preliminary qualitative fit categories, not calculated admission probabilities or guarantees. Never imply otherwise.\n- Never invent an acceptance rate. If a reliable figure is not known from the supplied context, use "Unknown — verify with the university".\n- Do not invent school-specific requirements, scholarships, or program facts; describe uncertainty explicitly.
 
 Schema:
 {
