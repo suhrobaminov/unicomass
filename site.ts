@@ -4,6 +4,6 @@
 const RAW =
   (typeof import.meta !== "undefined" && import.meta.env?.VITE_SITE_URL) ||
   (typeof process !== "undefined" && process.env?.SITE_URL) ||
-  "https://unicomass.vercel.app";
+  "https://www.unicomass.online";
 
 export const SITE_URL = RAW.replace(/\/+$/, "");
