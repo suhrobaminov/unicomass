@@ -17,13 +17,13 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "Build your academic profile once and get personalized university recommendations, major matches, scholarship options and a clear application roadmap.",
+          "Personalized university matches, major assessment, and admissions planning for students. Built by Suhrob Aminov.",
       },
       { property: "og:title", content: "UniCompass — Personalized University & Major Guidance | Built by Suhrob Aminov" },
       {
         property: "og:description",
         content:
-          "One profile, smarter decisions: university matches, major assessment, scholarships and an application roadmap.",
+          "Explore university fit, major pathways, and application strategy. Built by Suhrob Aminov.",
       },
       { property: "og:type", content: "website" },
       { property: "og:url", content: absoluteUrl("/") },
