@@ -9,7 +9,7 @@ on:
       - "production-readiness/**"
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   verify:
@@ -28,6 +28,20 @@ jobs:
         run: |
           npm install --package-lock-only --ignore-scripts --no-audit --no-fund
           git diff --exit-code -- package-lock.json
+
+      - name: Apply non-breaking dependency security patches
+        run: npm audit fix --package-lock-only --ignore-scripts --no-fund
+
+      - name: Commit security lockfile fixes to the feature branch
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/heads/production-readiness/')
+        run: |
+          if ! git diff --quiet -- package-lock.json; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add package-lock.json
+            git commit -m "chore: patch vulnerable npm dependencies"
+            git push origin "HEAD:${GITHUB_REF_NAME}"
+          fi
 
       - name: Install exact dependencies
         run: npm ci
