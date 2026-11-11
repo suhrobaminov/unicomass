@@ -45,7 +45,7 @@ export function AppFooter() {
               <DialogDescription>Independent software development</DialogDescription>
             </DialogHeader>
             <p className="text-sm leading-6 text-muted-foreground">
-              UniCompass was independently designed and built by Suhrob Aminov as a full-stack student project. It brings together university exploration, major assessment, and admissions-planning tools in one platform.
+              UniCompass is a solo-built, full-stack AI platform designed and developed by Suhrob Aminov. It brings together university exploration, major assessment, and admissions-planning tools in one place.
             </p>
             <a href={CREATOR_URL} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-sm font-medium text-primary underline underline-offset-4">
               View developer profile <ArrowUpRight className="size-4" />
