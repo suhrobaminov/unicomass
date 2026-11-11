@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { ArrowRight, BriefcaseBusiness, GraduationCap, Lightbulb, Target } from "lucide-react";
+import { BriefcaseBusiness, GraduationCap, Lightbulb, Target } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { MAJORS, type Major } from "@/lib/assessment-data";
