@@ -160,7 +160,7 @@ export function loadStore(): Store {
         : {};
       const answers = Object.fromEntries(
         Object.entries(answerRecord).filter(([, value]) =>
-          Number.isInteger(value) && Number(value) >= 1 && Number(value) <= 5,
+          typeof value === "number" && Number.isInteger(value) && value >= 1 && value <= 5,
         ).map(([key, value]) => [key, Number(value)]),
       );
       const results =
