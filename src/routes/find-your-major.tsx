@@ -107,6 +107,7 @@ function FindYourMajorPage() {
   }, []);
 
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const advanceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const finishStarted = useRef(false);
   useEffect(() => {
     if (stage !== "quiz") return;
@@ -119,8 +120,12 @@ function FindYourMajorPage() {
     }, 700);
     return () => { if (saveTimer.current) clearTimeout(saveTimer.current); };
   }, [answers, stage]);
+  useEffect(() => () => {
+    if (advanceTimer.current) clearTimeout(advanceTimer.current);
+  }, []);
 
   const startFresh = () => {
+    if (advanceTimer.current) clearTimeout(advanceTimer.current);
     finishStarted.current = false;
     setAnswers({});
     setCurrent(0);
@@ -130,8 +135,16 @@ function FindYourMajorPage() {
 
   const answerCurrent = (value: 1 | 2 | 3 | 4 | 5) => {
     const q = QUESTIONS[current];
-    setAnswers((prev) => ({ ...prev, [q.id]: value }));
-    setTimeout(() => setCurrent(Math.min(current + 1, QUESTIONS.length)), 160);
+    if (!q) return;
+    const nextAnswers = { ...answers, [q.id]: value };
+    setAnswers(nextAnswers);
+    // Persist the latest answer immediately; the debounced effect is only a backup.
+    saveAssessment({ answers: nextAnswers, completed: false, results: null });
+    if (advanceTimer.current) clearTimeout(advanceTimer.current);
+    advanceTimer.current = setTimeout(() => {
+      setCurrent(Math.min(current + 1, QUESTIONS.length));
+      advanceTimer.current = null;
+    }, 160);
   };
 
   const finish = async () => {
