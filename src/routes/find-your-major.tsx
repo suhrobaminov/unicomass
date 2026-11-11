@@ -162,7 +162,7 @@ function FindYourMajorPage() {
         },
       });
       narrative = r.narrative;
-    } catch (e) {
+    } catch {
       narrative = "Your answers point to a distinctive mix of curiosity, focus, and drive. The majors below are matched to how you actually think and work.";
       // The deterministic trait ranking remains available when the AI narrative fails.
     }
