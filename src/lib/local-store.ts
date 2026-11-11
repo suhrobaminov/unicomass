@@ -149,5 +149,11 @@ export function saveAssessment(patch: Partial<SavedAssessment>): SavedAssessment
 }
 
 export function clearAll() {
-  if (typeof window !== "undefined") {\n    try { window.localStorage.removeItem(KEY); } catch { /* Storage may be unavailable. */ }\n  }
+  if (typeof window !== "undefined") {
+    try {
+      window.localStorage.removeItem(KEY);
+    } catch {
+      // Storage may be unavailable.
+    }
+  }
 }
