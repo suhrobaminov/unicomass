@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PageHeading } from "@/components/page-heading";
 import { researchUniversityRequirements } from "@/lib/readiness-research.functions";
+import { absoluteUrl } from "@/lib/site";
 
 type ResearchResult = { status: string; message: string; researchedAt: string; sources: Array<{title:string;url:string;snippet:string;pageStatus:string}>; findings: Array<{category:string;status:string;matches:Array<{text:string;sourceTitle:string;url:string}>}> };
 
@@ -13,8 +14,11 @@ export const Route = createFileRoute("/readiness-auditor")({
   head: () => ({ meta: [
     { title: "Application Readiness Auditor — UniCompass | Built by Suhrob Aminov" },
     { name: "description", content: "Compare your student profile with university requirements using public evidence. Built by Suhrob Aminov." },
-    { name: "robots", content: "noindex, nofollow" },
-  ] }),
+    { property: "og:title", content: "Application Readiness Auditor — UniCompass | Built by Suhrob Aminov" },
+    { property: "og:description", content: "Compare your student profile with university requirements using public evidence. Built by Suhrob Aminov." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ], links: [{ rel: "canonical", href: absoluteUrl("/readiness-auditor") }] }),
   component: ReadinessAuditor,
 });
 
