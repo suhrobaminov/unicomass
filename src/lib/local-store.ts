@@ -90,11 +90,22 @@ export function loadStore(): Store {
   try {
     const raw = window.localStorage.getItem(KEY);
     if (!raw) return emptyStore();
-    const parsed = JSON.parse(raw) as Partial<Store>;
+    const parsed = JSON.parse(raw) as Partial<Store> | null;
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return emptyStore();
+    const profile =
+      parsed.profile && typeof parsed.profile === "object" && !Array.isArray(parsed.profile)
+        ? parsed.profile
+        : {};
     return {
       ...emptyStore(),
-      ...parsed,
-      profile: { ...EMPTY_PROFILE, ...(parsed.profile ?? {}) },
+      profile: { ...EMPTY_PROFILE, ...profile },
+      ecs: Array.isArray(parsed.ecs) ? parsed.ecs : [],
+      awards: Array.isArray(parsed.awards) ? parsed.awards : [],
+      reports: Array.isArray(parsed.reports) ? parsed.reports : [],
+      assessment:
+        parsed.assessment && typeof parsed.assessment === "object" && !Array.isArray(parsed.assessment)
+          ? parsed.assessment
+          : null,
     };
   } catch {
     return emptyStore();
@@ -104,7 +115,12 @@ export function loadStore(): Store {
 export function saveStore(patch: Partial<Store>): Store {
   const next = { ...loadStore(), ...patch };
   if (typeof window !== "undefined") {
-    window.localStorage.setItem(KEY, JSON.stringify(next));
+    try {
+      window.localStorage.setItem(KEY, JSON.stringify(next));
+    } catch {
+      // Storage can be disabled or full (private browsing, quota). Keep the
+      // in-memory interaction alive rather than crashing the current screen.
+    }
   }
   return next;
 }
@@ -133,5 +149,5 @@ export function saveAssessment(patch: Partial<SavedAssessment>): SavedAssessment
 }
 
 export function clearAll() {
-  if (typeof window !== "undefined") window.localStorage.removeItem(KEY);
+  if (typeof window !== "undefined") {\n    try { window.localStorage.removeItem(KEY); } catch { /* Storage may be unavailable. */ }\n  }
 }
