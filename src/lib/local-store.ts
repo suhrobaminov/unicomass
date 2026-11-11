@@ -113,7 +113,7 @@ export function loadStore(): Store {
           const name = text(item.name, 120);
           if (!name.trim()) return [];
           return [{
-            id: text(item.id, 80) || `legacy-${name.toLowerCase().replace(/\\s+/g, "-").slice(0, 60)}`,
+            id: text(item.id, 80) || `legacy-${name.toLowerCase().replace(/\s+/g, "-").slice(0, 60)}`,
             name,
             category: text(item.category, 80),
             leadership_role: text(item.leadership_role, 120),
