@@ -17,6 +17,7 @@ export const Route = createFileRoute("/readiness-auditor")({
     { property: "og:title", content: "Application Readiness Auditor — UniCompass | Built by Suhrob Aminov" },
     { property: "og:description", content: "Compare your student profile with university requirements using public evidence. Built by Suhrob Aminov." },
     { property: "og:type", content: "website" },
+    { property: "og:url", content: absoluteUrl("/readiness-auditor") },
     { name: "twitter:card", content: "summary" },
   ], links: [{ rel: "canonical", href: absoluteUrl("/readiness-auditor") }] }),
   component: ReadinessAuditor,
