@@ -97,6 +97,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "UniCompass — Built by Suhrob Aminov | University Admissions Strategy" },
       { name: "description", content: "UniCompass helps students explore university fit, major pathways, and application strategy. Independently built by Suhrob Aminov." },
+      { name: "author", content: "Suhrob Aminov" },
       { property: "og:title", content: "UniCompass — Built by Suhrob Aminov" },
       { property: "og:site_name", content: "UniCompass" },
       { property: "og:url", content: SITE_URL },
