@@ -38,9 +38,17 @@ export const generateReport = createServerFn({ method: "POST" })
     });
 
     const report = normalizeReport(content);
-    if (report.categorized_schools.length > 0) return report;
-    console.error("[ai] report had no schools, attempt", attempt + 1, content.slice(0, 300));
+    const tierCounts = report.categorized_schools.reduce(
+      (counts, school) => {
+        counts[school.tier] += 1;
+        return counts;
+      },
+      { Reach: 0, Target: 0, Safety: 0 },
+    );
+    const hasAllTiers = tierCounts.Reach > 0 && tierCounts.Target > 0 && tierCounts.Safety > 0;
+    if (report.categorized_schools.length >= 3 && hasAllTiers) return report;
+    console.error("[ai] report did not include usable recommendations in all tiers; attempt", attempt + 1);
     }
-    throw new Error("The AI returned a report without university recommendations. Please try again.");
+    throw new Error("UniCompass could not produce a reliable shortlist across Reach, Target, and Safety. No universities were invented to fill missing categories. Please try again or review your profile inputs.");
   });
 
