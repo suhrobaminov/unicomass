@@ -32,6 +32,12 @@ jobs:
       - name: Install exact dependencies
         run: npm ci
 
+      - name: Report dependency vulnerabilities
+        run: |
+          npm audit --json > npm-audit-all.json || true
+          npm audit --omit=dev --json > npm-audit-production.json || true
+          node -e 'for (const file of ["npm-audit-all.json", "npm-audit-production.json"]) { const audit = require("./" + file); console.log("\\n" + file, audit.metadata?.vulnerabilities ?? {}); for (const [name, item] of Object.entries(audit.vulnerabilities ?? {})) console.log(item.severity + "\\t" + name + "\\tfix=" + JSON.stringify(item.fixAvailable)); }'
+
       - name: Lint
         run: npm run lint
 
