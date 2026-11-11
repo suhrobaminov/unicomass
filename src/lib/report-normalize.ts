@@ -61,11 +61,11 @@ function toTier(v: unknown): Tier | null {
 function toSchool(v: unknown, fallbackTier: Tier | null): School | null {
   if (typeof v === "string") {
     const name = v.trim();
-    if (!name) return null;
+    if (!name || !fallbackTier) return null;
     return {
       school_name: name,
-      tier: fallbackTier ?? "Target",
-      admission_rate_estimate: "—",
+      tier: fallbackTier,
+      admission_rate_estimate: "Unknown — verify with the university",
       reason_for_tier: "",
       review: "",
     };
@@ -74,14 +74,16 @@ function toSchool(v: unknown, fallbackTier: Tier | null): School | null {
   const name =
     toText(r["school_name"]) || toText(r["name"]) || toText(r["university"]) || toText(r["school"]);
   if (!name) return null;
+  const tier = toTier(r["tier"] ?? r["category"] ?? r["type"]) ?? fallbackTier;
+  if (!tier) return null;
   return {
     school_name: name,
-    tier: toTier(r["tier"] ?? r["category"] ?? r["type"]) ?? fallbackTier ?? "Target",
+    tier,
     admission_rate_estimate:
       toText(r["admission_rate_estimate"]) ||
       toText(r["admission_rate"]) ||
       toText(r["acceptance_rate"]) ||
-      "—",
+      "Unknown — verify with the university",
     reason_for_tier:
       toText(r["reason_for_tier"]) || toText(r["reason"]) || toText(r["why"]) || toText(r["rationale"]),
     review: toText(r["review"]) || toText(r["assessment"]) || toText(r["fit_review"]),
@@ -123,10 +125,11 @@ function collectSchools(root: Record<string, unknown>): School[] {
     }
   }
 
-  // De-duplicate by name+tier.
+  // A university must appear only once, even if the model assigns it to
+  // conflicting tiers in different parts of the response.
   const seen = new Set<string>();
   return out.filter((s) => {
-    const k = `${s.school_name.toLowerCase()}|${s.tier}`;
+    const k = s.school_name.trim().toLowerCase().replace(/\\s+/g, " ");
     if (seen.has(k)) return false;
     seen.add(k);
     return true;
