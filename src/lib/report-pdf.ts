@@ -17,11 +17,12 @@ const ACCENT = [79, 70, 229] as const;
 const clean = (t: string) =>
   t
     .replace(/[–—]/g, "-")
-    .replace(/[‘’]/g, "'")
+    .replace(/[ʻʼ‘’]/g, "'")
     .replace(/[“”]/g, '"')
     .replace(/•/g, "-")
     .replace(/\u00a0/g, " ")
-    .replace(/[^\x20-\x7E]/g, "?")
+    .replace(/[\u200B-\u200D\uFEFF]/g, "")
+    .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, " ")
     .replace(/[*_`#]/g, "")
     .replace(/\s+/g, " ")
     .trim();
