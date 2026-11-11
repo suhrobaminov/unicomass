@@ -31,9 +31,9 @@ export const Route = createFileRoute("/auth")({
   }),
   head: () => ({
     meta: [
-      { title: "Sign in — UniCompass" },
+      { title: "Sign in — UniCompass | Built by Suhrob Aminov" },
       { name: "description", content: "Sign in with Google or a passwordless email code." },
-      { property: "og:title", content: "Sign in — UniCompass" },
+      { property: "og:title", content: "Sign in — UniCompass | Built by Suhrob Aminov" },
       { property: "og:description", content: "Sign in with Google or a passwordless email code." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
