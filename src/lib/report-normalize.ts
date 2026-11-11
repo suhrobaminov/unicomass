@@ -129,7 +129,7 @@ function collectSchools(root: Record<string, unknown>): School[] {
   // conflicting tiers in different parts of the response.
   const seen = new Set<string>();
   return out.filter((s) => {
-    const k = s.school_name.trim().toLowerCase().replace(/\\s+/g, " ");
+    const k = s.school_name.trim().toLowerCase().replace(/\s+/g, " ");
     if (seen.has(k)) return false;
     seen.add(k);
     return true;
