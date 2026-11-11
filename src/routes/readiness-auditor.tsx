@@ -12,7 +12,7 @@ type ResearchResult = { status: string; message: string; researchedAt: string; s
 export const Route = createFileRoute("/readiness-auditor")({
   head: () => ({ meta: [
     { title: "Application Readiness Auditor — UniCompass | Built by Suhrob Aminov" },
-    { name: "description", content: "Compare your student profile with university application requirements, track evidence, and identify missing steps." },
+    { name: "description", content: "Compare your student profile with university requirements using public evidence. Built by Suhrob Aminov." },
     { name: "robots", content: "noindex, nofollow" },
   ] }),
   component: ReadinessAuditor,
