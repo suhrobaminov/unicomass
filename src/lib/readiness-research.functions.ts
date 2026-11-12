@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { geminiChat } from "@/lib/gemini.server";
 
 type ResearchInput = {
   university: string;
@@ -6,6 +7,7 @@ type ResearchInput = {
   degree: string;
   intake: string;
   citizenship: string;
+  student: { gpa: string; gradingScale: string; englishTest: string; englishScore: string; sat: string; act: string; subjects: string; awards: string; projects: string; research: string; activities: string; volunteering: string; portfolio: string; budget: string };
 };
 
 const decode = (value: string) => value
@@ -38,6 +40,18 @@ export const researchUniversityRequirements = createServerFn({ method: "POST" })
       degree: typeof d.degree === "string" ? d.degree.slice(0, 40) : "Bachelor's",
       intake: typeof d.intake === "string" ? d.intake.slice(0, 60) : "",
       citizenship: typeof d.citizenship === "string" ? d.citizenship.slice(0, 80) : "",
+      student: (() => {
+        const p = d.student && typeof d.student === "object" ? d.student : {} as ResearchInput["student"];
+        const clean = (v: unknown, max = 1200) => typeof v === "string" ? v.trim().slice(0, max) : "";
+        return {
+          gpa: clean(p.gpa, 80), gradingScale: clean(p.gradingScale, 100),
+          englishTest: clean(p.englishTest, 80), englishScore: clean(p.englishScore, 40),
+          sat: clean(p.sat, 20), act: clean(p.act, 20), subjects: clean(p.subjects),
+          awards: clean(p.awards), projects: clean(p.projects), research: clean(p.research),
+          activities: clean(p.activities), volunteering: clean(p.volunteering), portfolio: clean(p.portfolio),
+          budget: clean(p.budget, 40),
+        };
+      })(),
     };
   })
   .handler(async ({ data }) => {
@@ -240,8 +254,33 @@ export const researchUniversityRequirements = createServerFn({ method: "POST" })
       }
       return { category: category.key, status: matches.length ? "evidence-found" : "not-found", matches };
     });
+    const readableSources = sources.filter(source => source.pageText.length > 100);
+    let assessment: Record<string, unknown> | null = null;
+    let assessmentError = "";
+    if (readableSources.length && (data.student.gpa || data.student.englishScore || data.student.sat || data.student.act)) {
+      const evidence = readableSources.map(source => ({ title: source.title, url: source.url, text: source.pageText.slice(0, 9000) }));
+      try {
+        const raw = await geminiChat({
+          jsonMode: true,
+          temperature: 0.1,
+          messages: [
+            { role: "system", content: "You are a conservative university admissions analyst. Compare the supplied student profile ONLY with requirements and admissions benchmarks explicitly present in the supplied university page extracts. Do not use prior knowledge to invent school-specific thresholds, admitted-student ranges, acceptance rates, scholarships, or program facts. Distinguish minimum eligibility from competitiveness. For missing evidence, say unknown. Do not infer admission probability or guarantee admission. Return one JSON object with: category (SAFE|TARGET|REACH|INSUFFICIENT_DATA), confidence (low|medium|high), headline, overall_reason (3-5 sentences), requirement_comparisons (array of {requirement, university_evidence, student_value, assessment (meets|below|above|unknown), explanation, source_url}), strengths (string array), gaps (string array), next_steps (string array), data_limitations (string array). SAFE means strong evidence-based academic alignment and no known major eligibility gaps, not guaranteed admission. TARGET means mixed/competitive alignment. REACH means material gaps against published requirements or credible benchmarks. If sources do not give meaningful academic benchmarks or student profile is incomplete, use INSUFFICIENT_DATA. Cite each comparison to a supplied source URL by including source_url. Do not claim evidence not present in extracts." },
+            { role: "user", content: JSON.stringify({ university: data.university, program: data.program, degree: data.degree, intake: data.intake, citizenship: data.citizenship, student: data.student, official_page_extracts: evidence }) },
+          ],
+        });
+        const cleaned = raw.replace(/^\`\`\`(?:json)?\s*/i, "").replace(/\s*\`\`\`$/, "").trim();
+        const start = cleaned.indexOf("{"), end = cleaned.lastIndexOf("}");
+        const parsed = JSON.parse(start >= 0 && end > start ? cleaned.slice(start, end + 1) : cleaned) as Record<string, unknown>;
+        if (!["SAFE", "TARGET", "REACH", "INSUFFICIENT_DATA"].includes(String(parsed.category)) || !Array.isArray(parsed.requirement_comparisons)) throw new Error("AI assessment response did not match the required schema.");
+        assessment = parsed;
+      } catch (error) {
+        assessmentError = error instanceof Error ? error.message : "AI assessment unavailable";
+      }
+    }
     return {
       query, researchedAt: new Date().toISOString(),
+      assessment,
+      assessmentError,
       status: sources.some(s => s.pageStatus === "read") ? "completed" : "partial",
       message: "Automated public-web scan. Text matches are leads, not verified admissions decisions; open the official pages and confirm the exact rule for your program, citizenship and intake.",
       sources: sources.map(({ pageText, ...source }) => source),
