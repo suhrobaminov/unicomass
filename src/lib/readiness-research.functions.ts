@@ -272,7 +272,12 @@ export const researchUniversityRequirements = createServerFn({ method: "POST" })
         const start = cleaned.indexOf("{"), end = cleaned.lastIndexOf("}");
         const parsed = JSON.parse(start >= 0 && end > start ? cleaned.slice(start, end + 1) : cleaned) as Record<string, unknown>;
         if (!["SAFE", "TARGET", "REACH", "INSUFFICIENT_DATA"].includes(String(parsed.category)) || !Array.isArray(parsed.requirement_comparisons)) throw new Error("AI assessment response did not match the required schema.");
-        assessment = parsed;
+        const allowedSourceUrls = new Set(readableSources.map(source => source.url));
+        const comparisons = (parsed.requirement_comparisons as Array<Record<string, unknown>>).slice(0, 20).map(item => ({
+          ...item,
+          source_url: typeof item.source_url === "string" && allowedSourceUrls.has(item.source_url) ? item.source_url : "",
+        }));
+        assessment = { ...parsed, requirement_comparisons: comparisons };
       } catch (error) {
         assessmentError = error instanceof Error ? error.message : "AI assessment unavailable";
       }
