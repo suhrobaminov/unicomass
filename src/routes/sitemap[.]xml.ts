@@ -11,7 +11,12 @@ interface SitemapEntry {
 }
 
 // Only public, indexable routes. Authenticated surfaces are excluded.
-const entries: SitemapEntry[] = [{ path: "/", changefreq: "weekly", priority: "1.0" }];
+const entries: SitemapEntry[] = [
+  { path: "/", changefreq: "weekly", priority: "1.0" },
+  { path: "/find-your-major", changefreq: "monthly", priority: "0.9" },
+  { path: "/career-explorer", changefreq: "monthly", priority: "0.8" },
+  { path: "/readiness-auditor", changefreq: "monthly", priority: "0.8" },
+];
 
 export const Route = createFileRoute("/sitemap.xml")({
   server: {

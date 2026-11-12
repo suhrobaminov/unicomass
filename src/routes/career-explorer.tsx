@@ -1,18 +1,23 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { ArrowRight, BriefcaseBusiness, GraduationCap, Lightbulb, Target } from "lucide-react";
+import { BriefcaseBusiness, GraduationCap, Lightbulb, Target } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { MAJORS, type Major } from "@/lib/assessment-data";
 import { loadStore } from "@/lib/local-store";
 import { PageHeading } from "@/components/page-heading";
+import { absoluteUrl } from "@/lib/site";
 
 export const Route = createFileRoute("/career-explorer")({
   head: () => ({ meta: [
-    { title: "Major & Career Explorer — UniCompass" },
-    { name: "description", content: "Explore career paths, skills, coursework, and university ideas connected to your interests." },
-    { name: "robots", content: "noindex, nofollow" },
-  ] }),
+    { title: "Major & Career Explorer — UniCompass | Built by Suhrob Aminov" },
+    { name: "description", content: "Explore university majors, skills, and career pathways. Built by Suhrob Aminov." },
+    { property: "og:title", content: "Major & Career Explorer — UniCompass | Built by Suhrob Aminov" },
+    { property: "og:description", content: "Explore university majors, skills, and career pathways. Built by Suhrob Aminov." },
+    { property: "og:type", content: "website" },
+    { property: "og:url", content: absoluteUrl("/career-explorer") },
+    { name: "twitter:card", content: "summary" },
+  ], links: [{ rel: "canonical", href: absoluteUrl("/career-explorer") }] }),
   component: CareerExplorer,
 });
 

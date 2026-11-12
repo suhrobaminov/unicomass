@@ -9,22 +9,24 @@ import {
 import { Button } from "@/components/ui/button";
 import { loadStore, saveAssessment } from "@/lib/local-store";
 import {
-  QUESTIONS, computeTraitScores, rankMajors, deriveProfileLabel,
+  QUESTIONS, MAJORS, computeTraitScores, rankMajors, deriveProfileLabel,
   deriveStrengths, deriveImprovements, type AnswerMap, type Major,
 } from "@/lib/assessment-data";
 import { generateMajorInsight } from "@/lib/assessment.functions";
+import { absoluteUrl } from "@/lib/site";
 
 export const Route = createFileRoute("/find-your-major")({
   head: () => ({
     meta: [
-      { title: "Find Your Major — UniCompass" },
-      { name: "description", content: "A 30-question assessment that recommends the university majors that fit you best." },
-      { property: "og:title", content: "Find Your Major — UniCompass" },
-      { property: "og:description", content: "Answer 30 questions and get a ranked, evidence-based shortlist of university majors." },
+      { title: "Find Your Major — UniCompass | Built by Suhrob Aminov" },
+      { name: "description", content: "Take a 30-question major assessment and explore ranked study paths. Built by Suhrob Aminov." },
+      { property: "og:title", content: "Find Your Major — UniCompass | Built by Suhrob Aminov" },
+      { property: "og:description", content: "Take a 30-question major assessment and explore ranked study paths. Built by Suhrob Aminov." },
       { property: "og:type", content: "website" },
+      { property: "og:url", content: absoluteUrl("/find-your-major") },
       { name: "twitter:card", content: "summary" },
-      { name: "robots", content: "noindex, nofollow" },
     ],
+    links: [{ rel: "canonical", href: absoluteUrl("/find-your-major") }],
   }),
   component: FindYourMajorPage,
 });
@@ -50,19 +52,63 @@ function FindYourMajorPage() {
 
   useEffect(() => {
     const saved = loadStore().assessment;
-    if (saved && !saved.completed) {
+    if (saved) {
+      let restoredCompletedResults = false;
       const restored: AnswerMap = {};
-      for (const [k, v] of Object.entries(saved.answers ?? {})) restored[Number(k)] = v as 1 | 2 | 3 | 4 | 5;
+      for (const [key, value] of Object.entries(saved.answers ?? {})) {
+        const questionId = Number(key);
+        if (
+          QUESTIONS.some((question) => question.id === questionId) &&
+          Number.isInteger(value) && value >= 1 && value <= 5
+        ) {
+          restored[questionId] = value as 1 | 2 | 3 | 4 | 5;
+        }
+      }
       setAnswers(restored);
-      const answeredCount = Object.keys(restored).length;
-      if (answeredCount > 0 && answeredCount < QUESTIONS.length) {
-        setCurrent(Math.min(answeredCount, QUESTIONS.length - 1));
+
+      if (saved.completed && saved.results) {
+        const stored = saved.results as {
+          profileLabel?: string;
+          narrative?: string;
+          strengths?: string[];
+          improvements?: string[];
+          ranked?: Array<{ slug?: string; score?: number }>;
+        };
+        const ranked = (stored.ranked ?? [])
+          .map((item) => {
+            const major = MAJORS.find((candidate) => candidate.slug === item.slug);
+            const score = Number(item.score);
+            return major && Number.isFinite(score)
+              ? { major, score: Math.max(0, Math.min(1, score)) }
+              : null;
+          })
+          .filter((item): item is { major: Major; score: number } => item !== null);
+        if (ranked.length > 0) {
+          restoredCompletedResults = true;
+          setResults({
+            profileLabel: stored.profileLabel || "Your major profile",
+            narrative: stored.narrative || "Your assessment results are ready.",
+            strengths: Array.isArray(stored.strengths) ? stored.strengths : [],
+            improvements: Array.isArray(stored.improvements) ? stored.improvements : [],
+            ranked,
+          });
+          setStage("results");
+        }
+      }
+      if (!restoredCompletedResults) {
+        const firstUnanswered = QUESTIONS.findIndex((question) => restored[question.id] === undefined);
+        setCurrent(firstUnanswered === -1 ? QUESTIONS.length : firstUnanswered);
+        if (firstUnanswered === -1 && Object.keys(restored).length === QUESTIONS.length) {
+          setStage("quiz");
+        }
       }
     }
     setLoadingResume(false);
   }, []);
 
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const advanceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const finishStarted = useRef(false);
   useEffect(() => {
     if (stage !== "quiz") return;
     if (Object.keys(answers).length === 0) return;
@@ -74,8 +120,13 @@ function FindYourMajorPage() {
     }, 700);
     return () => { if (saveTimer.current) clearTimeout(saveTimer.current); };
   }, [answers, stage]);
+  useEffect(() => () => {
+    if (advanceTimer.current) clearTimeout(advanceTimer.current);
+  }, []);
 
   const startFresh = () => {
+    if (advanceTimer.current) clearTimeout(advanceTimer.current);
+    finishStarted.current = false;
     setAnswers({});
     setCurrent(0);
     saveAssessment({ answers: {}, completed: false, results: null });
@@ -84,11 +135,27 @@ function FindYourMajorPage() {
 
   const answerCurrent = (value: 1 | 2 | 3 | 4 | 5) => {
     const q = QUESTIONS[current];
-    setAnswers((prev) => ({ ...prev, [q.id]: value }));
-    setTimeout(() => setCurrent((c) => Math.min(c + 1, QUESTIONS.length)), 160);
+    if (!q) return;
+    const nextAnswers = { ...answers, [q.id]: value };
+    setAnswers(nextAnswers);
+    // Persist the latest answer immediately; the debounced effect is only a backup.
+    saveAssessment({ answers: nextAnswers, completed: false, results: null });
+    if (advanceTimer.current) clearTimeout(advanceTimer.current);
+    advanceTimer.current = setTimeout(() => {
+      setCurrent(Math.min(current + 1, QUESTIONS.length));
+      advanceTimer.current = null;
+    }, 160);
   };
 
   const finish = async () => {
+    if (finishStarted.current) return;
+    const firstUnanswered = QUESTIONS.findIndex((question) => answers[question.id] === undefined);
+    if (firstUnanswered !== -1) {
+      setCurrent(firstUnanswered);
+      setStage("quiz");
+      return;
+    }
+    finishStarted.current = true;
     setStage("analyzing");
     const traits = computeTraitScores(answers);
     const ranked = rankMajors(traits);
@@ -108,9 +175,9 @@ function FindYourMajorPage() {
         },
       });
       narrative = r.narrative;
-    } catch (e) {
+    } catch {
       narrative = "Your answers point to a distinctive mix of curiosity, focus, and drive. The majors below are matched to how you actually think and work.";
-      if (e instanceof Error) console.warn(e.message);
+      // The deterministic trait ranking remains available when the AI narrative fails.
     }
     const payload: ResultsPayload = { profileLabel: label, narrative, strengths, improvements, ranked };
     try {
@@ -168,6 +235,7 @@ function FindYourMajorPage() {
         <Results
           data={results}
           onRetake={() => {
+            finishStarted.current = false;
             setResults(null);
             setAnswers({});
             saveAssessment({ answers: {}, completed: false, results: null });
@@ -369,10 +437,11 @@ function Results({ data, onRetake }: { data: ResultsPayload; onRetake: () => voi
       {/* Summary */}
       <section className="py-8">
         <p className="max-w-2xl text-[15px] leading-relaxed text-foreground/90">{data.narrative}</p>
+        <p className="mt-3 max-w-2xl text-xs leading-relaxed text-muted-foreground">Trait alignment is a relative match between your answers and each major&apos;s weighted interests. It is not a measure of ability, a job-outcome prediction, or an admissions probability.</p>
         <dl className="mt-8 grid divide-y divide-border border-y border-border sm:grid-cols-3 sm:divide-x sm:divide-y-0">
           {[
             ["Top match", top5[0].major.name],
-            ["Compatibility", `${Math.round(top5[0].score * 100)}%`],
+            ["Trait alignment", `${Math.round(top5[0].score * 100)}%`],
             ["Majors compared", String(data.ranked.length)],
           ].map(([k, v]) => (
             <div key={k} className="px-0 py-4 sm:px-5 first:sm:pl-0">

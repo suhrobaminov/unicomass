@@ -12,10 +12,10 @@ import { normalizeReport, type NormalizedReport, type School, type Tier } from "
 export const Route = createFileRoute("/reports/$id")({
   head: () => ({
     meta: [
-      { title: "Strategy Report — UniCompass" },
-      { name: "description", content: "Your personalized admissions strategy report: reach, target and safety schools with a roadmap." },
-      { property: "og:title", content: "Strategy Report — UniCompass" },
-      { property: "og:description", content: "Reach, target and safety schools with profile gaps and an actionable roadmap." },
+      { title: "Strategy Report — UniCompass | Built by Suhrob Aminov" },
+      { name: "description", content: "Review your university fit, profile gaps, and application roadmap. Built by Suhrob Aminov." },
+      { property: "og:title", content: "Strategy Report — UniCompass | Built by Suhrob Aminov" },
+      { property: "og:description", content: "Review your university fit, profile gaps, and application roadmap. Built by Suhrob Aminov." },
       { property: "og:type", content: "article" },
       { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex, nofollow" },
@@ -115,7 +115,7 @@ function ReportView() {
 
       {/* Schools */}
       <h2 className="font-display text-2xl font-semibold mb-1">Recommended schools</h2>
-      <p className="mb-4 text-xs text-muted-foreground">AI-generated assessments based on your profile. Acceptance rates are approximate — verify on each university's official site.</p>
+      <p className="mb-4 text-xs text-muted-foreground">Preliminary AI-generated fit categories, not calculated admission probabilities. Verify each university's current requirements and published selectivity data on its official site.</p>
       {schools.length > 0 ? (
         <Tabs defaultValue="Reach" className="mb-8">
           <TabsList className="mb-2 h-auto w-full justify-start gap-1 rounded-lg border bg-card p-1 sm:w-auto">
@@ -198,11 +198,11 @@ function SchoolCard({ school }: { school: School }) {
   };
   return (
     <Card className="card-lift p-5">
-      <div className="flex items-start justify-between mb-2">
-        <h3 className="font-semibold text-lg">{school.school_name}</h3>
-        <Badge variant="outline" className={tierColor[school.tier]}>{school.tier}</Badge>
+      <div className="mb-2 flex min-w-0 items-start justify-between gap-3">
+        <h3 className="min-w-0 break-words font-semibold text-lg">{school.school_name}</h3>
+        <Badge variant="outline" className={`shrink-0 ${tierColor[school.tier]}`}>{school.tier}</Badge>
       </div>
-      <div className="text-xs text-muted-foreground mb-3">Est. acceptance rate: {school.admission_rate_estimate}</div>
+      <div className="text-xs text-muted-foreground mb-3">Selectivity context (verify): {school.admission_rate_estimate}</div>
       {school.reason_for_tier && (
         <p className="text-sm text-muted-foreground leading-relaxed">{school.reason_for_tier}</p>
       )}

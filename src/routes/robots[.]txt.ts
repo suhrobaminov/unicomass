@@ -9,7 +9,6 @@ const BODY = [
   "Disallow: /auth",
   "Disallow: /reset-password",
   "Disallow: /dashboard",
-  "Disallow: /find-your-major",
   "Disallow: /reports/",
   "",
   `Sitemap: ${SITE_URL}/sitemap.xml`,

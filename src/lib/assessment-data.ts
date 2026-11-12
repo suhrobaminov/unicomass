@@ -396,23 +396,28 @@ export function computeTraitScores(answers: AnswerMap): Record<TraitKey, number>
   return out;
 }
 
-// Cosine-like weighted score between user vector and major weights.
+// Cosine similarity between the student's complete trait vector and each
+// major's sparse weight vector. The user's magnitude must include ALL traits;
+// limiting it to a major's weighted dimensions artificially inflated scores.
 export function rankMajors(traits: Record<TraitKey, number>): Array<{ major: Major; score: number }> {
-  return MAJORS.map((m) => {
+  const userMagnitude = Math.sqrt(
+    Object.values(traits).reduce((sum, value) => sum + Math.pow(Math.max(0, value), 2), 0),
+  );
+
+  return MAJORS.map((major) => {
     let dot = 0;
-    let magM = 0;
-    let magU = 0;
-    for (const key of Object.keys(m.weights) as TraitKey[]) {
-      const wt = (m.weights[key] ?? 0) / 5; // 0..1
-      const uv = traits[key] ?? 0;
-      dot += wt * uv;
-      magM += wt * wt;
-      magU += uv * uv;
+    let majorMagnitude = 0;
+    for (const key of Object.keys(traits) as TraitKey[]) {
+      const weight = (major.weights[key] ?? 0) / 5;
+      const value = Math.max(0, traits[key] ?? 0);
+      dot += weight * value;
+      majorMagnitude += weight * weight;
     }
-    const cos = magM && magU ? dot / (Math.sqrt(magM) * Math.sqrt(magU)) : 0;
-    // Amplify a bit for spread, cap at 0.99
-    const score = Math.min(0.99, Math.pow(cos, 0.85));
-    return { major: m, score };
+    const denominator = Math.sqrt(majorMagnitude) * userMagnitude;
+    const cosine = denominator > 0 ? Math.max(0, Math.min(1, dot / denominator)) : 0;
+    // This is a relative trait-alignment index, not a probability or outcome.
+    const score = Math.min(0.99, Math.pow(cosine, 0.85));
+    return { major, score };
   }).sort((a, b) => b.score - a.score);
 }
 

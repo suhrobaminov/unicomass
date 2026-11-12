@@ -9,10 +9,10 @@ import { PageHeading } from "@/components/page-heading";
 export const Route = createFileRoute("/dashboard")({
   head: () => ({
     meta: [
-      { title: "Dashboard — UniCompass" },
-      { name: "description", content: "Your admissions profile, saved strategy reports and next steps." },
-      { property: "og:title", content: "Dashboard — UniCompass" },
-      { property: "og:description", content: "Your admissions profile, saved strategy reports and next steps." },
+      { title: "Dashboard — UniCompass | Built by Suhrob Aminov" },
+      { name: "description", content: "Build your admissions profile, explore university matches, and review your strategy reports. Built by Suhrob Aminov." },
+      { property: "og:title", content: "Dashboard — UniCompass | Built by Suhrob Aminov" },
+      { property: "og:description", content: "Build your admissions profile, explore university matches, and review your strategy reports. Built by Suhrob Aminov." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex, nofollow" },

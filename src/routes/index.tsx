@@ -1,10 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
-import { Compass, GraduationCap, ArrowRight, ArrowUpRight, Check, FileText, Send, Loader2, Map, ShieldCheck } from "lucide-react";
+import { Compass, GraduationCap, ArrowRight, ArrowUpRight, Send, Loader2, Map, ShieldCheck } from "lucide-react";
 import { LoginDialog } from "@/components/login-dialog";
 import heroStudents from "@/assets/hero-students.jpg";
 import { absoluteUrl } from "@/lib/site";
@@ -13,21 +12,24 @@ import { feedbackClient } from "@/lib/feedback-client";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "UniCompass — Personalized University & Major Guidance" },
+      { title: "UniCompass — Personalized University & Major Guidance | Built by Suhrob Aminov" },
       {
         name: "description",
         content:
-          "Build your academic profile once and get personalized university recommendations, major matches, scholarship options and a clear application roadmap.",
+          "Personalized university matches, major assessment, and admissions planning for students. Built by Suhrob Aminov.",
       },
-      { property: "og:title", content: "UniCompass — Personalized University & Major Guidance" },
+      { property: "og:title", content: "UniCompass — Personalized University & Major Guidance | Built by Suhrob Aminov" },
       {
         property: "og:description",
         content:
-          "One profile, smarter decisions: university matches, major assessment, scholarships and an application roadmap.",
+          "Explore university fit, major pathways, and application strategy. Built by Suhrob Aminov.",
       },
       { property: "og:type", content: "website" },
       { property: "og:url", content: absoluteUrl("/") },
+      { property: "og:image", content: absoluteUrl(heroStudents) },
+      { property: "og:image:alt", content: "Students exploring university pathways with UniCompass" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:image", content: absoluteUrl(heroStudents) },
     ],
     links: [
       { rel: "canonical", href: absoluteUrl("/") },

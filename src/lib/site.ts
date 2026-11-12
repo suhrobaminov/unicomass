@@ -1,9 +1,9 @@
 /**
  * Canonical public origin for SEO metadata (canonical URLs, OG tags, sitemap).
  * Override per-environment with VITE_SITE_URL (must include the scheme, no
- * trailing slash) — e.g. VITE_SITE_URL=https://unicomass.online
+ * trailing slash) — e.g. VITE_SITE_URL=https://www.unicomass.online
  */
-const FALLBACK = "https://unicomass.online";
+const FALLBACK = "https://www.unicomass.online";
 
 const raw =
   (typeof import.meta !== "undefined" ? import.meta.env?.VITE_SITE_URL : undefined) ??

@@ -14,7 +14,17 @@ const MUTED = [110, 116, 128] as const;
 const RULE = [222, 224, 230] as const;
 const ACCENT = [79, 70, 229] as const;
 
-const clean = (t: string) => t.replace(/[*_`#]/g, "").replace(/\s+/g, " ").trim();
+const clean = (t: string) =>
+  t
+    .replace(/[–—]/g, "-")
+    .replace(/[ʻʼ‘’]/g, "'")
+    .replace(/[“”]/g, '"')
+    .replace(/•/g, "-")
+    .replace(/\u00a0/g, " ")
+    .replace(/[\u200B-\u200D\uFEFF]/g, "")
+    .replace(/[*_`#]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
 
 const PAGE_W = 595.28; // A4 pt
 const PAGE_H = 841.89;
@@ -23,6 +33,12 @@ const CONTENT_W = PAGE_W - M * 2;
 
 export function generateAssessmentPdf(data: PdfReportData, meta: { name?: string; date: Date }) {
   const doc = new jsPDF({ unit: "pt", format: "a4" });
+  doc.setProperties({
+    title: "UniCompass Major Assessment Report",
+    subject: "Personalized major assessment results",
+    author: "Suhrob Aminov",
+    creator: "UniCompass",
+  });
   let y = 0;
   let page = 1;
 
@@ -34,7 +50,7 @@ export function generateAssessmentPdf(data: PdfReportData, meta: { name?: string
     doc.line(M, PAGE_H - 52, PAGE_W - M, PAGE_H - 52);
     doc.setFont("helvetica", "normal").setFontSize(8);
     setInk(MUTED);
-    doc.text("UniCompass — Major Assessment Report", M, PAGE_H - 38);
+    doc.text("UniCompass - Major Assessment Report | Created by Suhrob Aminov", M, PAGE_H - 38);
     doc.text(`Page ${page}`, PAGE_W - M, PAGE_H - 38, { align: "right" });
   };
 
@@ -54,7 +70,7 @@ export function generateAssessmentPdf(data: PdfReportData, meta: { name?: string
     y += 26;
     doc.setFont("helvetica", "bold").setFontSize(12);
     setInk(INK);
-    doc.text(text.toUpperCase(), M, y);
+    doc.text(clean(text).toUpperCase(), M, y);
     y += 8;
     doc.setDrawColor(RULE[0], RULE[1], RULE[2]).setLineWidth(0.5);
     doc.line(M, y, PAGE_W - M, y);
@@ -64,7 +80,7 @@ export function generateAssessmentPdf(data: PdfReportData, meta: { name?: string
   const body = (text: string, size = 10, color: readonly number[] = INK, indent = 0) => {
     doc.setFont("helvetica", "normal").setFontSize(size);
     setInk(color);
-    const lines = doc.splitTextToSize(text, CONTENT_W - indent) as string[];
+    const lines = doc.splitTextToSize(clean(text), CONTENT_W - indent) as string[];
     for (const line of lines) {
       room(size + 5);
       doc.text(line, M + indent, y);
@@ -104,7 +120,7 @@ export function generateAssessmentPdf(data: PdfReportData, meta: { name?: string
   y += 30;
   doc.setFont("helvetica", "bold").setFontSize(26);
   setInk(INK);
-  const titleLines = doc.splitTextToSize(data.profileLabel, CONTENT_W) as string[];
+  const titleLines = doc.splitTextToSize(clean(data.profileLabel), CONTENT_W) as string[];
   for (const line of titleLines) {
     doc.text(line, M, y);
     y += 31;
@@ -112,12 +128,18 @@ export function generateAssessmentPdf(data: PdfReportData, meta: { name?: string
   if (meta.name) {
     doc.setFont("helvetica", "normal").setFontSize(10);
     setInk(MUTED);
-    doc.text(`Prepared for ${meta.name}`, M, y);
-    y += 18;
+    const nameLines = doc.splitTextToSize(clean(`Prepared for ${meta.name}`), CONTENT_W) as string[];
+    for (const line of nameLines) {
+      room(15);
+      doc.text(line, M, y);
+      y += 14;
+    }
   }
 
   y += 12;
   body(clean(data.narrative), 10.5, INK);
+  y += 2;
+  body("Trait alignment is a relative match to your stated interests, not a measure of ability, a job-outcome prediction, or an admissions probability.", 8.5, MUTED);
   y += 6;
 
   // ---------- Summary strip ----------
@@ -130,7 +152,7 @@ export function generateAssessmentPdf(data: PdfReportData, meta: { name?: string
     const cell = CONTENT_W / 3;
     const cells: Array<[string, string]> = [
       ["Top match", top.major.name],
-      ["Compatibility", `${Math.round(top.score * 100)}%`],
+      ["Trait alignment", `${Math.round(top.score * 100)}%`],
       ["Majors compared", String(data.ranked.length)],
     ];
     cells.forEach(([k, v], i) => {
@@ -140,7 +162,7 @@ export function generateAssessmentPdf(data: PdfReportData, meta: { name?: string
       doc.text(k.toUpperCase(), x, boxY + 21);
       doc.setFont("helvetica", "bold").setFontSize(11.5);
       setInk(INK);
-      doc.text(doc.splitTextToSize(v, cell - 26)[0] as string, x, boxY + 39);
+      doc.text(doc.splitTextToSize(clean(v), cell - 26)[0] as string, x, boxY + 39);
       if (i > 0) doc.line(M + cell * i, boxY, M + cell * i, boxY + 54);
     });
     y = boxY + 54 + 10;
